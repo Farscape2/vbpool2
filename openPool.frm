@@ -24,7 +24,6 @@ Begin VB.Form openPool
    ScaleWidth      =   4155
    ShowInTaskbar   =   0   'False
    Begin MSDataListLib.DataCombo cmbPools 
-      Bindings        =   "openPool.frx":0000
       DataSource      =   "dtcPools"
       Height          =   315
       Left            =   240
@@ -173,12 +172,13 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Dim rs As ADODB.Recordset
+
 Private Sub CancelButton_Click()
     Unload Me
 End Sub
 
 Private Sub cmbPools_Click(Area As Integer)
-    Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
 
     Dim tournamentID As Long
@@ -201,18 +201,24 @@ Private Sub cmbPools_Click(Area As Integer)
         End If
     End If
 
-    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
-    Set rs = Nothing
-
 End Sub
 
 Private Sub Form_Load()
-    Me.dtcPools.ConnectionString = cn.ConnectionString
-    Me.dtcPools.RecordSource = "select * from tblPools"
-    Me.dtcPools.Refresh
+    Dim sqlstr As String
+    sqlstr = "Select * from tblPools"
+    Set rs = New ADODB.Recordset
+    rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+    Set Me.cmbPools.RowSource = rs
+   
 'set Form defaults
     UnifyForm Me
     
+End Sub
+
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
+    Set rs = Nothing
+
 End Sub
 
 Private Sub OKButton_Click()

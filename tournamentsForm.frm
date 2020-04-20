@@ -94,15 +94,15 @@ Begin VB.Form tournamentsForm
       _ExtentX        =   450
       _ExtentY        =   635
       _Version        =   393216
-      Value           =   24
+      Value           =   4
       BuddyControl    =   "txtTeamAantal"
-      BuddyDispid     =   196613
+      BuddyDispid     =   196615
       OrigLeft        =   1920
       OrigTop         =   1800
       OrigRight       =   2175
       OrigBottom      =   2175
-      Max             =   64
-      Min             =   8
+      Max             =   12
+      Min             =   2
       SyncBuddy       =   -1  'True
       BuddyProperty   =   65547
       Enabled         =   -1  'True
@@ -176,7 +176,7 @@ Begin VB.Form tournamentsForm
       _ExtentX        =   2990
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   51314689
+      Format          =   146931713
       CurrentDate     =   43932
    End
    Begin VB.ComboBox cmbYear 
@@ -205,7 +205,7 @@ Begin VB.Form tournamentsForm
       _ExtentX        =   2990
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   51314689
+      Format          =   146931713
       CurrentDate     =   43932
    End
    Begin MSComCtl2.UpDown UpDnGroupCount 
@@ -217,14 +217,14 @@ Begin VB.Form tournamentsForm
       _ExtentX        =   450
       _ExtentY        =   635
       _Version        =   393216
-      Value           =   24
+      Value           =   12
       BuddyControl    =   "txtGroupCount"
-      BuddyDispid     =   196629
+      BuddyDispid     =   196610
       OrigLeft        =   1920
       OrigTop         =   1800
       OrigRight       =   2175
       OrigBottom      =   2175
-      Max             =   64
+      Max             =   12
       Min             =   8
       SyncBuddy       =   -1  'True
       BuddyProperty   =   65547

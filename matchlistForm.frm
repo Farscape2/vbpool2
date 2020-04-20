@@ -133,7 +133,6 @@ Begin VB.Form matchlistForm
       _Version        =   393216
    End
    Begin MSDataGridLib.DataGrid grdMatches 
-      Bindings        =   "matchlistForm.frx":0000
       Height          =   7815
       Left            =   240
       TabIndex        =   13
@@ -182,8 +181,6 @@ Begin VB.Form matchlistForm
       SplitCount      =   1
       BeginProperty Split0 
          MarqueeStyle    =   3
-         AllowRowSizing  =   -1  'True
-         AllowSizing     =   -1  'True
          BeginProperty Column00 
             Alignment       =   2
             ColumnAllowSizing=   0   'False
@@ -246,7 +243,7 @@ Begin VB.Form matchlistForm
       _ExtentY        =   661
       _Version        =   393216
       CustomFormat    =   "dd-MM"
-      Format          =   147587075
+      Format          =   149094403
       CurrentDate     =   43939
    End
    Begin MSComCtl2.UpDown upDnNr 
@@ -401,12 +398,12 @@ Dim rs As ADODB.Recordset
 Dim rsTypes As ADODB.Recordset
 Dim rsLocation As ADODB.Recordset
 
-
 Sub setMatchGrid()
 Dim sqlstr As String
-
+Dim rs As ADODB.Recordset
 Set rs = New ADODB.Recordset
 Dim dCol As Column
+    
     sqlstr = "SELECT m.matchNumber as Wedstr, m.matchDate as Datum, matchTime as Tijd, "
     sqlstr = sqlstr & " ta.teamName as Team1, tb.teamName as Team2, t.matchTypeDescription as Type, s.stadiumName & '/' & s.stadiumLocation as Locatie,"
     sqlstr = sqlstr & " a.teamcode as CodeA, b.teamcode as CodeB, t.matchtypeId as typeId, s.stadiumId as stadiumId, m.matchOrder as volgorde"
@@ -501,6 +498,7 @@ Dim dCol As Column
     Me.grdMatches.MarqueeStyle = dbgHighlightRow
     'force update of editBar controls
     grdMatches_RowColChange 1, 1
+    
 End Sub
 
 Sub setEditBar()
@@ -548,6 +546,7 @@ Dim sqlstr As String
     
     Me.dtDate = getTournamentInfo("tournamentStartDate")
     Me.UpDnHours = 20
+    
     
 End Sub
 
@@ -615,13 +614,10 @@ End Sub
 Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
     If (rs.State And adStateOpen) = adStateOpen Then rs.Close
     Set rs = Nothing
-
     If (rsLocation.State And adStateOpen) = adStateOpen Then rsLocation.Close
     Set rsLocation = Nothing
-
     If (rsTypes.State And adStateOpen) = adStateOpen Then rsTypes.Close
     Set rsTypes = Nothing
-
 
 End Sub
 

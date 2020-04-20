@@ -125,7 +125,6 @@ Begin VB.Form pointTypes
       Width           =   840
    End
    Begin MSDataGridLib.DataGrid grdPointTypes 
-      Bindings        =   "pointTypes.frx":0000
       Height          =   6735
       Left            =   120
       TabIndex        =   1
@@ -267,7 +266,7 @@ Begin VB.Form pointTypes
       UserName        =   ""
       Password        =   ""
       RecordSource    =   ""
-      Caption         =   "Adodc1"
+      Caption         =   ""
       BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "MS Sans Serif"
          Size            =   8.25
@@ -309,8 +308,10 @@ Option Explicit
 
 Dim newState As Boolean
 
+
 Private Sub btnClose_Click()
     Unload Me
+    Debug.Print Err, Error
 End Sub
 
 Private Sub btnNew_Click()
@@ -326,24 +327,20 @@ Private Sub btnSave_Click()
     Dim sqlstr As String
     Dim saveId As Long
     saveId = Me.dtcPointTypes.Recordset!id
-    If Not newState Then
-        sqlstr = "Update tblPointTypes Set "
-        sqlstr = sqlstr & "pointtypedescription = '" & Me.txtDescription & "'"
-        sqlstr = sqlstr & ", pointtypeCategory = " & Val(Me.cmbCategories.BoundText)
-        sqlstr = sqlstr & ", pointtypelistorder = " & Val(Me.txtOrder)
-        sqlstr = sqlstr & " WHERE pointtypeid = " & saveId
-    Else
-        sqlstr = "Insert into tblPointTypes (pointtypedescription, pointtypeCategory, pointtypelistorder)"
-        sqlstr = sqlstr & " Values ('" & Me.txtDescription
-        sqlstr = sqlstr & "', " & Val(Me.cmbCategories.BoundText)
-        sqlstr = sqlstr & ", " & Val(Me.txtOrder)
-        sqlstr = sqlstr & " )"
-    End If
-    cn.Execute sqlstr
-    Me.dtcPointTypes.Recordset.Requery
+    
+    With Me.dtcPointTypes.Recordset
+        If newState Then
+           .AddNew
+        End If
+        !pointtypedescription = Me.txtDescription
+        !pointtypeCategory = Val(Me.cmbCategories.BoundText)
+        !pointtypelistorder = Val(Me.txtOrder)
+        .Update
+    End With
     Me.grdPointTypes.Refresh
     Me.dtcPointTypes.Recordset.Find "id = " & saveId
     newState = False
+    
 End Sub
 
 Private Sub Form_Load()
@@ -358,6 +355,8 @@ Dim sqlstr As String
     Me.dtcPointTypes.ConnectionString = cn.ConnectionString
     Me.dtcPointTypes.RecordSource = sqlstr
     Me.dtcPointTypes.Refresh
+    Set Me.grdPointTypes.DataSource = Me.dtcPointTypes
+    Me.grdPointTypes.ReBind
     
     sqlstr = "Select pointCategoryId as id, pointCategoryDescription as omschrijving from tblPointCategories order by pointCategoryID"
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
@@ -370,10 +369,7 @@ Dim sqlstr As String
     centerForm Me
     UnifyForm Me
     UpdateEditFields
-
-    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
-    Set rs = Nothing
-
+    rs.Close
 End Sub
 
 Private Sub grdPointTypes_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
@@ -381,10 +377,12 @@ Private Sub grdPointTypes_RowColChange(LastRow As Variant, ByVal LastCol As Inte
 End Sub
 
 Sub UpdateEditFields()
+    
     With Me.dtcPointTypes.Recordset
         Me.txtDescription = .Fields("omschrijving")
         Me.cmbCategories.BoundText = .Fields("categoryId")
         Me.UpDnOrder.Value = .Fields("volgorde")
     End With
 End Sub
+
 

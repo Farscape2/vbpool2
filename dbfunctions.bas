@@ -285,7 +285,7 @@ Sub addPlayers()
         sqlstr = "Select * from tblPeople where function1 > 1 and function1 < 6 and countryCode = " & rsTeams!teamCountryId
         rsPlayers.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
         Do While Not rsPlayers.EOF
-            sqlstr = "Insert into tblTeamPlayers (tournamentId, teamId, PlayerId) VALUES (" & thisTournament & "," & rsTeams!teamcodeID & ", " & rsPlayers!peopleid & ")"
+            sqlstr = "Insert into tblTeamPlayers (tournamentId, teamId, PlayerId) VALUES (" & thisTournament & "," & rsTeams!teamcodeId & ", " & rsPlayers!peopleid & ")"
             cn.Execute sqlstr
             rsPlayers.MoveNext
         Loop
@@ -331,7 +331,7 @@ Function getTeamId(tournamentTeamCode As Long)
 End Function
 
 Function getTournamentTeamCode(teamId As Long)
-'get the teamId from a tounamenttTeamCode
+'get the teamId from a tounamentTeamCode
     Dim sqlstr As String
     Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
@@ -339,7 +339,7 @@ Function getTournamentTeamCode(teamId As Long)
     sqlstr = sqlstr & " AND teamId = " & teamId
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     If Not rs.EOF Then
-        getTournamentTeamCode = rs!teamcodeID
+        getTournamentTeamCode = rs!teamCode
     Else
         getTournamentTeamCode = Null
     End If
@@ -355,6 +355,7 @@ Function playerInTournamentTeam(playerId As Long, teamId As Long)
     Set rs = New ADODB.Recordset
     sqlstr = "Select * from tblTeamPlayers where teamId = " & teamId
     sqlstr = sqlstr & " AND playerId = " & playerId
+    sqlstr = sqlstr & " AND tournamentId = " & thisTournament
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     
     playerInTournamentTeam = Not rs.EOF
@@ -393,40 +394,43 @@ Function convertTournamentScheduleTable()
     sqlstr = "select * from  tblTournamentTeamCodes where teamCodeID > 0"
     rsCodes.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
     Do While Not rsCodes.EOF
-        sqlstr = "Update tblTournamentSchedule SET matchTeamA = '" & rsCodes!teamCode & "'"
-        sqlstr = sqlstr & " WHERE matchTeamA = '" & CStr(rsCodes!teamcodeID) & "'"
-        cn.Execute sqlstr
-        sqlstr = "Update tblTournamentSchedule SET matchTeamB = '" & rsCodes!teamCode & "'"
-        sqlstr = sqlstr & " WHERE matchTeamB = '" & CStr(rsCodes!teamcodeID) & "'"
-        cn.Execute sqlstr
-        sqlstr = "Update tblMatchResults SET TeamA_ID = '" & rsCodes!teamCode & "'"
-        sqlstr = sqlstr & " WHERE TeamA_ID = '" & CStr(rsCodes!teamcodeID) & "'"
-        cn.Execute sqlstr
-        sqlstr = "Update tblMatchResults SET TeamB_ID = '" & rsCodes!teamCode & "'"
-        sqlstr = sqlstr & " WHERE TeamB_ID = '" & CStr(rsCodes!teamcodeID) & "'"
-        cn.Execute sqlstr
-        sqlstr = "Update tblMatchResults SET TeamWinner = '" & rsCodes!teamCode & "'"
-        sqlstr = sqlstr & " WHERE TeamWinner = '" & CStr(rsCodes!teamcodeID) & "'"
-        cn.Execute sqlstr
-        sqlstr = "Update tblPredictionGroupResults SET predictionGroupPosition1 = '" & rsCodes!teamCode & "'"
-        sqlstr = sqlstr & " WHERE predictionGroupPosition1 = '" & CStr(rsCodes!teamcodeID) & "'"
-        cn.Execute sqlstr
-        sqlstr = "Update tblPredictionGroupResults SET predictionGroupPosition2 = '" & rsCodes!teamCode & "'"
-        sqlstr = sqlstr & " WHERE predictionGroupPosition2 = '" & CStr(rsCodes!teamcodeID) & "'"
-        cn.Execute sqlstr
-        sqlstr = "Update tblPredictionGroupResults SET predictionGroupPosition3 = '" & rsCodes!teamCode & "'"
-        sqlstr = sqlstr & " WHERE predictionGroupPosition3 = '" & CStr(rsCodes!teamcodeID) & "'"
-        cn.Execute sqlstr
-        sqlstr = "Update tblPredictionGroupResults SET predictionGroupPosition4 = '" & rsCodes!teamCode & "'"
-        sqlstr = sqlstr & " WHERE predictionGroupPosition4 = '" & CStr(rsCodes!teamcodeID) & "'"
-        cn.Execute sqlstr
-        sqlstr = "Update tblPrediction_Finals SET teamNameA = '" & rsCodes!teamCode & "'"
-        sqlstr = sqlstr & " WHERE teamNameA = '" & CStr(rsCodes!teamcodeID) & "'"
-        cn.Execute sqlstr
-        sqlstr = "Update tblPrediction_Finals SET teamNameB = '" & rsCodes!teamCode & "'"
-        sqlstr = sqlstr & " WHERE teamNameB = '" & CStr(rsCodes!teamcodeID) & "'"
-        cn.Execute sqlstr
-
+'        sqlstr = "Update tblTournamentSchedule SET matchTeamA = '" & rsCodes!teamCode & "'"
+'        sqlstr = sqlstr & " WHERE matchTeamA = '" & CStr(rsCodes!teamcodeID) & "'"
+'        cn.Execute sqlstr
+'        sqlstr = "Update tblTournamentSchedule SET matchTeamB = '" & rsCodes!teamCode & "'"
+'        sqlstr = sqlstr & " WHERE matchTeamB = '" & CStr(rsCodes!teamcodeID) & "'"
+'        cn.Execute sqlstr
+'        sqlstr = "Update tblMatchResults SET TeamA_ID = '" & rsCodes!teamCode & "'"
+'        sqlstr = sqlstr & " WHERE TeamA_ID = '" & CStr(rsCodes!teamcodeID) & "'"
+'        cn.Execute sqlstr
+'        sqlstr = "Update tblMatchResults SET TeamB_ID = '" & rsCodes!teamCode & "'"
+'        sqlstr = sqlstr & " WHERE TeamB_ID = '" & CStr(rsCodes!teamcodeID) & "'"
+'        cn.Execute sqlstr
+'        sqlstr = "Update tblMatchResults SET TeamWinner = '" & rsCodes!teamCode & "'"
+'        sqlstr = sqlstr & " WHERE TeamWinner = '" & CStr(rsCodes!teamcodeID) & "'"
+'        cn.Execute sqlstr
+'        sqlstr = "Update tblPredictionGroupResults SET predictionGroupPosition1 = '" & rsCodes!teamCode & "'"
+'        sqlstr = sqlstr & " WHERE predictionGroupPosition1 = '" & CStr(rsCodes!teamcodeID) & "'"
+'        cn.Execute sqlstr
+'        sqlstr = "Update tblPredictionGroupResults SET predictionGroupPosition2 = '" & rsCodes!teamCode & "'"
+'        sqlstr = sqlstr & " WHERE predictionGroupPosition2 = '" & CStr(rsCodes!teamcodeID) & "'"
+'        cn.Execute sqlstr
+'        sqlstr = "Update tblPredictionGroupResults SET predictionGroupPosition3 = '" & rsCodes!teamCode & "'"
+'        sqlstr = sqlstr & " WHERE predictionGroupPosition3 = '" & CStr(rsCodes!teamcodeID) & "'"
+'        cn.Execute sqlstr
+'        sqlstr = "Update tblPredictionGroupResults SET predictionGroupPosition4 = '" & rsCodes!teamCode & "'"
+'        sqlstr = sqlstr & " WHERE predictionGroupPosition4 = '" & CStr(rsCodes!teamcodeID) & "'"
+'        cn.Execute sqlstr
+'        sqlstr = "Update tblPrediction_Finals SET teamNameA = '" & rsCodes!teamCode & "'"
+'        sqlstr = sqlstr & " WHERE teamNameA = '" & CStr(rsCodes!teamcodeID) & "'"
+'        cn.Execute sqlstr
+'        sqlstr = "Update tblPrediction_Finals SET teamNameB = '" & rsCodes!teamCode & "'"
+'        sqlstr = sqlstr & " WHERE teamNameB = '" & CStr(rsCodes!teamcodeID) & "'"
+'        cn.Execute sqlstr
+'        sqlstr = "Update tblTeamPlayers SET teamID = " & rsCodes!teamId
+'        sqlstr = sqlstr & " WHERE teamId = " & rsCodes!teamcodeId
+'        If Not IsNull(rsCodes!teamId) Then cn.Execute sqlstr
+        
         rsCodes.MoveNext
     Loop
 End Function

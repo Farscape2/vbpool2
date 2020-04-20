@@ -105,7 +105,6 @@ Begin VB.Form playersForm
       _Version        =   393216
    End
    Begin MSDataListLib.DataCombo cmbTeams 
-      Bindings        =   "playersForm.frx":0000
       Height          =   360
       Left            =   960
       TabIndex        =   0
@@ -157,6 +156,8 @@ Option Explicit
 'to preserve the tournamentTeamCode
 Dim thisTeam As Long
 
+Dim rs As ADODB.Recordset
+
 Private Sub btnNew_Click()
     'add player to database
     playerAddForm.Country = getTeamInfo(Me.cmbTeams.BoundText, "teamCountryId")
@@ -176,27 +177,23 @@ End Sub
 
 Private Sub Form_Load()
 'fill teams combo
-    Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
     Dim sqlstr As String
     sqlstr = "Select * from tblTeamNames Where teamtype <>0  and teamNameId IN "
-    sqlstr = sqlstr & " (Select teamId from tblTournamentTeamCodes where tournamentid = " & thisTournament
+    sqlstr = sqlstr & " (Select teamid from tblTournamentTeamCodes where tournamentid = " & thisTournament
     sqlstr = sqlstr & " ) Order by teamName"
-    rsTeams.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+    rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     With Me.cmbTeams
-        Set .RowSource = rsTeams
+        Set .RowSource = rs
         .ListField = "teamName"
         .BoundColumn = "teamNameId"
         .Refresh
     End With
-    Me.cmbTeams.Text = rsTeams!teamName
+    Me.cmbTeams.Text = rs!teamName
     UnifyForm Me
 '    centerForm Me
     updateListview
     
-    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
-    Set rs = Nothing
-
 End Sub
 
 Sub updateListview()
@@ -208,10 +205,10 @@ Sub updateListview()
     Set rsPlayers = New ADODB.Recordset
     
     'get the tournament teamcode for this team
-    thisTeam = getTournamentTeamCode(Me.cmbTeams.BoundText)
+    thisTeam = Me.cmbTeams.BoundText
     
     sqlstr = "Select* from tblPeople "
-    sqlstr = sqlstr & " Where countryCode = " & Nz(getTeamInfo(Me.cmbTeams.BoundText, "teamCountryId"), 0)
+    sqlstr = sqlstr & " Where countryCode = " & Nz(getTeamInfo(thisTeam, "teamCountryId"), 0)
     sqlstr = sqlstr & " and function1 >1 and function1 <6"
     sqlstr = sqlstr & " Order by nickname"
     rsPlayers.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
@@ -235,6 +232,11 @@ Sub updateListview()
     If (rsPlayers.State And adStateOpen) = adStateOpen Then rsPlayers.Close
     Set rsPlayers = Nothing
 
+End Sub
+
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
+    Set rs = Nothing
 End Sub
 
 Private Sub lstPlayers_ItemCheck(ByVal Item As MSComctlLib.ListItem)

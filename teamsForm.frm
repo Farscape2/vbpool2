@@ -32,7 +32,7 @@ Begin VB.Form teamsForm
       Height          =   360
       Index           =   0
       Left            =   600
-      TabIndex        =   3
+      TabIndex        =   1
       Tag             =   "A1"
       Top             =   600
       Width           =   1800
@@ -45,7 +45,7 @@ Begin VB.Form teamsForm
       Caption         =   "Ok"
       Height          =   495
       Left            =   3720
-      TabIndex        =   2
+      TabIndex        =   3
       Top             =   600
       Width           =   1215
    End
@@ -56,7 +56,7 @@ Begin VB.Form teamsForm
       Height          =   360
       Index           =   0
       Left            =   300
-      TabIndex        =   1
+      TabIndex        =   2
       Tag             =   "kop"
       Top             =   240
       Width           =   2100
@@ -80,10 +80,11 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Dim rsTeamNames As ADODB.Recordset
+Dim rsTeamCodes As ADODB.Recordset
+
 Sub makeForm()
 
-Dim rs As ADODB.Recordset
-Dim rsTeamCodes As ADODB.Recordset
 Dim sqlstr As String
 Dim groups As Integer
 Dim teams As Integer
@@ -93,7 +94,7 @@ Dim counter As Integer
 Dim groupSize As Integer
 Dim grp As Integer
     
-    Set rs = New ADODB.Recordset
+    Set rsTeamNames = New ADODB.Recordset
     Set rsTeamCodes = New ADODB.Recordset
     'check if the base schedule is made
     
@@ -111,8 +112,8 @@ Dim grp As Integer
         sqlstr = sqlstr & "Where teamtype > 2"
     End If
     sqlstr = sqlstr & " order by teamname "
-    rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
-    If rs.EOF Then Exit Sub
+    rsTeamNames.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+    If rsTeamNames.EOF Then Exit Sub
     
     sqlstr = "Select * from tblTournamentTeamCodes where tournamentid = " & thisTournament
     rsTeamCodes.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
@@ -151,7 +152,7 @@ Dim grp As Integer
                     .Top = 600 + (grpCounter - 1) * 360 + (row - 1) * (.Height + 100 + (groupSize * 360))
                 End With
                 With Me.cmbTeams(counter - 1)
-                    Set .RowSource = rs
+                    Set .RowSource = rsTeamNames
                     .ListField = "teamname"
                     .BoundColumn = "teamNameId"
                     .Left = 600 + (col - 1) * 2200
@@ -173,10 +174,6 @@ Dim grp As Integer
     Me.btnClose.Top = Me.ScaleHeight - Me.btnClose.Height - 180
     Me.btnPlayers.Top = Me.btnClose.Top
     Me.btnPlayers.Left = Me.btnClose.Left - Me.btnPlayers.Width - 50
-    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
-    If (rsTeamCodes.State And adStateOpen) = adStateOpen Then rsTeamCodes.Close
-    Set rs = Nothing
-    Set rsTeamCodes = Nothing
 End Sub
 
 Private Sub btnClose_Click()
@@ -229,7 +226,15 @@ End Sub
 
 Private Sub Form_Load()
     makeForm
+'    Me.cmbTeams().SetFocus
     centerForm Me
     UnifyForm Me
+
 End Sub
 
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+    If (rsTeamNames.State And adStateOpen) = adStateOpen Then rsTeamNames.Close
+    If (rsTeamCodes.State And adStateOpen) = adStateOpen Then rsTeamCodes.Close
+    Set rsTeamNames = Nothing
+    Set rsTeamCodes = Nothing
+End Sub

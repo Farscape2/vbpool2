@@ -469,7 +469,7 @@ Begin VB.Form poolsForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   146800641
+      Format          =   146997249
       CurrentDate     =   43932
    End
    Begin MSComCtl2.DTPicker dtpEind 
@@ -482,7 +482,7 @@ Begin VB.Form poolsForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   146800641
+      Format          =   146997249
       CurrentDate     =   43932
    End
    Begin VB.Label lblTitle 
@@ -567,6 +567,9 @@ Option Explicit
 
 Dim editState As Boolean
 
+Dim rsTournaments As ADODB.Recordset
+
+
 Private Sub btnClose_Click()
     Unload Me
 End Sub
@@ -625,7 +628,6 @@ Private Sub Form_Load()
 Dim ctl As Control
 Dim sqlstr As String
 Dim i As Integer
-Dim rsTournaments As ADODB.Recordset
     Set rsTournaments = New ADODB.Recordset
 'set Form defaults
     UnifyForm Me
@@ -650,6 +652,7 @@ Dim rsTournaments As ADODB.Recordset
         .ListField = "tournament"
         .DataField = "tournamentId"
     End With
+    
     Me.txtCosts.DataField = "poolCost"
     Me.dtpStart.DataField = "poolStartAcceptForms"
     Me.dtpEind.DataField = "poolEndAcceptForms"
@@ -670,8 +673,6 @@ Dim rsTournaments As ADODB.Recordset
     Me.btnDelete.Enabled = Not chkTournamentStarted()
     'set form state
     setState False
-    If (rsTournaments.State And adStateOpen) = adStateOpen Then rsTournaments.Close
-    Set rsTournaments = Nothing
 
 End Sub
 
@@ -715,6 +716,11 @@ Sub calcTotalPercentage()
     Else
         Me.lblTotal.ForeColor = Me.Label15.ForeColor
     End If
+End Sub
+
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+    If (rsTournaments.State And adStateOpen) = adStateOpen Then rsTournaments.Close
+    Set rsTournaments = Nothing
 End Sub
 
 Private Sub txtPercentage_LostFocus(Index As Integer)

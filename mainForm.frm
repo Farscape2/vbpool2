@@ -213,7 +213,7 @@ Sub updateForm()
     'me.mnuEditTournaments
     Me.mnuPoolCompetitors.Enabled = thisPool
     Me.mnuDblPlayers.Visible = False 'just for admin
-    Me.mnuConvert.Visible = False    'just for admin
+    Me.mnuConvert.Visible = False   'just for admin
     Me.Caption = "Jota's Voetbalpool 2.0"
     DoEvents
     If thisPool Then

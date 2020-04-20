@@ -32,65 +32,20 @@ Begin VB.Form poolPointsForm
       Top             =   8520
       Width           =   1455
    End
-   Begin MSAdodcLib.Adodc dtcPointList 
-      Height          =   375
-      Left            =   3240
-      Top             =   6840
-      Visible         =   0   'False
-      Width           =   1815
-      _ExtentX        =   3201
-      _ExtentY        =   661
-      ConnectMode     =   0
-      CursorLocation  =   3
-      IsolationLevel  =   -1
-      ConnectionTimeout=   15
-      CommandTimeout  =   30
-      CursorType      =   3
-      LockType        =   3
-      CommandType     =   8
-      CursorOptions   =   0
-      CacheSize       =   50
-      MaxRecords      =   0
-      BOFAction       =   0
-      EOFAction       =   0
-      ConnectStringType=   1
-      Appearance      =   1
-      BackColor       =   -2147483643
-      ForeColor       =   -2147483640
-      Orientation     =   0
-      Enabled         =   -1
-      Connect         =   ""
-      OLEDBString     =   ""
-      OLEDBFile       =   ""
-      DataSourceName  =   ""
-      OtherAttributes =   ""
-      UserName        =   ""
-      Password        =   ""
-      RecordSource    =   ""
-      Caption         =   ""
-      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-         Name            =   "Tahoma"
-         Size            =   9.75
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      _Version        =   393216
-   End
    Begin MSDataGridLib.DataGrid grdPoolPunten 
-      Bindings        =   "poolPointsForm.frx":0000
       Height          =   7335
       Left            =   120
       TabIndex        =   3
       Top             =   1080
-      Width           =   5655
-      _ExtentX        =   9975
+      Width           =   5535
+      _ExtentX        =   9763
       _ExtentY        =   12938
       _Version        =   393216
+      AllowArrows     =   -1  'True
       HeadLines       =   1
       RowHeight       =   15
+      TabAction       =   2
+      WrapCellPointer =   -1  'True
       FormatLocked    =   -1  'True
       BeginProperty HeadFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
          Name            =   "Tahoma"
@@ -176,8 +131,44 @@ Begin VB.Form poolPointsForm
             SubFormatType   =   0
          EndProperty
       EndProperty
-      SplitCount      =   1
+      SplitCount      =   2
       BeginProperty Split0 
+         MarqueeStyle    =   5
+         ScrollBars      =   0
+         AllowFocus      =   0   'False
+         AllowRowSizing  =   0   'False
+         AllowSizing     =   0   'False
+         Size            =   2
+         BeginProperty Column00 
+            ColumnAllowSizing=   0   'False
+            Object.Visible         =   0   'False
+            ColumnWidth     =   599,811
+         EndProperty
+         BeginProperty Column01 
+            ColumnAllowSizing=   0   'False
+            Object.Visible         =   0   'False
+            ColumnWidth     =   599,811
+         EndProperty
+         BeginProperty Column02 
+            ColumnAllowSizing=   0   'False
+            ColumnWidth     =   3600
+         EndProperty
+         BeginProperty Column03 
+            Alignment       =   2
+            ColumnAllowSizing=   0   'False
+            Object.Visible         =   0   'False
+            ColumnWidth     =   734,74
+         EndProperty
+         BeginProperty Column04 
+            Alignment       =   2
+            Object.Visible         =   0   'False
+            ColumnWidth     =   734,74
+         EndProperty
+      EndProperty
+      BeginProperty Split1 
+         AllowRowSizing  =   0   'False
+         AllowSizing     =   0   'False
+         RecordSelectors =   0   'False
          BeginProperty Column00 
             ColumnAllowSizing=   0   'False
             Locked          =   -1  'True
@@ -192,6 +183,7 @@ Begin VB.Form poolPointsForm
          BeginProperty Column02 
             ColumnAllowSizing=   0   'False
             Locked          =   -1  'True
+            Object.Visible         =   0   'False
             ColumnWidth     =   3495,118
          EndProperty
          BeginProperty Column03 
@@ -253,7 +245,6 @@ Begin VB.Form poolPointsForm
       _Version        =   393216
    End
    Begin MSDataListLib.DataCombo cmbPointTypes 
-      Bindings        =   "poolPointsForm.frx":001B
       Height          =   360
       Left            =   2040
       TabIndex        =   1
@@ -293,7 +284,10 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Dim rs As ADODB.Recordset
+
 Dim cmbGridSelect As Boolean
+
 'if true then don't update combo box after datagrid.refresh
 'to prevent recordsource jump back to first record
 
@@ -369,7 +363,7 @@ End Sub
 
 Private Sub Form_Load()
     Dim sqlstr As String
-    Dim rs As ADODB.Recordset
+    
     Set rs = New ADODB.Recordset
 
     sqlstr = "Select pointtypeId as id, pointTypeDescription as omschrijving from tblPointtypes "
@@ -379,11 +373,12 @@ Private Sub Form_Load()
     End If
     sqlstr = sqlstr & " order by pointtypecategory, pointtypelistorder"
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
-    With Me.dtcPointList
-        .ConnectionString = cn.ConnectionString
-        .RecordSource = sqlstr
-        .Refresh
+    With Me.cmbPointTypes
+        Set .RowSource = rs
+        .BoundColumn = "id"
+        .ListField = "omschrijving"
     End With
+    
     Me.dtcPoolPoint.ConnectionString = cn.ConnectionString
     
     sqlstr = "Select a.pointTypeID as id, a.poolID as poolId, pointTypeDescription as Omschrijving,"
@@ -394,10 +389,13 @@ Private Sub Form_Load()
     sqlstr = sqlstr & " where a.poolID = " & thisPool
     sqlstr = sqlstr & " order by b.pointtypecategory, b.pointtypelistorder"
     Me.dtcPoolPoint.RecordSource = sqlstr
-    Me.dtcPoolPoint.Refresh
-    Me.grdPoolPunten.Refresh
+    Set Me.grdPoolPunten.DataSource = Me.dtcPoolPoint
+    
     UnifyForm Me
+    centerForm Me
+End Sub
 
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
     If (rs.State And adStateOpen) = adStateOpen Then rs.Close
     Set rs = Nothing
 End Sub
