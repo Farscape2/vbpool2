@@ -178,6 +178,9 @@ Begin VB.Form mainForm
       Begin VB.Menu mnuDblPlayers 
          Caption         =   "Remove Double Players"
       End
+      Begin VB.Menu mnuConvert 
+         Caption         =   "Convert Tournamentschedule table"
+      End
       Begin VB.Menu mnuAbout 
          Caption         =   "&Over"
       End
@@ -193,7 +196,10 @@ Option Explicit
 Private Sub Form_Load()
 
 'set Form defaults
-
+    'size form half the screen size
+    Me.Width = Screen.Width / 2
+    Me.Height = Screen.Height / 2
+    
     centerForm Me
     UnifyForm Me
     
@@ -207,7 +213,8 @@ Sub updateForm()
     'me.mnuEditTournaments
     Me.mnuPoolCompetitors.Enabled = thisPool
     Me.mnuDblPlayers.Visible = False 'just for admin
-    Me.Caption = "Jota's Voetbalpool"
+    Me.mnuConvert.Visible = False    'just for admin
+    Me.Caption = "Jota's Voetbalpool 2.0"
     DoEvents
     If thisPool Then
         
@@ -283,6 +290,10 @@ End Sub
 
 Private Sub mnuAbout_Click()
     frmAbout.Show 1
+End Sub
+
+Private Sub mnuConvert_Click()
+    convertTournamentScheduleTable
 End Sub
 
 Private Sub mnuDblPlayers_Click()

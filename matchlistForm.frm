@@ -23,11 +23,12 @@ Begin VB.Form matchlistForm
    ScaleWidth      =   12705
    StartUpPosition =   3  'Windows Default
    Begin VB.TextBox txtOrder 
+      Alignment       =   2  'Center
       Height          =   375
-      Left            =   11160
+      Left            =   11040
       TabIndex        =   21
       Top             =   720
-      Width           =   300
+      Width           =   420
    End
    Begin VB.CommandButton btnClose 
       Caption         =   "Sluiten"
@@ -86,7 +87,7 @@ Begin VB.Form matchlistForm
    End
    Begin MSAdodcLib.Adodc dtcMatches 
       Height          =   330
-      Left            =   720
+      Left            =   840
       Top             =   9120
       Visible         =   0   'False
       Width           =   4455
@@ -180,6 +181,9 @@ Begin VB.Form matchlistForm
       EndProperty
       SplitCount      =   1
       BeginProperty Split0 
+         MarqueeStyle    =   3
+         AllowRowSizing  =   -1  'True
+         AllowSizing     =   -1  'True
          BeginProperty Column00 
             Alignment       =   2
             ColumnAllowSizing=   0   'False
@@ -214,8 +218,8 @@ Begin VB.Form matchlistForm
       Left            =   9240
       TabIndex        =   10
       Top             =   720
-      Width           =   1935
-      _ExtentX        =   3413
+      Width           =   1815
+      _ExtentX        =   3201
       _ExtentY        =   635
       _Version        =   393216
       Text            =   ""
@@ -242,7 +246,7 @@ Begin VB.Form matchlistForm
       _ExtentY        =   661
       _Version        =   393216
       CustomFormat    =   "dd-MM"
-      Format          =   146800643
+      Format          =   147587075
       CurrentDate     =   43939
    End
    Begin MSComCtl2.UpDown upDnNr 
@@ -256,7 +260,7 @@ Begin VB.Form matchlistForm
       _Version        =   393216
       Value           =   1
       BuddyControl    =   "txtNr"
-      BuddyDispid     =   196610
+      BuddyDispid     =   196611
       OrigLeft        =   840
       OrigTop         =   480
       OrigRight       =   1095
@@ -278,7 +282,7 @@ Begin VB.Form matchlistForm
       _Version        =   393216
       Value           =   1
       BuddyControl    =   "txtOrder"
-      BuddyDispid     =   196625
+      BuddyDispid     =   196609
       OrigLeft        =   840
       OrigTop         =   480
       OrigRight       =   1095
@@ -393,9 +397,14 @@ Option Explicit
 
 Dim dontMove As Boolean 'prevent editBar from updateting
 
+Dim rs As ADODB.Recordset
+Dim rsTypes As ADODB.Recordset
+Dim rsLocation As ADODB.Recordset
+
+
 Sub setMatchGrid()
 Dim sqlstr As String
-Dim rs As ADODB.Recordset
+
 Set rs = New ADODB.Recordset
 Dim dCol As Column
     sqlstr = "SELECT m.matchNumber as Wedstr, m.matchDate as Datum, matchTime as Tijd, "
@@ -488,16 +497,13 @@ Dim dCol As Column
         .ReBind
         .Refresh
     End With
-    
-    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
-    Set rs = Nothing
+    'select entire row
+    Me.grdMatches.MarqueeStyle = dbgHighlightRow
+    'force update of editBar controls
+    grdMatches_RowColChange 1, 1
 End Sub
 
 Sub setEditBar()
-Dim rs As ADODB.Recordset
-Dim rsTypes As ADODB.Recordset
-Dim rsLocation As ADODB.Recordset
-
 Set rs = New ADODB.Recordset
 Set rsTypes = New ADODB.Recordset
 Set rsLocation = New ADODB.Recordset
@@ -508,6 +514,8 @@ Dim sqlstr As String
     sqlstr = sqlstr & "from tblTournamentTeamCodes c LEFT JOIN tblTeamNames n on c.teamId = n.teamnameid"
     sqlstr = sqlstr & " Where c.tournamentid = " & thisTournament
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+    If Not rs.EOF Then rs.MoveLast
+
     With Me.cmbTeamA
         Set .RowSource = rs
         .ListField = "team"
@@ -540,17 +548,7 @@ Dim sqlstr As String
     
     Me.dtDate = getTournamentInfo("tournamentStartDate")
     Me.UpDnHours = 20
-        
     
-    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
-    Set rs = Nothing
-    
-    If (rsLocation.State And adStateOpen) = adStateOpen Then rsLocation.Close
-    Set rs = Nothing
-    
-    If (rsTypes.State And adStateOpen) = adStateOpen Then rsTypes.Close
-    Set rs = Nothing
-        
 End Sub
 
 Private Sub btnClose_Click()
@@ -559,7 +557,6 @@ End Sub
 
 Private Sub btnSave_Click()
     Dim sqlstr As String
-    Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
     'validate
     Dim msg As String
@@ -569,6 +566,7 @@ Private Sub btnSave_Click()
     If Me.cmbTeamB.BoundText = "" Then msg = msg & "Geen Team B" & vbNewLine
     If Me.cmbTypes.BoundText < 1 Then msg = msg & "Geen soort wedstrijd" & vbNewLine
     If Me.cmbLocation.BoundText < 1 Then msg = msg & "Geen locatie" & vbNewLine
+    If Not IsNumeric(Me.txtOrder.Text) Then Me.UpDnOrder = Me.upDnNr
     If msg > "" Then
         msg = "FOUT: " & vbNewLine
         MsgBox msg, vbOKOnly + vbCritical, "Wedstrijd toevoegen"
@@ -602,8 +600,6 @@ Private Sub btnSave_Click()
     DoEvents
     Me.dtcMatches.Recordset.Move Val(Me.txtNr) - 1, 0
     
-    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
-    Set rs = Nothing
 End Sub
 
 Private Sub Form_Load()
@@ -613,6 +609,19 @@ Private Sub Form_Load()
     
     UnifyForm Me
     centerForm Me
+
+End Sub
+
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
+    Set rs = Nothing
+
+    If (rsLocation.State And adStateOpen) = adStateOpen Then rsLocation.Close
+    Set rsLocation = Nothing
+
+    If (rsTypes.State And adStateOpen) = adStateOpen Then rsTypes.Close
+    Set rsTypes = Nothing
+
 
 End Sub
 
@@ -628,7 +637,7 @@ Private Sub grdMatches_RowColChange(LastRow As Variant, ByVal LastCol As Integer
         Me.cmbTeamB.BoundText = !CodeB
         Me.cmbTypes.BoundText = !typeid
         Me.cmbLocation.BoundText = !stadiumId
-        Me.UpDnOrder = !matchOrder
+        Me.UpDnOrder = !volgorde
     End With
 End Sub
 

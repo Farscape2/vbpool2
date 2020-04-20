@@ -217,6 +217,7 @@ End Sub
 
 Private Sub OKButton_Click()
     thisPool = Val(Me.lblPoolID.Caption)
+    thisTournament = getThisPoolTournamentId
     SaveSetting App.EXEName, "global", "lastpool", thisPool
     Unload Me
 End Sub

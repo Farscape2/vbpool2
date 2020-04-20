@@ -6,7 +6,6 @@ Sub openDB()
 
     Dim connStr As String
     If cn.State = 1 Then cn.Close
-    
     With cn
         .Provider = "Microsoft.Jet.OLEDB.4.0;"
         .ConnectionString = "Data Source=" & App.Path & "\" & dbNaam
@@ -286,7 +285,7 @@ Sub addPlayers()
         sqlstr = "Select * from tblPeople where function1 > 1 and function1 < 6 and countryCode = " & rsTeams!teamCountryId
         rsPlayers.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
         Do While Not rsPlayers.EOF
-            sqlstr = "Insert into tblTeamPlayers (tournamentId, teamId, PlayerId) VALUES (" & thisTournament & "," & rsTeams!teamCodeId & ", " & rsPlayers!peopleid & ")"
+            sqlstr = "Insert into tblTeamPlayers (tournamentId, teamId, PlayerId) VALUES (" & thisTournament & "," & rsTeams!teamcodeID & ", " & rsPlayers!peopleid & ")"
             cn.Execute sqlstr
             rsPlayers.MoveNext
         Loop
@@ -340,7 +339,7 @@ Function getTournamentTeamCode(teamId As Long)
     sqlstr = sqlstr & " AND teamId = " & teamId
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     If Not rs.EOF Then
-        getTournamentTeamCode = rs!teamCodeId
+        getTournamentTeamCode = rs!teamcodeID
     Else
         getTournamentTeamCode = Null
     End If
@@ -378,4 +377,56 @@ Function playerExists(fName As String, mName As String, lName As String, NickNam
     
     rs.Close
     Set rs = Nothing
+End Function
+
+
+Function convertTournamentScheduleTable()
+'change the reference in the tables from teamCodeID(Former primary Key from tblTournamentTeamCodes) to teamCode(string, A1, B2 etc)
+'
+'this makes the relation between schedule and teamcodes more intuitive, allbeit more complex (on two fields: tournamentID AND teamCode)
+    
+    Dim rsTn As ADODB.Recordset
+    Dim rsCodes As ADODB.Recordset
+    Set rsTn = New ADODB.Recordset
+    Set rsCodes = New ADODB.Recordset
+    Dim sqlstr As String
+    sqlstr = "select * from  tblTournamentTeamCodes where teamCodeID > 0"
+    rsCodes.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
+    Do While Not rsCodes.EOF
+        sqlstr = "Update tblTournamentSchedule SET matchTeamA = '" & rsCodes!teamCode & "'"
+        sqlstr = sqlstr & " WHERE matchTeamA = '" & CStr(rsCodes!teamcodeID) & "'"
+        cn.Execute sqlstr
+        sqlstr = "Update tblTournamentSchedule SET matchTeamB = '" & rsCodes!teamCode & "'"
+        sqlstr = sqlstr & " WHERE matchTeamB = '" & CStr(rsCodes!teamcodeID) & "'"
+        cn.Execute sqlstr
+        sqlstr = "Update tblMatchResults SET TeamA_ID = '" & rsCodes!teamCode & "'"
+        sqlstr = sqlstr & " WHERE TeamA_ID = '" & CStr(rsCodes!teamcodeID) & "'"
+        cn.Execute sqlstr
+        sqlstr = "Update tblMatchResults SET TeamB_ID = '" & rsCodes!teamCode & "'"
+        sqlstr = sqlstr & " WHERE TeamB_ID = '" & CStr(rsCodes!teamcodeID) & "'"
+        cn.Execute sqlstr
+        sqlstr = "Update tblMatchResults SET TeamWinner = '" & rsCodes!teamCode & "'"
+        sqlstr = sqlstr & " WHERE TeamWinner = '" & CStr(rsCodes!teamcodeID) & "'"
+        cn.Execute sqlstr
+        sqlstr = "Update tblPredictionGroupResults SET predictionGroupPosition1 = '" & rsCodes!teamCode & "'"
+        sqlstr = sqlstr & " WHERE predictionGroupPosition1 = '" & CStr(rsCodes!teamcodeID) & "'"
+        cn.Execute sqlstr
+        sqlstr = "Update tblPredictionGroupResults SET predictionGroupPosition2 = '" & rsCodes!teamCode & "'"
+        sqlstr = sqlstr & " WHERE predictionGroupPosition2 = '" & CStr(rsCodes!teamcodeID) & "'"
+        cn.Execute sqlstr
+        sqlstr = "Update tblPredictionGroupResults SET predictionGroupPosition3 = '" & rsCodes!teamCode & "'"
+        sqlstr = sqlstr & " WHERE predictionGroupPosition3 = '" & CStr(rsCodes!teamcodeID) & "'"
+        cn.Execute sqlstr
+        sqlstr = "Update tblPredictionGroupResults SET predictionGroupPosition4 = '" & rsCodes!teamCode & "'"
+        sqlstr = sqlstr & " WHERE predictionGroupPosition4 = '" & CStr(rsCodes!teamcodeID) & "'"
+        cn.Execute sqlstr
+        sqlstr = "Update tblPrediction_Finals SET teamNameA = '" & rsCodes!teamCode & "'"
+        sqlstr = sqlstr & " WHERE teamNameA = '" & CStr(rsCodes!teamcodeID) & "'"
+        cn.Execute sqlstr
+        sqlstr = "Update tblPrediction_Finals SET teamNameB = '" & rsCodes!teamCode & "'"
+        sqlstr = sqlstr & " WHERE teamNameB = '" & CStr(rsCodes!teamcodeID) & "'"
+        cn.Execute sqlstr
+
+        rsCodes.MoveNext
+    Loop
 End Function

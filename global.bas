@@ -11,6 +11,11 @@ Public thisTournament As Long
 Public currentCountry As Long  'used to pass information between forms
    
 Sub Main()
+    'check other instance of app
+    If App.PrevInstance = True Then
+        MsgBox "VBPool2.0 draait al...."
+        Exit Sub
+    End If
     'set and open the database
     openDB
     ' get last poolID
