@@ -352,7 +352,7 @@ Dim sqlstr As String
     sqlstr = "Select pointtypeid as id, pointtypedescription as Omschrijving, pointcategoryId as categoryId, "
     sqlstr = sqlstr & "pointcategorydescription as categorie, pointtypelistorder as volgorde from tblPointTypes a"
     sqlstr = sqlstr & " inner join tblpointcategories b on a.pointtypecategory = b.pointcategoryid order by a.pointtypelistorder"
-    Me.dtcPointTypes.ConnectionString = cn.ConnectionString
+    Me.dtcPointTypes.ConnectionString = cnStr
     Me.dtcPointTypes.RecordSource = sqlstr
     Me.dtcPointTypes.Refresh
     Set Me.grdPointTypes.DataSource = Me.dtcPointTypes

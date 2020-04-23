@@ -379,7 +379,7 @@ Private Sub Form_Load()
         .ListField = "omschrijving"
     End With
     
-    Me.dtcPoolPoint.ConnectionString = cn.ConnectionString
+    Me.dtcPoolPoint.ConnectionString = cnStr
     
     sqlstr = "Select a.pointTypeID as id, a.poolID as poolId, pointTypeDescription as Omschrijving,"
     sqlstr = sqlstr & "pointPointsAward as Punten,"

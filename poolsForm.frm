@@ -469,7 +469,7 @@ Begin VB.Form poolsForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   146997249
+      Format          =   148242433
       CurrentDate     =   43932
    End
    Begin MSComCtl2.DTPicker dtpEind 
@@ -482,7 +482,7 @@ Begin VB.Form poolsForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   146997249
+      Format          =   148242433
       CurrentDate     =   43932
    End
    Begin VB.Label lblTitle 
@@ -616,12 +616,6 @@ Private Sub btnSave_Click()
         End If
     End If
     
-End Sub
-
-Private Sub dtcPools_MoveComplete(ByVal adReason As ADODB.EventReasonEnum, ByVal pError As ADODB.Error, adStatus As ADODB.EventStatusEnum, ByVal pRecordset As ADODB.Recordset)
-    With Me.dtcPools
-        .Caption = " " & .Recordset.AbsolutePosition & "/" & .Recordset.RecordCount
-    End With
 End Sub
 
 Private Sub Form_Load()

@@ -243,7 +243,7 @@ Begin VB.Form matchlistForm
       _ExtentY        =   661
       _Version        =   393216
       CustomFormat    =   "dd-MM"
-      Format          =   149094403
+      Format          =   148176899
       CurrentDate     =   43939
    End
    Begin MSComCtl2.UpDown upDnNr 
@@ -417,12 +417,11 @@ Dim dCol As Column
     sqlstr = sqlstr & " AND a.tournamentID = " & thisTournament
     sqlstr = sqlstr & " AND b.tournamentID = " & thisTournament
     sqlstr = sqlstr & " ORDER BY m.matchNumber"
-
     
     rs.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
     
     With Me.dtcMatches
-        .ConnectionString = cn.ConnectionString
+        .ConnectionString = cn
         .RecordSource = sqlstr
         .CommandType = adCmdText
         .Refresh

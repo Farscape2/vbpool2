@@ -1,5 +1,4 @@
 VERSION 5.00
-Object = "{F0D2F211-CCB0-11D0-A316-00AA00688B10}#1.0#0"; "MSDATLST.OCX"
 Begin VB.Form teamsForm 
    Caption         =   "Ploegen en spelers"
    ClientHeight    =   1845
@@ -18,34 +17,27 @@ Begin VB.Form teamsForm
    LinkTopic       =   "Form1"
    ScaleHeight     =   1845
    ScaleWidth      =   5055
+   Begin VB.ComboBox cmbTeams 
+      Height          =   360
+      Index           =   0
+      Left            =   720
+      TabIndex        =   4
+      Top             =   600
+      Width           =   1695
+   End
    Begin VB.CommandButton btnPlayers 
       Caption         =   "Spelers"
       Height          =   495
       Left            =   2040
-      TabIndex        =   4
+      TabIndex        =   3
       Top             =   1200
       Width           =   1215
-   End
-   Begin MSDataListLib.DataCombo cmbTeams 
-      DataField       =   "teamID"
-      DataSource      =   "Adodc1"
-      Height          =   360
-      Index           =   0
-      Left            =   600
-      TabIndex        =   1
-      Tag             =   "A1"
-      Top             =   600
-      Width           =   1800
-      _ExtentX        =   3175
-      _ExtentY        =   635
-      _Version        =   393216
-      Text            =   ""
    End
    Begin VB.CommandButton btnClose 
       Caption         =   "Ok"
       Height          =   495
       Left            =   3720
-      TabIndex        =   3
+      TabIndex        =   2
       Top             =   600
       Width           =   1215
    End
@@ -56,7 +48,7 @@ Begin VB.Form teamsForm
       Height          =   360
       Index           =   0
       Left            =   300
-      TabIndex        =   2
+      TabIndex        =   1
       Tag             =   "kop"
       Top             =   240
       Width           =   2100
@@ -80,11 +72,13 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Sub makeForm()
+Dim adoCmd As ADODB.Command
+
 Dim rsTeamNames As ADODB.Recordset
 Dim rsTeamCodes As ADODB.Recordset
 
-Sub makeForm()
-
+Dim i As Integer
 Dim sqlstr As String
 Dim groups As Integer
 Dim teams As Integer
@@ -93,9 +87,10 @@ Dim grpCounter As Integer
 Dim counter As Integer
 Dim groupSize As Integer
 Dim grp As Integer
+'Set rsTeamNames = ADODB.Recordset
+
+    Set adoCmd = New ADODB.Command
     
-    Set rsTeamNames = New ADODB.Recordset
-    Set rsTeamCodes = New ADODB.Recordset
     'check if the base schedule is made
     
     If Not tournamentHasSchedule Then
@@ -103,22 +98,25 @@ Dim grp As Integer
     End If
     
     'fill combobox with teamnames
-    
-    sqlstr = "Select teamNameId, TeamName, teamShortname, teamType from tblTeamNames "
+    sqlstr = "Select teamNameId, TeamName, teamShortname, teamType from tblTeamNames"
     If getTournamentInfo("tournamentType") = "EK" Then
-        sqlstr = sqlstr & "Where teamtype <= 1"
+        sqlstr = sqlstr & " Where teamtype <= 1"
     End If
     If getTournamentInfo("tournamentType") = "CL" Then
-        sqlstr = sqlstr & "Where teamtype > 2"
+        sqlstr = sqlstr & " Where teamtype > 2"
     End If
-    sqlstr = sqlstr & " order by teamname "
-    rsTeamNames.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+'    rsTeamNames.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+    With adoCmd
+        .ActiveConnection = cn
+        .CommandType = adCmdText
+        .CommandText = sqlstr
+        Set rsTeamNames = .Execute
+        .CommandText = "Select * from tblTournamentTeamCodes where tournamentid = " & thisTournament
+        Set rsTeamCodes = .Execute
+    End With
     If rsTeamNames.EOF Then Exit Sub
     
-    sqlstr = "Select * from tblTournamentTeamCodes where tournamentid = " & thisTournament
-    rsTeamCodes.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
-    
-    groups = getTournamentInfo("tournamentGroupCount")
+    groups = nz(getTournamentInfo("tournamentGroupCount"), 0)
     teams = getTournamentInfo("tournamentTeamCount")
     groupSize = teams / groups
     counter = 0
@@ -151,10 +149,11 @@ Dim grp As Integer
                     .Left = 300 + (col - 1) * 2200
                     .Top = 600 + (grpCounter - 1) * 360 + (row - 1) * (.Height + 100 + (groupSize * 360))
                 End With
+                FillCombo Me.cmbTeams(counter - 1), sqlstr, "teamname", "teamNameId"
                 With Me.cmbTeams(counter - 1)
-                    Set .RowSource = rsTeamNames
-                    .ListField = "teamname"
-                    .BoundColumn = "teamNameId"
+'                    Set .RowSource = rsTeamNames
+'                    .ListField = "teamname"
+'                    .BoundColumn = "teamNameId"
                     .Left = 600 + (col - 1) * 2200
                     .Width = 1800
                     .Top = Me.lblPoolNr(counter - 1).Top
@@ -163,7 +162,14 @@ Dim grp As Integer
                     'if teamId exists in table, show team
                     rsTeamCodes.MoveFirst
                     rsTeamCodes.Find "teamcode = '" & .Tag & "'"
-                    .BoundText = Nz(rsTeamCodes!teamId, 0)
+                    
+                    For i = 0 To .ListCount - 1
+                        If .ItemData(i) = rsTeamCodes!teamId Then
+                            .ListIndex = i
+                            Exit For
+                        End If
+                    Next
+                    '.BoundText = nz(rsTeamCodes!teamId, 0)
                 End With
             Next
         Next
@@ -206,7 +212,7 @@ Dim sqlstr As String
 Dim cmd As New ADODB.Command
     If Me.cmbTeams(Index).Text = "" Then Exit Sub
     'find and update the record based on the tag of the control
-    sqlstr = "Update tblTournamentTeamCodes Set teamId = " & Me.cmbTeams(Index).BoundText
+    sqlstr = "Update tblTournamentTeamCodes Set teamId = " & Me.cmbTeams(Index).ItemData(Me.cmbTeams(Index).ListIndex)
     sqlstr = sqlstr & " WHERE tournamentID = " & thisTournament
     sqlstr = sqlstr & " AND teamcode = '" & Me.cmbTeams(Index).Tag & "'"
     On Error GoTo dataerror
@@ -233,8 +239,8 @@ Private Sub Form_Load()
 End Sub
 
 Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
-    If (rsTeamNames.State And adStateOpen) = adStateOpen Then rsTeamNames.Close
-    If (rsTeamCodes.State And adStateOpen) = adStateOpen Then rsTeamCodes.Close
-    Set rsTeamNames = Nothing
-    Set rsTeamCodes = Nothing
+'    If (rsTeamNames.State And adStateOpen) = adStateOpen Then rsTeamNames.Close
+'    If (rsTeamCodes.State And adStateOpen) = adStateOpen Then rsTeamCodes.Close
+'    Set rsTeamNames = Nothing
+'    Set rsTeamCodes = Nothing
 End Sub

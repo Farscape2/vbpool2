@@ -172,6 +172,9 @@ Begin VB.Form mainForm
    End
    Begin VB.Menu mnuOptions 
       Caption         =   "&Opties"
+      Begin VB.Menu mnuStartOver 
+         Caption         =   "Op&nieuw beginnen"
+      End
       Begin VB.Menu mnuOptionsPointTypes 
          Caption         =   "&Voorspelling types"
       End
@@ -332,6 +335,20 @@ End Sub
 
 Private Sub mnuPoolSettings_Click()
     poolPointsForm.Show 1
+End Sub
+
+Private Sub mnuStartOver_Click()
+    Dim msg As String
+    msg = "Hiermee ga je de database opnieuw wilt inlezen"
+    msg = msg & vbNewLine & "Alle door jou toegevoegde gegevens gaan verloren!"
+    msg = msg & vbNewLine & "Zorg dat je een werkende internet verbinding hebt,"
+    msg = msg & vbNewLine & "anders kan het niet"
+    msg = msg & vbNewLine & vbNewLine & "Druk op OK als je het zeker weet of anders op Annuleren"
+    If MsgBox(msg, vbOKCancel, "Nieuwe database aanmaken") = vbOK Then
+        If MsgBox("Weet je het heel zeker?", vbYesNo, "Nieuwe database aanmaken") = vbYes Then
+            createDb
+        End If
+    End If
 End Sub
 
 Private Sub mnuTouramentData_Click()

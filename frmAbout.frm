@@ -18,15 +18,15 @@ Begin VB.Form frmAbout
    Begin VB.PictureBox picIcon 
       AutoSize        =   -1  'True
       ClipControls    =   0   'False
-      Height          =   540
+      Height          =   885
       Left            =   240
       Picture         =   "frmAbout.frx":0000
-      ScaleHeight     =   337.12
+      ScaleHeight     =   579.425
       ScaleMode       =   0  'User
-      ScaleWidth      =   337.12
+      ScaleWidth      =   611.03
       TabIndex        =   1
       Top             =   240
-      Width           =   540
+      Width           =   930
    End
    Begin VB.CommandButton cmdOK 
       Cancel          =   -1  'True

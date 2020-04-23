@@ -1,5 +1,4 @@
 VERSION 5.00
-Object = "{F0D2F211-CCB0-11D0-A316-00AA00688B10}#1.0#0"; "MSDATLST.OCX"
 Object = "{86CF1D34-0C5F-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCT2.OCX"
 Object = "{C932BA88-4374-101B-A56C-00AA003668DC}#1.1#0"; "MSMASK32.OCX"
 Begin VB.Form newPoolForm 
@@ -24,13 +23,43 @@ Begin VB.Form newPoolForm
    MinButton       =   0   'False
    ScaleHeight     =   5190
    ScaleWidth      =   5790
+   Begin VB.ComboBox cmbTournaments 
+      Height          =   360
+      Left            =   1080
+      TabIndex        =   26
+      Top             =   1147
+      Width           =   1575
+   End
    Begin VB.Frame frmPrizes 
       Caption         =   "Prijzen"
       Height          =   2295
       Left            =   0
-      TabIndex        =   10
+      TabIndex        =   9
       Top             =   2160
       Width           =   5775
+      Begin MSComCtl2.UpDown upDnPerc 
+         Height          =   375
+         Index           =   0
+         Left            =   3720
+         TabIndex        =   27
+         Top             =   660
+         Width           =   255
+         _ExtentX        =   450
+         _ExtentY        =   661
+         _Version        =   393216
+         BuddyControl    =   "txtPercentage(0)"
+         BuddyDispid     =   196615
+         BuddyIndex      =   0
+         OrigLeft        =   3720
+         OrigTop         =   660
+         OrigRight       =   3975
+         OrigBottom      =   1035
+         Increment       =   5
+         Max             =   100
+         SyncBuddy       =   -1  'True
+         BuddyProperty   =   22
+         Enabled         =   -1  'True
+      End
       Begin MSMask.MaskEdBox txtHighestDayscore 
          DataField       =   "prizeMostDayPoints"
          BeginProperty DataFormat 
@@ -45,7 +74,7 @@ Begin VB.Form newPoolForm
          DataSource      =   "dtcPools"
          Height          =   375
          Left            =   1560
-         TabIndex        =   11
+         TabIndex        =   10
          Top             =   660
          Width           =   855
          _ExtentX        =   1508
@@ -68,7 +97,7 @@ Begin VB.Form newPoolForm
          DataSource      =   "dtcPools"
          Height          =   375
          Left            =   1560
-         TabIndex        =   12
+         TabIndex        =   11
          Top             =   1132
          Width           =   855
          _ExtentX        =   1508
@@ -90,7 +119,7 @@ Begin VB.Form newPoolForm
          DataSource      =   "dtcPools"
          Height          =   375
          Left            =   1560
-         TabIndex        =   13
+         TabIndex        =   12
          Top             =   1650
          Width           =   855
          _ExtentX        =   1508
@@ -114,13 +143,12 @@ Begin VB.Form newPoolForm
          Height          =   375
          Index           =   0
          Left            =   3240
-         TabIndex        =   14
+         TabIndex        =   13
          Top             =   660
-         Width           =   735
-         _ExtentX        =   1296
+         Width           =   525
+         _ExtentX        =   926
          _ExtentY        =   661
          _Version        =   393216
-         Format          =   "0%"
          PromptChar      =   "_"
       End
       Begin MSMask.MaskEdBox txtPrizeLastOverall 
@@ -137,8 +165,8 @@ Begin VB.Form newPoolForm
          DataSource      =   "dtcPools"
          Height          =   375
          Left            =   3600
-         TabIndex        =   18
-         Top             =   1650
+         TabIndex        =   14
+         Top             =   1770
          Width           =   855
          _ExtentX        =   1508
          _ExtentY        =   661
@@ -147,7 +175,7 @@ Begin VB.Form newPoolForm
          PromptChar      =   "_"
       End
       Begin MSMask.MaskEdBox txtPercentage 
-         DataField       =   "prizePercentageSecond"
+         DataField       =   "prizePercentageFirst"
          BeginProperty DataFormat 
             Type            =   1
             Format          =   "0%"
@@ -160,18 +188,40 @@ Begin VB.Form newPoolForm
          DataSource      =   "dtcPools"
          Height          =   375
          Index           =   1
-         Left            =   4680
-         TabIndex        =   15
-         Top             =   600
-         Width           =   735
-         _ExtentX        =   1296
+         Left            =   4800
+         TabIndex        =   28
+         Top             =   660
+         Width           =   465
+         _ExtentX        =   820
          _ExtentY        =   661
          _Version        =   393216
-         Format          =   "0%"
          PromptChar      =   "_"
       End
+      Begin MSComCtl2.UpDown upDnPerc 
+         Height          =   375
+         Index           =   1
+         Left            =   5265
+         TabIndex        =   30
+         Top             =   660
+         Width           =   255
+         _ExtentX        =   450
+         _ExtentY        =   661
+         _Version        =   393216
+         BuddyControl    =   "txtPercentage(1)"
+         BuddyDispid     =   196615
+         BuddyIndex      =   1
+         OrigLeft        =   3720
+         OrigTop         =   660
+         OrigRight       =   3975
+         OrigBottom      =   1035
+         Increment       =   5
+         Max             =   100
+         SyncBuddy       =   -1  'True
+         BuddyProperty   =   22
+         Enabled         =   -1  'True
+      End
       Begin MSMask.MaskEdBox txtPercentage 
-         DataField       =   "prizePercentageThird"
+         DataField       =   "prizePercentageFirst"
          BeginProperty DataFormat 
             Type            =   1
             Format          =   "0%"
@@ -185,17 +235,39 @@ Begin VB.Form newPoolForm
          Height          =   375
          Index           =   2
          Left            =   3240
-         TabIndex        =   16
-         Top             =   1132
-         Width           =   735
-         _ExtentX        =   1296
+         TabIndex        =   31
+         Top             =   1200
+         Width           =   465
+         _ExtentX        =   820
          _ExtentY        =   661
          _Version        =   393216
-         Format          =   "0%"
          PromptChar      =   "_"
       End
+      Begin MSComCtl2.UpDown upDnPerc 
+         Height          =   375
+         Index           =   2
+         Left            =   3705
+         TabIndex        =   33
+         Top             =   1200
+         Width           =   255
+         _ExtentX        =   450
+         _ExtentY        =   661
+         _Version        =   393216
+         BuddyControl    =   "txtPercentage(2)"
+         BuddyDispid     =   196615
+         BuddyIndex      =   2
+         OrigLeft        =   3720
+         OrigTop         =   660
+         OrigRight       =   3975
+         OrigBottom      =   1035
+         Increment       =   5
+         Max             =   100
+         SyncBuddy       =   -1  'True
+         BuddyProperty   =   22
+         Enabled         =   -1  'True
+      End
       Begin MSMask.MaskEdBox txtPercentage 
-         DataField       =   "prizePercentageFourth"
+         DataField       =   "prizePercentageFirst"
          BeginProperty DataFormat 
             Type            =   1
             Format          =   "0%"
@@ -208,24 +280,76 @@ Begin VB.Form newPoolForm
          DataSource      =   "dtcPools"
          Height          =   375
          Index           =   3
-         Left            =   4680
-         TabIndex        =   17
-         Top             =   1132
-         Width           =   735
-         _ExtentX        =   1296
+         Left            =   4800
+         TabIndex        =   34
+         Top             =   1200
+         Width           =   465
+         _ExtentX        =   820
          _ExtentY        =   661
          _Version        =   393216
-         Format          =   "0%"
          PromptChar      =   "_"
       End
-      Begin VB.Label lblTotal 
-         BackStyle       =   0  'Transparent
-         Caption         =   "%"
+      Begin MSComCtl2.UpDown upDnPerc 
          Height          =   375
+         Index           =   3
+         Left            =   5265
+         TabIndex        =   36
+         Top             =   1200
+         Width           =   255
+         _ExtentX        =   450
+         _ExtentY        =   661
+         _Version        =   393216
+         BuddyControl    =   "txtPercentage(3)"
+         BuddyDispid     =   196615
+         BuddyIndex      =   3
+         OrigLeft        =   3720
+         OrigTop         =   660
+         OrigRight       =   3975
+         OrigBottom      =   1035
+         Increment       =   5
+         Max             =   100
+         SyncBuddy       =   -1  'True
+         BuddyProperty   =   22
+         Enabled         =   -1  'True
+      End
+      Begin VB.Label lblTotal 
+         Alignment       =   2  'Center
+         Caption         =   "0"
+         Height          =   255
          Left            =   4680
+         TabIndex        =   37
+         Top             =   1800
+         Width           =   735
+      End
+      Begin VB.Label Label12 
+         BackStyle       =   0  'Transparent
+         Caption         =   "4e"
+         Height          =   375
+         Index           =   3
+         Left            =   4440
+         TabIndex        =   35
+         Top             =   1200
+         Width           =   375
+      End
+      Begin VB.Label Label12 
+         BackStyle       =   0  'Transparent
+         Caption         =   "3e"
+         Height          =   375
+         Index           =   2
+         Left            =   2880
          TabIndex        =   32
-         Top             =   1680
-         Width           =   855
+         Top             =   1200
+         Width           =   375
+      End
+      Begin VB.Label Label12 
+         BackStyle       =   0  'Transparent
+         Caption         =   "2e"
+         Height          =   375
+         Index           =   1
+         Left            =   4440
+         TabIndex        =   29
+         Top             =   660
+         Width           =   375
       End
       Begin VB.Label Label16 
          Alignment       =   1  'Right Justify
@@ -234,8 +358,8 @@ Begin VB.Form newPoolForm
          ForeColor       =   &H00004000&
          Height          =   255
          Left            =   2880
-         TabIndex        =   31
-         Top             =   1710
+         TabIndex        =   24
+         Top             =   1830
          Width           =   615
       End
       Begin VB.Label Label9 
@@ -245,7 +369,7 @@ Begin VB.Form newPoolForm
          ForeColor       =   &H00004000&
          Height          =   255
          Left            =   120
-         TabIndex        =   30
+         TabIndex        =   23
          Top             =   1710
          Width           =   1215
       End
@@ -256,7 +380,7 @@ Begin VB.Form newPoolForm
          ForeColor       =   &H00004000&
          Height          =   255
          Left            =   120
-         TabIndex        =   29
+         TabIndex        =   22
          Top             =   1192
          Width           =   1215
       End
@@ -267,54 +391,28 @@ Begin VB.Form newPoolForm
          ForeColor       =   &H00004000&
          Height          =   375
          Left            =   0
-         TabIndex        =   28
+         TabIndex        =   21
          Top             =   660
          Width           =   1335
-      End
-      Begin VB.Label Label14 
-         BackStyle       =   0  'Transparent
-         Caption         =   "2e"
-         Height          =   375
-         Left            =   4320
-         TabIndex        =   27
-         Top             =   660
-         Width           =   375
       End
       Begin VB.Label Label12 
          BackStyle       =   0  'Transparent
          Caption         =   "1e"
          Height          =   375
+         Index           =   0
          Left            =   2880
-         TabIndex        =   26
+         TabIndex        =   20
          Top             =   660
-         Width           =   375
-      End
-      Begin VB.Label Label15 
-         BackStyle       =   0  'Transparent
-         Caption         =   "4e"
-         Height          =   255
-         Left            =   4320
-         TabIndex        =   25
-         Top             =   1192
-         Width           =   375
-      End
-      Begin VB.Label Label13 
-         BackStyle       =   0  'Transparent
-         Caption         =   "3e"
-         Height          =   255
-         Left            =   2880
-         TabIndex        =   24
-         Top             =   1192
          Width           =   375
       End
       Begin VB.Label Label11 
          BackStyle       =   0  'Transparent
-         Caption         =   "Eindstand"
+         Caption         =   "Eindstand (percentages)"
          Height          =   255
-         Left            =   3840
-         TabIndex        =   23
+         Left            =   3000
+         TabIndex        =   19
          Top             =   240
-         Width           =   1215
+         Width           =   2295
       End
       Begin VB.Line Line2 
          X1              =   2640
@@ -327,7 +425,7 @@ Begin VB.Form newPoolForm
          Caption         =   "Dagprijzen"
          Height          =   255
          Left            =   720
-         TabIndex        =   22
+         TabIndex        =   18
          Top             =   240
          Width           =   1575
       End
@@ -336,7 +434,7 @@ Begin VB.Form newPoolForm
       DataSource      =   "dtcPools"
       Height          =   375
       Left            =   3960
-      TabIndex        =   5
+      TabIndex        =   4
       Top             =   1140
       Width           =   1095
       _ExtentX        =   1931
@@ -360,7 +458,7 @@ Begin VB.Form newPoolForm
       Left            =   0
       ScaleHeight     =   675
       ScaleWidth      =   5730
-      TabIndex        =   21
+      TabIndex        =   17
       Top             =   4455
       Width           =   5790
       Begin VB.CommandButton btnCancel 
@@ -368,7 +466,7 @@ Begin VB.Form newPoolForm
          Caption         =   "Annuleren"
          Height          =   495
          Left            =   3000
-         TabIndex        =   19
+         TabIndex        =   15
          Top             =   120
          Visible         =   0   'False
          Width           =   1215
@@ -378,47 +476,35 @@ Begin VB.Form newPoolForm
          Default         =   -1  'True
          Height          =   495
          Left            =   4320
-         TabIndex        =   20
+         TabIndex        =   16
          Top             =   120
          Width           =   1215
       End
-   End
-   Begin MSDataListLib.DataCombo cmbTournaments 
-      DataSource      =   "dtcPools"
-      Height          =   360
-      Left            =   1080
-      TabIndex        =   3
-      Top             =   1140
-      Width           =   1575
-      _ExtentX        =   2778
-      _ExtentY        =   635
-      _Version        =   393216
-      Text            =   ""
    End
    Begin MSComCtl2.DTPicker dtpStart 
       DataSource      =   "dtcPools"
       Height          =   375
       Left            =   1080
-      TabIndex        =   7
+      TabIndex        =   6
       Top             =   1620
       Width           =   1575
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   149094401
+      Format          =   147849217
       CurrentDate     =   43932
    End
    Begin MSComCtl2.DTPicker dtpEind 
       DataSource      =   "dtcPools"
       Height          =   375
       Left            =   3600
-      TabIndex        =   9
+      TabIndex        =   8
       Top             =   1620
       Width           =   1575
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   149094401
+      Format          =   147849217
       CurrentDate     =   43932
    End
    Begin VB.Label Label1 
@@ -427,7 +513,7 @@ Begin VB.Form newPoolForm
       Caption         =   "Voeg nieuwe pool toe"
       Height          =   375
       Left            =   0
-      TabIndex        =   33
+      TabIndex        =   25
       Tag             =   "kop"
       Top             =   120
       Width           =   5775
@@ -439,7 +525,7 @@ Begin VB.Form newPoolForm
       ForeColor       =   &H00004000&
       Height          =   255
       Left            =   2880
-      TabIndex        =   4
+      TabIndex        =   3
       Top             =   1200
       Width           =   735
    End
@@ -461,7 +547,7 @@ Begin VB.Form newPoolForm
       ForeColor       =   &H00004000&
       Height          =   255
       Left            =   3000
-      TabIndex        =   8
+      TabIndex        =   7
       Top             =   1680
       Width           =   375
    End
@@ -472,7 +558,7 @@ Begin VB.Form newPoolForm
       ForeColor       =   &H00004000&
       Height          =   255
       Left            =   0
-      TabIndex        =   6
+      TabIndex        =   5
       Top             =   1680
       Width           =   975
    End
@@ -482,7 +568,7 @@ Begin VB.Form newPoolForm
       Caption         =   "Toernooi"
       ForeColor       =   &H00004000&
       Height          =   255
-      Left            =   120
+      Left            =   0
       TabIndex        =   2
       Top             =   1200
       Width           =   855
@@ -497,18 +583,19 @@ Option Explicit
 
 Private Sub btnClose_Click()
 Dim sqlstr As String
-    'save the record
-    'build save string
     Dim i As Integer
+    Dim tournID As Long
+    tournID = Me.cmbTournaments.ItemData(Me.cmbTournaments.ListIndex)
     With Me
+        'build save string
         sqlstr = "insert into tblPools (tournamentID, poolName, poolStartAcceptForms, poolEndAcceptforms, "
         sqlstr = sqlstr & "poolcost, prizeHighDayScore, prizeHighDayOverallPosition, prizeLowDayOverallPosition, "
         sqlstr = sqlstr & "prizePercentageFirst, prizePercentageSecond, prizePercentageThird, prizePercentageFourth, "
         sqlstr = sqlstr & "prizeLowFinalOverallPosition) VALUES ("
-        sqlstr = sqlstr & Val(.cmbTournaments.BoundText) & ", '" & .txtPoolName & "', " & CDbl(.dtpStart) & ", " & CDbl(.dtpStart) & ", "
+        sqlstr = sqlstr & tournID & ", '" & .txtPoolName & "', " & CDbl(.dtpStart) & ", " & CDbl(.dtpStart) & ", "
         sqlstr = sqlstr & float(.txtCosts) & ", " & float(.txtHighestDayscore) & ", " & float(.txtHighestPosition) & ", " & float(.txtLowestPosition) & ", "
         For i = 0 To 3
-            sqlstr = sqlstr & float(.txtPercentage(i)) & ", "
+            sqlstr = sqlstr & float(.txtPercentage(i)) / 100 & ", "
         Next
         sqlstr = sqlstr & float(.txtPrizeLastOverall) & ")"
     End With
@@ -521,7 +608,6 @@ Private Sub btnCancel_Click()
 End Sub
 
 Private Sub Form_Load()
-Dim ctl As Control
 Dim sqlstr As String
 Dim i As Integer
 Dim rs As ADODB.Recordset
@@ -534,14 +620,14 @@ Dim rs As ADODB.Recordset
 'basis tabel
 
 'fill tournament combo
-    Me.txtPoolName.DataField = "poolName"
-    sqlstr = "Select tournamentID, tournamentType & ' - ' & tournamentYear as tournament from tblTournaments order by tournamentYear"
-    rs.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
-    With Me.cmbTournaments
-        Set .RowSource = rs
-        .BoundColumn = "tournamentId"
-        .ListField = "tournament"
-    End With
+    sqlstr = "Select tournamentID, "
+    If dBaseType = "ACCESS" Then
+        sqlstr = sqlstr & " tournamentYear & ' - '  & tournamentType "
+    Else
+        sqlstr = sqlstr & " concat(tournamentYear, ' - ', tournamentType) "
+    End If
+    sqlstr = sqlstr & " as tournament from tblTournaments order by tournamentYear"
+    FillCombo Me.cmbTournaments, sqlstr, "tournament", "tournamentID"
     
     If (rs.State And adStateOpen) = adStateOpen Then rs.Close
     Set rs = Nothing
@@ -554,17 +640,16 @@ Sub calcTotalPercentage()
     Dim i As Integer
     
     For i = 0 To 3
-        totalPerc = totalPerc + Val(Me.txtPercentage(i).Text)
+        totalPerc = totalPerc + Val(float(Me.txtPercentage(i).Text))
     Next
     Me.lblTotal.Caption = Format(totalPerc / 100, "0%")
     If totalPerc <> 100 Then
         Me.lblTotal.ForeColor = vbRed
     Else
-        Me.lblTotal.ForeColor = Me.Label15.ForeColor
+        Me.lblTotal.ForeColor = Me.Label1.ForeColor
     End If
 End Sub
 
-Private Sub txtPercentage_Change(Index As Integer)
+Private Sub txtPercentage_LostFocus(Index As Integer)
     calcTotalPercentage
 End Sub
-

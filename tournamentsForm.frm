@@ -1,6 +1,4 @@
 VERSION 5.00
-Object = "{67397AA1-7FB1-11D0-B148-00A0C922E820}#6.0#0"; "MSADODC.OCX"
-Object = "{F0D2F211-CCB0-11D0-A316-00AA00688B10}#1.0#0"; "MSDATLST.OCX"
 Object = "{86CF1D34-0C5F-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCT2.OCX"
 Begin VB.Form tournamentsForm 
    BackColor       =   &H00E0E0E0&
@@ -24,10 +22,17 @@ Begin VB.Form tournamentsForm
    MinButton       =   0   'False
    ScaleHeight     =   3660
    ScaleWidth      =   5715
+   Begin VB.ComboBox cmbLanden 
+      Height          =   360
+      Left            =   3120
+      TabIndex        =   21
+      Top             =   2400
+      Width           =   2415
+   End
    Begin VB.CheckBox chkThrirdPlace 
       Height          =   255
       Left            =   1560
-      TabIndex        =   20
+      TabIndex        =   19
       Top             =   2400
       Width           =   255
    End
@@ -35,7 +40,7 @@ Begin VB.Form tournamentsForm
       DataSource      =   "dtcTournaments"
       Height          =   360
       Left            =   4800
-      TabIndex        =   18
+      TabIndex        =   17
       Top             =   1860
       Width           =   420
    End
@@ -46,7 +51,7 @@ Begin VB.Form tournamentsForm
       Left            =   0
       ScaleHeight     =   675
       ScaleWidth      =   5655
-      TabIndex        =   15
+      TabIndex        =   14
       Top             =   2925
       Width           =   5715
       Begin VB.CommandButton btnCancel 
@@ -54,7 +59,7 @@ Begin VB.Form tournamentsForm
          Caption         =   "Annuleren"
          Height          =   495
          Left            =   2910
-         TabIndex        =   12
+         TabIndex        =   11
          Top             =   120
          Visible         =   0   'False
          Width           =   1215
@@ -63,7 +68,7 @@ Begin VB.Form tournamentsForm
          Caption         =   "Opslaan"
          Height          =   495
          Left            =   1575
-         TabIndex        =   11
+         TabIndex        =   10
          Top             =   120
          Width           =   1215
       End
@@ -72,7 +77,7 @@ Begin VB.Form tournamentsForm
          Default         =   -1  'True
          Height          =   495
          Left            =   4245
-         TabIndex        =   13
+         TabIndex        =   12
          Top             =   120
          Width           =   1215
       End
@@ -88,83 +93,24 @@ Begin VB.Form tournamentsForm
    Begin MSComCtl2.UpDown upDwnTeamAantal 
       Height          =   360
       Left            =   1860
-      TabIndex        =   14
+      TabIndex        =   13
       Top             =   1860
       Width           =   255
       _ExtentX        =   450
       _ExtentY        =   635
       _Version        =   393216
-      Value           =   4
+      Value           =   8
       BuddyControl    =   "txtTeamAantal"
       BuddyDispid     =   196615
       OrigLeft        =   1920
       OrigTop         =   1800
       OrigRight       =   2175
       OrigBottom      =   2175
-      Max             =   12
-      Min             =   2
+      Max             =   48
+      Min             =   8
       SyncBuddy       =   -1  'True
       BuddyProperty   =   65547
       Enabled         =   -1  'True
-   End
-   Begin MSAdodcLib.Adodc dtcTournaments 
-      Height          =   360
-      Left            =   3600
-      Top             =   120
-      Visible         =   0   'False
-      Width           =   1935
-      _ExtentX        =   3413
-      _ExtentY        =   635
-      ConnectMode     =   0
-      CursorLocation  =   3
-      IsolationLevel  =   -1
-      ConnectionTimeout=   15
-      CommandTimeout  =   30
-      CursorType      =   3
-      LockType        =   3
-      CommandType     =   8
-      CursorOptions   =   0
-      CacheSize       =   50
-      MaxRecords      =   0
-      BOFAction       =   0
-      EOFAction       =   0
-      ConnectStringType=   1
-      Appearance      =   1
-      BackColor       =   14737632
-      ForeColor       =   -2147483640
-      Orientation     =   0
-      Enabled         =   -1
-      Connect         =   ""
-      OLEDBString     =   ""
-      OLEDBFile       =   ""
-      DataSourceName  =   "MS Access Database"
-      OtherAttributes =   ""
-      UserName        =   ""
-      Password        =   ""
-      RecordSource    =   ""
-      Caption         =   ""
-      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-         Name            =   "Tahoma"
-         Size            =   9.75
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      _Version        =   393216
-   End
-   Begin MSDataListLib.DataCombo cmbLanden 
-      DataSource      =   "dtcTournaments"
-      Height          =   360
-      Left            =   3240
-      TabIndex        =   10
-      Top             =   2340
-      Width           =   2295
-      _ExtentX        =   4048
-      _ExtentY        =   635
-      _Version        =   393216
-      Text            =   ""
    End
    Begin MSComCtl2.DTPicker dtpStart 
       DataSource      =   "dtcTournaments"
@@ -176,7 +122,7 @@ Begin VB.Form tournamentsForm
       _ExtentX        =   2990
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   146931713
+      Format          =   147456001
       CurrentDate     =   43932
    End
    Begin VB.ComboBox cmbYear 
@@ -205,13 +151,13 @@ Begin VB.Form tournamentsForm
       _ExtentX        =   2990
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   146931713
+      Format          =   147456001
       CurrentDate     =   43932
    End
    Begin MSComCtl2.UpDown UpDnGroupCount 
       Height          =   360
       Left            =   5220
-      TabIndex        =   19
+      TabIndex        =   18
       Top             =   1860
       Width           =   255
       _ExtentX        =   450
@@ -225,7 +171,7 @@ Begin VB.Form tournamentsForm
       OrigRight       =   2175
       OrigBottom      =   2175
       Max             =   12
-      Min             =   8
+      Min             =   2
       SyncBuddy       =   -1  'True
       BuddyProperty   =   65547
       Enabled         =   -1  'True
@@ -237,7 +183,7 @@ Begin VB.Form tournamentsForm
       ForeColor       =   &H00004000&
       Height          =   255
       Left            =   120
-      TabIndex        =   21
+      TabIndex        =   20
       Top             =   2400
       Width           =   1215
    End
@@ -248,7 +194,7 @@ Begin VB.Form tournamentsForm
       ForeColor       =   &H00004000&
       Height          =   255
       Left            =   3240
-      TabIndex        =   17
+      TabIndex        =   16
       Top             =   1920
       Width           =   1455
    End
@@ -258,7 +204,7 @@ Begin VB.Form tournamentsForm
       Caption         =   "Toernooi gegevens"
       Height          =   375
       Left            =   240
-      TabIndex        =   16
+      TabIndex        =   15
       Tag             =   "kop"
       Top             =   120
       Width           =   5295
@@ -381,28 +327,26 @@ Private Sub btnSave_Click()
     
 End Sub
 
-Private Sub dtcTournaments_MoveComplete(ByVal adReason As ADODB.EventReasonEnum, ByVal pError As ADODB.Error, adStatus As ADODB.EventStatusEnum, ByVal pRecordset As ADODB.Recordset)
-    With Me.dtcTournaments
-        .Caption = " " & .Recordset.AbsolutePosition & "/" & .Recordset.RecordCount
-    End With
-End Sub
-
 Private Sub Form_Load()
 Dim i As Integer
 Dim ctl As Control
 Dim rs As ADODB.Recordset
-Set rs = New ADODB.Recordset
+Dim adoCmd As ADODB.Command
 
 Dim sqlstr As String
 
+Set adoCmd = New ADODB.Command
+
 'set Form defaults
     UnifyForm Me
-
-'basis tabel
-    With Me.dtcTournaments
-        .ConnectionString = cn.ConnectionString
+    sqlstr = "Select * from tblTournaments WHERE tournamentID = ?"
+    With adoCmd
+        .ActiveConnection = cn
         .CommandType = adCmdText
-        .RecordSource = "select * from tblTournaments where tournamentID = " & getThisPoolTournamentId()
+        .CommandText = sqlstr
+        .Parameters.Append .CreateParameter("id", adInteger, adParamInputOutput)
+        .Parameters("id").Value = thisTournament
+        Set rs = .Execute
     End With
     
 'bindings
@@ -410,47 +354,48 @@ Dim sqlstr As String
         .AddItem "CL"
         .AddItem "EK"
         .AddItem "WK"
-        Set .DataSource = Me.dtcTournaments
-        .DataField = "tournamentType"
     End With
     With Me.cmbYear
         For i = Year(Now) - 10 To Year(Now) + 10
             Me.cmbYear.AddItem i
         Next
-        Set .DataSource = Me.dtcTournaments
-        .DataField = "tournamentYear"
-    End With
-    With Me.dtpStart
-        Set .DataSource = Me.dtcTournaments
-        .DataField = "tournamentStartDate"
-    End With
-    With Me.dtpEind
-        Set .DataSource = Me.dtcTournaments
-        .DataField = "tournamentEndDate"
-    End With
-    With Me.txtTeamAantal
-        Set .DataSource = Me.dtcTournaments
-        .DataField = "tournamentTeamCount"
-    End With
-    With Me.txtGroupCount
-        Set .DataSource = Me.dtcTournaments
-        .DataField = "tournamentGroupCount"
-    End With
-    With Me.chkThrirdPlace
-        Set .DataSource = Me.dtcTournaments
-        .DataField = "tournamentThirdPlace"
     End With
     sqlstr = "Select * from tblCountries order by countryName"
-    rs.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
-    With Me.cmbLanden
-        Set .RowSource = rs
-        Set .DataSource = Me.dtcTournaments
-        .BoundColumn = "countryId"
-        .ListField = "countryName"
-        .DataField = "tournamentLocationID"
-    End With
+    FillCombo Me.cmbLanden, sqlstr, "countryname", "countryid"
     
-    Me.dtcTournaments.Recordset.MoveLast
+    Me.cmbType = rs!tournamenttype
+    Me.cmbYear = rs!tournamentYear
+    Me.dtpStart = CDbl(rs!tournamentstartdate)
+    Me.dtpEind = CDbl(rs!tournamentEnddate)
+    Me.UpDnGroupCount.Value = rs!tournamentGroupCount
+    Me.upDwnTeamAantal = rs!tournamentTeamCount
+    For i = 0 To Me.cmbLanden.ListCount - 1
+        If Me.cmbLanden.ItemData(i) = rs!tournamentLocationID Then
+            Me.cmbLanden.ListIndex = i
+            Exit For
+        End If
+    Next
+        
+'    With Me.dtpStart
+'        Set .DataSource = Me.dtcTournaments
+'        .DataField = "tournamentStartDate"
+'    End With
+'    With Me.dtpEind
+'        Set .DataSource = Me.dtcTournaments
+'        .DataField = "tournamentEndDate"
+'    End With
+'    With Me.txtTeamAantal
+'        Set .DataSource = Me.dtcTournaments
+'        .DataField = "tournamentTeamCount"
+'    End With
+'    With Me.txtGroupCount
+'        Set .DataSource = Me.dtcTournaments
+'        .DataField = "tournamentGroupCount"
+'    End With
+'    With Me.chkThrirdPlace
+'        Set .DataSource = Me.dtcTournaments
+'        .DataField = "tournamentThirdPlace"
+'    End With
     
     Me.btnSave.Enabled = Not chkTournamentStarted()
 

@@ -1,6 +1,4 @@
 VERSION 5.00
-Object = "{67397AA1-7FB1-11D0-B148-00A0C922E820}#6.0#0"; "MSADODC.OCX"
-Object = "{F0D2F211-CCB0-11D0-A316-00AA00688B10}#1.0#0"; "MSDATLST.OCX"
 Begin VB.Form openPool 
    BorderStyle     =   3  'Fixed Dialog
    Caption         =   "Open Pool"
@@ -23,66 +21,12 @@ Begin VB.Form openPool
    ScaleHeight     =   2610
    ScaleWidth      =   4155
    ShowInTaskbar   =   0   'False
-   Begin MSDataListLib.DataCombo cmbPools 
-      DataSource      =   "dtcPools"
+   Begin VB.ComboBox cmbSelPool 
       Height          =   315
       Left            =   240
-      TabIndex        =   4
+      TabIndex        =   9
       Top             =   480
       Width           =   3735
-      _ExtentX        =   6588
-      _ExtentY        =   556
-      _Version        =   393216
-      ListField       =   "poolName"
-      BoundColumn     =   "poolID"
-      Text            =   ""
-   End
-   Begin MSAdodcLib.Adodc dtcPools 
-      Height          =   375
-      Left            =   2400
-      Top             =   0
-      Visible         =   0   'False
-      Width           =   1215
-      _ExtentX        =   2143
-      _ExtentY        =   661
-      ConnectMode     =   0
-      CursorLocation  =   3
-      IsolationLevel  =   -1
-      ConnectionTimeout=   15
-      CommandTimeout  =   30
-      CursorType      =   3
-      LockType        =   3
-      CommandType     =   1
-      CursorOptions   =   0
-      CacheSize       =   50
-      MaxRecords      =   0
-      BOFAction       =   0
-      EOFAction       =   0
-      ConnectStringType=   1
-      Appearance      =   1
-      BackColor       =   -2147483643
-      ForeColor       =   -2147483640
-      Orientation     =   0
-      Enabled         =   -1
-      Connect         =   ""
-      OLEDBString     =   ""
-      OLEDBFile       =   ""
-      DataSourceName  =   ""
-      OtherAttributes =   ""
-      UserName        =   ""
-      Password        =   ""
-      RecordSource    =   ""
-      Caption         =   "Pools"
-      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-         Name            =   "Tahoma"
-         Size            =   8.25
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      _Version        =   393216
    End
    Begin VB.CommandButton CancelButton 
       Caption         =   "Cancel"
@@ -101,10 +45,9 @@ Begin VB.Form openPool
       Width           =   1215
    End
    Begin VB.Label lblPoolID 
-      Caption         =   "Label3"
       Height          =   375
       Left            =   3120
-      TabIndex        =   9
+      TabIndex        =   8
       Top             =   960
       Visible         =   0   'False
       Width           =   495
@@ -114,7 +57,7 @@ Begin VB.Form openPool
       Height          =   255
       Index           =   1
       Left            =   240
-      TabIndex        =   8
+      TabIndex        =   7
       Top             =   2055
       Width           =   495
    End
@@ -123,7 +66,7 @@ Begin VB.Form openPool
       Height          =   255
       Index           =   0
       Left            =   240
-      TabIndex        =   7
+      TabIndex        =   6
       Top             =   1560
       Width           =   495
    End
@@ -133,7 +76,7 @@ Begin VB.Form openPool
       Height          =   375
       Index           =   0
       Left            =   240
-      TabIndex        =   6
+      TabIndex        =   5
       Top             =   960
       Width           =   2295
    End
@@ -142,7 +85,7 @@ Begin VB.Form openPool
       Height          =   375
       Index           =   2
       Left            =   840
-      TabIndex        =   5
+      TabIndex        =   4
       Top             =   1935
       Width           =   1695
    End
@@ -178,28 +121,25 @@ Private Sub CancelButton_Click()
     Unload Me
 End Sub
 
-Private Sub cmbPools_Click(Area As Integer)
-    Set rs = New ADODB.Recordset
 
-    Dim tournamentID As Long
+Private Sub cmbSelPool_Click()
+    Dim sqlstr As String
+    Dim lstID As Long
     
-    If Area <> 0 Then
-        rs.Open "Select * from tblPools WHERE poolID = " & Val(Me.cmbPools.BoundText), cn, adOpenKeyset, adLockReadOnly
-        If Not rs.EOF Then
-            Me.lblPoolID.Caption = rs!poolid
-            tournamentID = rs!tournamentID
-            rs.Close
-            rs.Open "Select * from tblTournaments WHERE tournamentID = " & tournamentID, cn, adOpenKeyset, adLockReadOnly
-            If Not rs.EOF Then
-                With Me
-                    .lblTournamentInfo(0).Caption = "Toernooi: " & rs!tournamenttype & "-" & rs!tournamentYear
-                    .lblTournamentInfo(1).Caption = rs!tournamentStartDate
-                    .lblTournamentInfo(2).Caption = rs!tournamentEnddate
-                End With
-            End If
-            rs.Close
-        End If
+    Set rs = New ADODB.Recordset
+    
+    lstID = Me.cmbSelPool.ItemData(Me.cmbSelPool.ListIndex)
+    thisPool = lstID
+    sqlstr = "Select * from tblTournaments WHERE tournamentID=" & getThisPoolTournamentId()
+    rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+    If Not rs.EOF Then
+        With Me
+            .lblTournamentInfo(0).Caption = "Toernooi: " & rs!tournamenttype & "-" & rs!tournamentYear
+            .lblTournamentInfo(1).Caption = rs!tournamentStartDate
+            .lblTournamentInfo(2).Caption = rs!tournamentEnddate
+        End With
     End If
+    
 
 End Sub
 
@@ -208,8 +148,8 @@ Private Sub Form_Load()
     sqlstr = "Select * from tblPools"
     Set rs = New ADODB.Recordset
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
-    Set Me.cmbPools.RowSource = rs
-   
+'    Set Me.cmbPools.RowSource = rs
+    FillCombo Me.cmbSelPool, sqlstr, "poolName", "poolId"
 'set Form defaults
     UnifyForm Me
     
@@ -222,7 +162,7 @@ Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
 End Sub
 
 Private Sub OKButton_Click()
-    thisPool = Val(Me.lblPoolID.Caption)
+    thisPool = Me.cmbSelPool.ItemData(Me.cmbSelPool.ListIndex)
     thisTournament = getThisPoolTournamentId
     SaveSetting App.EXEName, "global", "lastpool", thisPool
     Unload Me
