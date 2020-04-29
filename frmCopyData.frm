@@ -139,7 +139,6 @@ End Sub
 
 Private Sub Form_Load()
 Dim sqlstr As String
-    If Not cnOpen(myConn) Then openMySql
     'fill combobox
     sqlstr = "Select tournamentID, "
     sqlstr = sqlstr & " concat(tournamentYear, ' - ', tournamentType) "
@@ -209,9 +208,13 @@ Dim tournTable As Boolean
         End If
         rs.MoveNext
     Loop
+    
     rs.Close
     Set rs = Nothing
     Set adoCatalog = Nothing
+    myConn.Close
+    Set myConn = Nothing
+    
     Me.lblTblName.Caption = "Klaar! vbpool.MDB ingelezen"
     Me.lblRecord.Caption = ""
     Exit Sub
@@ -230,9 +233,12 @@ Dim dellstr As String
 Dim delstr As String
 Dim valStr As String
 Dim fld As field
+    'open mySQL connectin
+    openMySql
+    
     'open the access database
     If Not cnOpen(cn) Then openDB
-
+    
     Set cmnd = New ADODB.Command
     'open the fromTable
     With cmnd
@@ -282,7 +288,8 @@ nextTable:
     Set cmnd = Nothing
     rsTo.Close
     Set rsTo = Nothing
-
+    myConn.Close
+    Set myConn = Nothing
 End Sub
 
 Sub duplicateFields(toTable As adox.Table, fromTbl As String)
@@ -292,6 +299,7 @@ Sub duplicateFields(toTable As adox.Table, fromTbl As String)
     Dim sqlstr As String
     Dim ln As Integer
     Dim fldName As String
+    openMySql
     'get all tables from the server
     Set rs = New ADODB.Recordset
     sqlstr = "SHOW COLUMNS in " & fromTbl & " in " & dbName
@@ -321,7 +329,8 @@ Sub duplicateFields(toTable As adox.Table, fromTbl As String)
     rs.Close
     Set rs = Nothing
     Set col = Nothing
-    
+    myConn.Close
+    Set myConn = Nothing
 End Sub
 
 

@@ -21,12 +21,10 @@ Sub Main()
     If Dir(App.Path & "\" & dbName & ".mdb") = "" Then
         createDb
     End If
-    If Not cnOpen(cn) Then openDB
-    If tableExists("tblPools") Then
+    
+    If recordsExist("tblPools") Then
         ' get last poolID
-        If getPoolInfo("poolName") Then
-            thisPool = Val(GetSetting(App.EXEName, "global", "lastpool", 0))
-        End If
+        thisPool = Val(GetSetting(App.EXEName, "global", "lastpool", 0))
     End If
     If thisPool Then
         thisTournament = getThisPoolTournamentId()
@@ -97,6 +95,7 @@ Public Sub FillCombo(objComboBox As ComboBox, _
     Dim oRS As ADODB.Recordset  'Load the data
     Dim conn As ADODB.Connection
     If mySql Then
+        openMySql
         Set conn = myConn
     Else
         Set conn = cn
@@ -128,6 +127,11 @@ Public Sub FillCombo(objComboBox As ComboBox, _
     Set oRS = Nothing
     conn.Close
     Set conn = Nothing
+    If mySql Then
+        myConn.Close
+        Set myConn = Nothing
+    End If
+
 End Sub
 
 Public Function DoLogin() As Boolean

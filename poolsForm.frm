@@ -469,7 +469,7 @@ Begin VB.Form poolsForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   37879809
+      Format          =   147390465
       CurrentDate     =   43932
    End
    Begin MSComCtl2.DTPicker dtpEind 
@@ -482,7 +482,7 @@ Begin VB.Form poolsForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   37879809
+      Format          =   147390465
       CurrentDate     =   43932
    End
    Begin VB.Label lblTitle 
@@ -567,7 +567,7 @@ Option Explicit
 
 Dim editState As Boolean
 
-Dim rsTournaments As ADODB.Recordset
+Dim rsTournaments As adodb.Recordset
 
 
 Private Sub btnClose_Click()
@@ -622,7 +622,7 @@ Private Sub Form_Load()
 Dim ctl As Control
 Dim sqlstr As String
 Dim i As Integer
-    Set rsTournaments = New ADODB.Recordset
+    Set rsTournaments = New adodb.Recordset
 'set Form defaults
     UnifyForm Me
 
@@ -653,14 +653,14 @@ Dim i As Integer
     
     'prizes
     Me.txtHighestDayscore.DataField = "prizeHighDayScore"
-    Me.txtHighestPosition.DataField = "prizeHighDayOverallPosition"
-    Me.txtLowestPosition.DataField = "prizeLowDayOverallPosition"
+    Me.txtHighestPosition.DataField = "prizeHighDayPosition"
+    Me.txtLowestPosition.DataField = "prizeLowDayPosition"
     
     Me.txtPercentage(0).DataField = "prizePercentageFirst"
     Me.txtPercentage(1).DataField = "prizePercentageSecond"
     Me.txtPercentage(2).DataField = "prizePercentageThird"
     Me.txtPercentage(3).DataField = "prizePercentageFourth"
-    Me.txtPrizeLastOverall.DataField = "prizeLowFinalOverallPosition"
+    Me.txtPrizeLastOverall.DataField = "prizeLowFinalPosition"
     
     
     Me.btnSave.Enabled = Not chkTournamentStarted()

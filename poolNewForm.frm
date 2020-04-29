@@ -490,7 +490,7 @@ Begin VB.Form newPoolForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   146931713
+      Format          =   147456001
       CurrentDate     =   43932
    End
    Begin MSComCtl2.DTPicker dtpEind 
@@ -503,7 +503,7 @@ Begin VB.Form newPoolForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   146931713
+      Format          =   147456001
       CurrentDate     =   43932
    End
    Begin VB.Label Label1 
@@ -588,9 +588,9 @@ Dim sqlstr As String
     With Me
         'build save string
         sqlstr = "insert into tblPools (tournamentID, poolName, poolStartAcceptForms, poolEndAcceptforms, "
-        sqlstr = sqlstr & "poolcost, prizeHighDayScore, prizeHighDayOverallPosition, prizeLowDayOverallPosition, "
+        sqlstr = sqlstr & "poolcost, prizeHighDayScore, prizeHighDayPosition, prizeLowDayPosition, "
         sqlstr = sqlstr & "prizePercentageFirst, prizePercentageSecond, prizePercentageThird, prizePercentageFourth, "
-        sqlstr = sqlstr & "prizeLowFinalOverallPosition) VALUES ("
+        sqlstr = sqlstr & "prizeLowFinalPosition) VALUES ("
         sqlstr = sqlstr & tournID & ", '" & .txtPoolName & "', " & CDbl(.dtpStart) & ", " & CDbl(.dtpStart) & ", "
         sqlstr = sqlstr & float(.txtCosts) & ", " & float(.txtHighestDayscore) & ", " & float(.txtHighestPosition) & ", " & float(.txtLowestPosition) & ", "
         For i = 0 To 3

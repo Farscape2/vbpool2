@@ -4,8 +4,8 @@ Attribute VB_Name = "dbDefinition"
 
 Option Explicit
 
-Public cn As adodb.Connection      'Access connection
-Public myConn As adodb.Connection  'MySql Connection
+Public cn As ADODB.Connection      'Access connection
+Public myConn As ADODB.Connection  'MySql Connection
 
 Public Const dbName = "vbpool2"
 
@@ -19,7 +19,7 @@ Dim fullPath As String
     If Dir(fullPath) = "" Then
         'frmCopyData.Show 1
     End If
-    Set cn = New adodb.Connection
+    Set cn = New ADODB.Connection
     
     With cn
     '''''''ACCESS Connection
@@ -40,8 +40,7 @@ Sub openMySql()
     server = "192.168.178.14"
     'server = "jotaservices.duckdns.org"
     driver = "{MariaDB ODBC 3.1 Driver}"
-    Set myConn = New adodb.Connection
-    If myConn.State = 1 Then myConn.Close
+    Set myConn = New ADODB.Connection
     With myConn
         cnstr = "DRIVER=" & driver & ";TCPIP=1;SERVER=" & server & ";DATABASE=" & dbName & ";UID=jeroen;PWD=" & passwd & ";port=3306"
         .ConnectionString = cnstr
@@ -52,7 +51,7 @@ End Sub
 
 Function tableExists(srcTable As String)
 'check if table exists in local database
-Dim rs As adodb.Recordset
+Dim rs As ADODB.Recordset
     If Not cnOpen(cn) Then openDB
     Set rs = cn.OpenSchema(adSchemaColumns, Array(Empty, Empty, srcTable, Empty))
     tableExists = Not (rs.BOF And rs.EOF)
@@ -61,9 +60,9 @@ Dim rs As adodb.Recordset
 End Function
 
 Function recordsExist(tblName As String)
-    Dim rs As adodb.Recordset
+    Dim rs As ADODB.Recordset
     If tableExists(tblName) Then
-        Set rs = New adodb.Recordset
+        Set rs = New ADODB.Recordset
         rs.Open "Select * from " & tblName, cn, adOpenKeyset, adLockReadOnly
         recordsExist = Not rs.EOF
     Else
@@ -131,8 +130,56 @@ Sub createDb()
     MsgBox "Nieuwe database is aangemaakt." & vbNewLine & "Vul de gegevens in en kies een wachtwoord", vbOKOnly + vbInformation, "Nieuwe installatie"
     If Not cnOpen(cn) Then openDB
     frmOrganisation.Show 1
+    fillDefaultValues
 End Sub
 
+
+Sub fillDefaultValues()
+'fill some tables with default values
+    Dim rs As ADODB.Recordset
+    Dim sqlstr As String
+    Dim cmd As ADODB.Command
+    Dim orgID As Long
+    If Not cnOpen(cn) Then openDB
+    Set rs = New ADODB.Recordset
+    sqlstr = "Select * from tblTournaments ORDER BY tournamentStartDate"
+    rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+    If rs.EOF Then
+        MsgBox "Database problem", vbOKOnly + vbCritical, "Contact Jota"
+        Exit Sub
+    End If
+    'get the last tournament ID
+    rs.MoveLast
+    thisTournament = rs!tournamentId
+    rs.Close
+    'get the OrganisationID - should be only one organisation
+    orgID = getOrganisation("organisationID")
+    'create a first record in tblPools
+    sqlstr = "INSERT INTO tblPools (tournamentId, OrganisationId) VALUES (" & thisTournament & ", " & orgID & ")"
+    cn.Execute sqlstr
+    'default data for thispool
+    rs.Open "Select * from tblPools"
+        rs.MoveLast 'just in case
+        rs!Poolname = "Eerste pool"
+        rs!poolFormsFrom = Date
+        rs!poolformstill = getTournamentInfo("tournamentEndDate") - 7
+        rs!poolcost = 10
+        rs!prizeHighDayScore = 2.5
+        rs!prizeHighDayPosition = 1
+        rs!prizeLowDayPosition = 0.1
+        rs!prizePercentageFirst = 0.5
+        rs!prizePercentageSecond = 0.3
+        rs!prizePercentageThird = 0.2
+        rs!prizePercentageFourth = 0
+        rs!prizeLowFinalPosition = 10
+    rs.Update
+    rs.Close
+    'default data for points
+    Set cmd = New ADODB.Command
+    'construct command to fill poolpoints with pointtypes
+    
+    
+End Sub
 Sub makeTables()
     Dim sqlstr As String
     'new local tables just in case
@@ -246,13 +293,13 @@ Sub makeTables()
     sqlstr = sqlstr & "poolEndAcceptForms datetime DEFAULT NULL,"
     sqlstr = sqlstr & "poolCost decimal(19,4) DEFAULT 10.0000,"
     sqlstr = sqlstr & "prizeHighDayScore decimal(19,4) DEFAULT 0.0000,"
-    sqlstr = sqlstr & "prizeHighDayOverallPosition decimal(19,4) DEFAULT 0.0000,"
-    sqlstr = sqlstr & "prizeLowDayOverallPosition decimal(19,4) DEFAULT 0.0000,"
+    sqlstr = sqlstr & "prizeHighDayPosition decimal(19,4) DEFAULT 0.0000,"
+    sqlstr = sqlstr & "prizeLowDayPosition decimal(19,4) DEFAULT 0.0000,"
     sqlstr = sqlstr & "prizePercentageFirst double DEFAULT 0,"
     sqlstr = sqlstr & "prizePercentageSecond double DEFAULT 0,"
     sqlstr = sqlstr & "prizePercentageThird double DEFAULT 0,"
     sqlstr = sqlstr & "prizePercentageFourth double DEFAULT 0,"
-    sqlstr = sqlstr & "prizeLowFinalOverallPosition decimal(19,4) DEFAULT 0.0000"
+    sqlstr = sqlstr & "prizeLowFinalPosition decimal(19,4) DEFAULT 0.0000"
     sqlstr = sqlstr & ")"
     cn.Execute sqlstr
     sqlstr = "CREATE INDEX PrimaryKey on tblPools (poolID) WITH PRIMARY"
@@ -313,7 +360,7 @@ Sub makeTables()
     
 End Sub
 
-Function cnOpen(adoCn As adodb.Connection) As Boolean
+Function cnOpen(adoCn As ADODB.Connection) As Boolean
 
     '----------------------------------------------------------------
     '#PURPOSE: Checks whether the supplied db connection is alive and
@@ -325,7 +372,7 @@ Function cnOpen(adoCn As adodb.Connection) As Boolean
     '----------------------------------------------------------------
 
     Dim i As Long
-    Dim cmd As New adodb.Command
+    Dim cmd As New ADODB.Command
 
     'Set up SQL command to return 1
     cmd.CommandText = "SELECT 1"
