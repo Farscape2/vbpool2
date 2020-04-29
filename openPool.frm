@@ -146,9 +146,6 @@ End Sub
 Private Sub Form_Load()
     Dim sqlstr As String
     sqlstr = "Select * from tblPools"
-    Set rs = New ADODB.Recordset
-    rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
-'    Set Me.cmbPools.RowSource = rs
     FillCombo Me.cmbSelPool, sqlstr, "poolName", "poolId"
 'set Form defaults
     UnifyForm Me

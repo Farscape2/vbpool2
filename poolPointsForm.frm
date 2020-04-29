@@ -1,7 +1,6 @@
 VERSION 5.00
-Object = "{67397AA1-7FB1-11D0-B148-00A0C922E820}#6.0#0"; "MSADODC.OCX"
-Object = "{F0D2F211-CCB0-11D0-A316-00AA00688B10}#1.0#0"; "MSDATLST.OCX"
 Object = "{CDE57A40-8B86-11D0-B3C6-00A0C90AEA82}#1.0#0"; "MSDATGRD.OCX"
+Object = "{67397AA1-7FB1-11D0-B148-00A0C922E820}#6.0#0"; "MSADODC.OCX"
 Begin VB.Form poolPointsForm 
    BorderStyle     =   4  'Fixed ToolWindow
    Caption         =   "Punten toekenning"
@@ -24,18 +23,25 @@ Begin VB.Form poolPointsForm
    ScaleHeight     =   9030
    ScaleWidth      =   5805
    ShowInTaskbar   =   0   'False
+   Begin VB.ComboBox cmbPointTypes 
+      Height          =   360
+      Left            =   1800
+      TabIndex        =   4
+      Top             =   600
+      Width           =   3735
+   End
    Begin VB.CommandButton btnClose 
       Caption         =   "Sluiten"
       Height          =   375
       Left            =   4200
-      TabIndex        =   4
+      TabIndex        =   3
       Top             =   8520
       Width           =   1455
    End
    Begin MSDataGridLib.DataGrid grdPoolPunten 
       Height          =   7335
       Left            =   120
-      TabIndex        =   3
+      TabIndex        =   2
       Top             =   1080
       Width           =   5535
       _ExtentX        =   9763
@@ -244,25 +250,12 @@ Begin VB.Form poolPointsForm
       EndProperty
       _Version        =   393216
    End
-   Begin MSDataListLib.DataCombo cmbPointTypes 
-      Height          =   360
-      Left            =   2040
-      TabIndex        =   1
-      Top             =   600
-      Width           =   3375
-      _ExtentX        =   5953
-      _ExtentY        =   635
-      _Version        =   393216
-      ListField       =   "omschrijving"
-      BoundColumn     =   "id"
-      Text            =   ""
-   End
    Begin VB.Label Label2 
       Caption         =   "Zoek voorspelling"
       Height          =   255
       Index           =   0
       Left            =   120
-      TabIndex        =   2
+      TabIndex        =   1
       Top             =   600
       Width           =   1575
    End
@@ -284,7 +277,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
-Dim rs As ADODB.Recordset
+Dim rs As adodb.Recordset
 
 Dim cmbGridSelect As Boolean
 
@@ -294,10 +287,10 @@ Dim cmbGridSelect As Boolean
 Private Sub btnClose_Click()
 'check if any row has 0 point and delete this record
     Dim msg As String
-    Dim qry As ADODB.Command
+    Dim qry As adodb.Command
     Dim sqlstr As String
     Dim rows As Long
-    Set qry = New ADODB.Command
+    Set qry = New adodb.Command
     sqlstr = "Delete from tblPoolPoints where poolid = " & thisPool
     sqlstr = sqlstr & " AND pointPointsAward = 0 "
     cn.BeginTrans
@@ -319,15 +312,15 @@ Private Sub btnClose_Click()
 End Sub
 
 Sub insertRecord()
-Dim qry As ADODB.Command
+Dim qry As adodb.Command
 
 Dim sqlstr As String
 Dim rows As Long
 
-    Set qry = New ADODB.Command
+    Set qry = New adodb.Command
     sqlstr = "insert into tblPoolPoints (poolID, pointTypeId, pointPointsAward, pointPointsMargin) "
     sqlstr = sqlstr & "VALUES ( " & thisPool
-    sqlstr = sqlstr & ", " & Val(Me.cmbPointTypes.BoundText)
+    sqlstr = sqlstr & ", " & Me.cmbPointTypes.ItemData(Me.cmbPointTypes.ListIndex)
     sqlstr = sqlstr & ", 0, 0)"
     qry.CommandType = adCmdText
     qry.CommandText = sqlstr
@@ -339,48 +332,45 @@ Dim rows As Long
     Me.dtcPoolPoint.Recordset.Requery
     Me.dtcPoolPoint.Refresh
     Me.grdPoolPunten.Refresh
-    Me.dtcPoolPoint.Recordset.Find "id = " & Val(Me.cmbPointTypes.BoundText)
+    Me.dtcPoolPoint.Recordset.Find "id = " & Me.cmbPointTypes.ItemData(Me.cmbPointTypes.ListIndex)
     
     Set qry = Nothing
 End Sub
 
-Private Sub cmbPointTypes_Click(Area As Integer)
-    
- If Area <> 0 Then
-   
+Private Sub cmbPointTypes_Click()
     With Me.dtcPoolPoint.Recordset
-        cmbGridSelect = True
-        .MoveFirst
-         cmbGridSelect = False
-        .Find "id = " & Val(Me.cmbPointTypes.BoundText)
-        If .EOF Then
+        cmbGridSelect = True 'prevent executing rowcolchange
+        .MoveFirst 'to start find at first row
+        cmbGridSelect = False
+        .Find "id = " & Val(Me.cmbPointTypes.ItemData(Me.cmbPointTypes.ListIndex))
+        If .EOF Then 'not found
             'add new record
             insertRecord
         End If
     End With
- End If
 End Sub
 
 Private Sub Form_Load()
     Dim sqlstr As String
-    
-    Set rs = New ADODB.Recordset
-
+    Set rs = New adodb.Recordset
     sqlstr = "Select pointtypeId as id, pointTypeDescription as omschrijving from tblPointtypes "
     If Not getTournamentInfo("tournamentThirdPlace") Then
         'exclude pointtype catgory "Kleine Finale"
         sqlstr = sqlstr & " where pointTypeCategory <> 6"
     End If
+    
     sqlstr = sqlstr & " order by pointtypecategory, pointtypelistorder"
-    rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
-    With Me.cmbPointTypes
-        Set .RowSource = rs
-        .BoundColumn = "id"
-        .ListField = "omschrijving"
-    End With
     
-    Me.dtcPoolPoint.ConnectionString = cnStr
+    FillCombo Me.cmbPointTypes, sqlstr, "omschrijving", "id"
+'    rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+'    With Me.cmbPointTypes
+'        Set .RowSource = rs
+'        .BoundColumn = "id"
+'        .ListField = "omschrijving"
+'    End With
     
+    Me.dtcPoolPoint.ConnectionString = cn.ConnectionString
+    Me.dtcPoolPoint.CursorLocation = adUseClient
     sqlstr = "Select a.pointTypeID as id, a.poolID as poolId, pointTypeDescription as Omschrijving,"
     sqlstr = sqlstr & "pointPointsAward as Punten,"
     sqlstr = sqlstr & "pointPointsMargin as marge "
@@ -388,6 +378,16 @@ Private Sub Form_Load()
     sqlstr = sqlstr & "on a.pointtypeid = b.pointtypeid"
     sqlstr = sqlstr & " where a.poolID = " & thisPool
     sqlstr = sqlstr & " order by b.pointtypecategory, b.pointtypelistorder"
+    If Not cnOpen(cn) Then openDB
+    With rs
+        .CursorLocation = adUseClient
+        .Open sqlstr, cn, adOpenKeyset, adLockOptimistic
+    End With
+'    With Me.grdPoolPunten
+'        Set .DataSource = rs
+'    End With
+
+'decided to use the adodc control anyway, much easier!
     Me.dtcPoolPoint.RecordSource = sqlstr
     Set Me.grdPoolPunten.DataSource = Me.dtcPoolPoint
     
@@ -401,12 +401,7 @@ Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
 End Sub
 
 Private Sub grdPoolPunten_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
-    'check if record has changed
     If cmbGridSelect Then Exit Sub
-    With Me.dtcPoolPoint.Recordset
-        If Not .EOF Then
-            Me.cmbPointTypes = !omschrijving
-        End If
-    End With
-End Sub
+    Me.cmbPointTypes = grdPoolPunten.Columns(2)
+ End Sub
 

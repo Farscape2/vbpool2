@@ -1,8 +1,8 @@
 VERSION 5.00
-Object = "{67397AA1-7FB1-11D0-B148-00A0C922E820}#6.0#0"; "MSADODC.OCX"
 Object = "{F0D2F211-CCB0-11D0-A316-00AA00688B10}#1.0#0"; "MSDATLST.OCX"
 Object = "{CDE57A40-8B86-11D0-B3C6-00A0C90AEA82}#1.0#0"; "MSDATGRD.OCX"
 Object = "{86CF1D34-0C5F-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCT2.OCX"
+Object = "{67397AA1-7FB1-11D0-B148-00A0C922E820}#6.0#0"; "MSADODC.OCX"
 Begin VB.Form pointTypes 
    BorderStyle     =   4  'Fixed ToolWindow
    Caption         =   "Punten types"
@@ -97,7 +97,7 @@ Begin VB.Form pointTypes
       _Version        =   393216
       Value           =   1
       BuddyControl    =   "txtOrder"
-      BuddyDispid     =   196613
+      BuddyDispid     =   196615
       OrigLeft        =   4800
       OrigTop         =   6840
       OrigRight       =   5055
@@ -307,6 +307,7 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Dim newState As Boolean
+Dim rs As ADODB.Recordset
 
 
 Private Sub btnClose_Click()
@@ -323,20 +324,23 @@ End Sub
 
 Private Sub btnSave_Click()
     'save record
+    Set rs = New ADODB.Recordset
     
     Dim sqlstr As String
     Dim saveId As Long
     saveId = Me.dtcPointTypes.Recordset!id
+    rs.Open "Select * from tblPointTypes", cn, adOpenKeyset, adLockOptimistic
     
-    With Me.dtcPointTypes.Recordset
+    With rs
         If newState Then
            .AddNew
         End If
-        !pointtypedescription = Me.txtDescription
+        !pointTypeDescription = Me.txtDescription
         !pointtypeCategory = Val(Me.cmbCategories.BoundText)
         !pointtypelistorder = Val(Me.txtOrder)
         .Update
     End With
+    Me.dtcPointTypes.Refresh
     Me.grdPointTypes.Refresh
     Me.dtcPointTypes.Recordset.Find "id = " & saveId
     newState = False
@@ -345,14 +349,13 @@ End Sub
 
 Private Sub Form_Load()
 Dim sqlstr As String
-    Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
 
 
     sqlstr = "Select pointtypeid as id, pointtypedescription as Omschrijving, pointcategoryId as categoryId, "
     sqlstr = sqlstr & "pointcategorydescription as categorie, pointtypelistorder as volgorde from tblPointTypes a"
     sqlstr = sqlstr & " inner join tblpointcategories b on a.pointtypecategory = b.pointcategoryid order by a.pointtypelistorder"
-    Me.dtcPointTypes.ConnectionString = cnStr
+    Me.dtcPointTypes.ConnectionString = cn.ConnectionString
     Me.dtcPointTypes.RecordSource = sqlstr
     Me.dtcPointTypes.Refresh
     Set Me.grdPointTypes.DataSource = Me.dtcPointTypes

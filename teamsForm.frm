@@ -112,6 +112,8 @@ Dim grp As Integer
         .CommandText = sqlstr
         Set rsTeamNames = .Execute
         .CommandText = "Select * from tblTournamentTeamCodes where tournamentid = " & thisTournament
+        .ActiveConnection.CursorLocation = adUseClient
+        
         Set rsTeamCodes = .Execute
     End With
     If rsTeamNames.EOF Then Exit Sub
@@ -139,18 +141,18 @@ Dim grp As Integer
                 counter = counter + 1
                 If lblPoolNr.Count < counter Then
                     Load Me.lblPoolNr(counter - 1)
-                    Load Me.cmbTeams(counter - 1)
+                    Load Me.CMBtEAMS(counter - 1)
                     Me.lblPoolNr(counter - 1).Visible = True
-                    Me.cmbTeams(counter - 1).Visible = True
-                    Me.cmbTeams(counter - 1).TabIndex = counter
+                    Me.CMBtEAMS(counter - 1).Visible = True
+                    Me.CMBtEAMS(counter - 1).TabIndex = counter
                 End If
                 With Me.lblPoolNr(counter - 1)
                     .Caption = grpCounter
                     .Left = 300 + (col - 1) * 2200
                     .Top = 600 + (grpCounter - 1) * 360 + (row - 1) * (.Height + 100 + (groupSize * 360))
                 End With
-                FillCombo Me.cmbTeams(counter - 1), sqlstr, "teamname", "teamNameId"
-                With Me.cmbTeams(counter - 1)
+                FillCombo Me.CMBtEAMS(counter - 1), sqlstr, "teamname", "teamNameId"
+                With Me.CMBtEAMS(counter - 1)
 '                    Set .RowSource = rsTeamNames
 '                    .ListField = "teamname"
 '                    .BoundColumn = "teamNameId"
@@ -169,7 +171,6 @@ Dim grp As Integer
                             Exit For
                         End If
                     Next
-                    '.BoundText = nz(rsTeamCodes!teamId, 0)
                 End With
             Next
         Next
@@ -189,7 +190,7 @@ Private Sub btnClose_Click()
             Unload ctl
         End If
     Next
-    For Each ctl In cmbTeams
+    For Each ctl In CMBtEAMS
         If ctl.Index <> 0 Then
             Unload ctl
         End If
@@ -210,11 +211,11 @@ End Sub
 Private Sub cmbTeams_LostFocus(Index As Integer)
 Dim sqlstr As String
 Dim cmd As New ADODB.Command
-    If Me.cmbTeams(Index).Text = "" Then Exit Sub
+    If Me.CMBtEAMS(Index).Text = "" Then Exit Sub
     'find and update the record based on the tag of the control
-    sqlstr = "Update tblTournamentTeamCodes Set teamId = " & Me.cmbTeams(Index).ItemData(Me.cmbTeams(Index).ListIndex)
+    sqlstr = "Update tblTournamentTeamCodes Set teamId = " & Me.CMBtEAMS(Index).ItemData(Me.CMBtEAMS(Index).ListIndex)
     sqlstr = sqlstr & " WHERE tournamentID = " & thisTournament
-    sqlstr = sqlstr & " AND teamcode = '" & Me.cmbTeams(Index).Tag & "'"
+    sqlstr = sqlstr & " AND teamcode = '" & Me.CMBtEAMS(Index).Tag & "'"
     On Error GoTo dataerror
     cn.BeginTrans
     With cmd
@@ -228,6 +229,14 @@ Dim cmd As New ADODB.Command
 dataerror:
     cn.RollbackTrans
     
+End Sub
+
+Private Sub Form_Activate()
+Dim i As Integer
+For i = Me.CMBtEAMS.Count - 1 To 0 Step -1
+    Me.CMBtEAMS(i).SetFocus
+Next
+Me.btnPlayers.SetFocus
 End Sub
 
 Private Sub Form_Load()

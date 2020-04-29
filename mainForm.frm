@@ -127,9 +127,12 @@ Begin VB.Form mainForm
       End
       Begin VB.Menu mnuNewPool 
          Caption         =   "&Nieuwe Pool"
+         Enabled         =   0   'False
       End
       Begin VB.Menu mnuNewTournament 
          Caption         =   "Nieuw &Toernooi"
+         Enabled         =   0   'False
+         Visible         =   0   'False
       End
       Begin VB.Menu mnuSep01 
          Caption         =   "-"
@@ -157,11 +160,12 @@ Begin VB.Form mainForm
    End
    Begin VB.Menu mnuEditTournaments 
       Caption         =   "&Toernooi"
-      Begin VB.Menu mnuTouramentData 
+      Begin VB.Menu mnuTournamentData 
          Caption         =   "&Gegevens"
       End
       Begin VB.Menu mnuTournamentTeams 
          Caption         =   "&Ploegen"
+         Visible         =   0   'False
       End
       Begin VB.Menu mnuTournamentSchedule 
          Caption         =   "&Wedstrijdschema"
@@ -173,16 +177,22 @@ Begin VB.Form mainForm
    Begin VB.Menu mnuOptions 
       Caption         =   "&Opties"
       Begin VB.Menu mnuStartOver 
-         Caption         =   "Op&nieuw beginnen"
+         Caption         =   "&Gegevens inlezen"
       End
       Begin VB.Menu mnuOptionsPointTypes 
          Caption         =   "&Voorspelling types"
       End
+      Begin VB.Menu mnuAdmin 
+         Caption         =   "&Admin login"
+      End
       Begin VB.Menu mnuDblPlayers 
          Caption         =   "Remove Double Players"
+         Enabled         =   0   'False
       End
       Begin VB.Menu mnuConvert 
          Caption         =   "Convert Tournamentschedule table"
+         Enabled         =   0   'False
+         Visible         =   0   'False
       End
       Begin VB.Menu mnuAbout 
          Caption         =   "&Over"
@@ -211,12 +221,22 @@ Private Sub Form_Load()
 End Sub
 
 Sub updateForm()
+    Me.mnuFileOpen.Enabled = recordsExist("tblPools")
     Me.mnuPrint.Enabled = thisPool
     Me.mnuEditPool.Enabled = thisPool
-    'me.mnuEditTournaments
+    
+    Me.mnuNewPool.Enabled = recordsExist("tblTournaments")
     Me.mnuPoolCompetitors.Enabled = thisPool
-    Me.mnuDblPlayers.Visible = False 'just for admin
-    Me.mnuConvert.Visible = False   'just for admin
+    Me.mnuDblPlayers.Visible = adminLogin 'just for admin
+    Me.mnuConvert.Visible = adminLogin 'just for admin
+    
+    Me.mnuEditTournaments.Visible = adminLogin
+    Me.mnuNewTournament.Visible = adminLogin
+    Me.mnuOptionsPointTypes.Visible = adminLogin
+    Me.mnuTournamentData.Visible = True
+    Me.mnuTournamentSchedule.Visible = adminLogin
+    Me.mnuTournamentTeams.Visible = adminLogin
+    
     Me.Caption = "Jota's Voetbalpool 2.0"
     DoEvents
     If thisPool Then
@@ -227,7 +247,7 @@ Sub updateForm()
             .BackStyle = 1
         End With
         With Me.lblPoolName
-            .Caption = getPoolInfo("poolName")
+            .Caption = nz(getPoolInfo("poolName"), "")
             .Visible = True
             .BackColor = Me.BackColor
             .BackStyle = 1
@@ -235,11 +255,10 @@ Sub updateForm()
         End With
         
     Else
-        Me.lblStartTitle.Caption = "Voetbalpool - geen pool geselecteerd"
+        Me.lblStartTitle.Caption = "Jota's Voetbalpool - geen pool geselecteerd"
         Me.lblPoolName.Visible = False
-        Me.Caption = "Jota's Voetbalpool"
     End If
-    Me.lblCopyright = "© 2004 - " & Year(Now) & " jota computer assistentie"
+    Me.lblCopyright = "© 2004 - " & Year(Now) & " jota services"
 End Sub
 
 Private Sub Form_Resize()
@@ -295,12 +314,29 @@ Private Sub mnuAbout_Click()
     frmAbout.Show 1
 End Sub
 
+Private Sub mnuAdmin_Click()
+    ' do a count of records to see if ADMIN user exists in the table
+    Dim rsData As adodb.Recordset
+    Set rsData = cn.Execute("SELECT Count(*) FROM tblOrganisation")
+    
+    ' if there are users in the table, then prompt for login
+    If rsData.Fields(0).value = 0 Then
+        frmOrganisation.Show , 1 'there is no organisation yet
+    Else
+        adminLogin = DoLogin
+        If Not adminLogin Then
+            MsgBox "Admin rechten niet verkregen", vbOKOnly + vbExclamation, "Admin"
+        End If
+        updateForm
+    End If
+End Sub
+
 Private Sub mnuConvert_Click()
     convertTournamentScheduleTable
 End Sub
 
 Private Sub mnuDblPlayers_Click()
-    frmRemoveDoubleIds.Show 1
+    'frmRemoveDoubleIds.Show 1
 End Sub
 
 Private Sub mnuExitApp_Click()
@@ -321,6 +357,7 @@ End Sub
 
 Private Sub mnuNewPool_Click()
     newPoolForm.Show 1
+    updateForm
 End Sub
 
 Private Sub mnuOptionsPointTypes_Click()
@@ -339,19 +376,18 @@ End Sub
 
 Private Sub mnuStartOver_Click()
     Dim msg As String
-    msg = "Hiermee ga je de database opnieuw wilt inlezen"
-    msg = msg & vbNewLine & "Alle door jou toegevoegde gegevens gaan verloren!"
+    msg = "Hiermee kun je de gegevens van toernooien (opnieuw) inlezen."
+    msg = msg & vbNewLine & "Alle door jou toegevoegde gegevens blijven onveranderd."
     msg = msg & vbNewLine & "Zorg dat je een werkende internet verbinding hebt,"
     msg = msg & vbNewLine & "anders kan het niet"
     msg = msg & vbNewLine & vbNewLine & "Druk op OK als je het zeker weet of anders op Annuleren"
-    If MsgBox(msg, vbOKCancel, "Nieuwe database aanmaken") = vbOK Then
-        If MsgBox("Weet je het heel zeker?", vbYesNo, "Nieuwe database aanmaken") = vbYes Then
-            createDb
-        End If
+    If MsgBox(msg, vbOKCancel, "Data opnieuw inlezen") = vbOK Then
+        frmCopyData.Show 1
     End If
+    updateForm
 End Sub
 
-Private Sub mnuTouramentData_Click()
+Private Sub mnuTournamentData_Click()
     tournamentsForm.Show 1
 End Sub
 
@@ -362,3 +398,4 @@ End Sub
 Private Sub mnuTournamentTeams_Click()
     teamsForm.Show 1
 End Sub
+

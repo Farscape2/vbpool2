@@ -1,8 +1,8 @@
 VERSION 5.00
-Object = "{67397AA1-7FB1-11D0-B148-00A0C922E820}#6.0#0"; "MSADODC.OCX"
 Object = "{F0D2F211-CCB0-11D0-A316-00AA00688B10}#1.0#0"; "MSDATLST.OCX"
 Object = "{86CF1D34-0C5F-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCT2.OCX"
 Object = "{C932BA88-4374-101B-A56C-00AA003668DC}#1.1#0"; "MSMASK32.OCX"
+Object = "{67397AA1-7FB1-11D0-B148-00A0C922E820}#6.0#0"; "MSADODC.OCX"
 Begin VB.Form poolsForm 
    BackColor       =   &H00E0E0E0&
    BorderStyle     =   1  'Fixed Single
@@ -469,7 +469,7 @@ Begin VB.Form poolsForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   148242433
+      Format          =   37879809
       CurrentDate     =   43932
    End
    Begin MSComCtl2.DTPicker dtpEind 
@@ -482,7 +482,7 @@ Begin VB.Form poolsForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   148242433
+      Format          =   37879809
       CurrentDate     =   43932
    End
    Begin VB.Label lblTitle 

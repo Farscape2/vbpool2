@@ -101,7 +101,7 @@ Begin VB.Form tournamentsForm
       _Version        =   393216
       Value           =   8
       BuddyControl    =   "txtTeamAantal"
-      BuddyDispid     =   196615
+      BuddyDispid     =   196616
       OrigLeft        =   1920
       OrigTop         =   1800
       OrigRight       =   2175
@@ -122,7 +122,7 @@ Begin VB.Form tournamentsForm
       _ExtentX        =   2990
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147456001
+      Format          =   149553153
       CurrentDate     =   43932
    End
    Begin VB.ComboBox cmbYear 
@@ -151,7 +151,7 @@ Begin VB.Form tournamentsForm
       _ExtentX        =   2990
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147456001
+      Format          =   149553153
       CurrentDate     =   43932
    End
    Begin MSComCtl2.UpDown UpDnGroupCount 
@@ -165,7 +165,7 @@ Begin VB.Form tournamentsForm
       _Version        =   393216
       Value           =   12
       BuddyControl    =   "txtGroupCount"
-      BuddyDispid     =   196610
+      BuddyDispid     =   196611
       OrigLeft        =   1920
       OrigTop         =   1800
       OrigRight       =   2175
@@ -284,29 +284,6 @@ Private Sub btnClose_Click()
     Unload Me
 End Sub
 
-Private Sub btnDelete_Click()
-Dim msgStr As String
-Dim confirmation  As Integer
-Dim pos As Long
-If chkTournamentHasPools(Me.dtcTournaments.Recordset!tournamentID) Then
-    MsgBox "Er zijn pools voor dit toernooi", vbOKOnly + vbCritical, "Kan niet verwijderen"
-    Exit Sub
-End If
-msgStr = "Dit toernooi werkelijk verwijderen? " & vbNewLine & "(kan alleen als er geen pools voor zijn)"
-confirmation = MsgBox(msgStr, vbQuestion + vbYesNo, "Toernooi wissen")
-With Me.dtcTournaments.Recordset
-    If confirmation = vbYes Then
-        pos = .AbsolutePosition
-        .Delete
-        If pos = 1 Then
-            .MoveNext
-        Else
-            .MovePrevious
-        End If
-    End If
-End With
-End Sub
-
 Private Sub btnCancel_Click()
     cn.RollbackTrans
     setState False
@@ -344,7 +321,7 @@ Set adoCmd = New ADODB.Command
         .ActiveConnection = cn
         .CommandType = adCmdText
         .CommandText = sqlstr
-        .Parameters.Append .CreateParameter("id", adInteger, adParamInputOutput)
+        .Parameters.Append .CreateParameter("id", adInteger, adParamInput)
         .Parameters("id").Value = thisTournament
         Set rs = .Execute
     End With
@@ -365,7 +342,7 @@ Set adoCmd = New ADODB.Command
     
     Me.cmbType = rs!tournamenttype
     Me.cmbYear = rs!tournamentYear
-    Me.dtpStart = CDbl(rs!tournamentstartdate)
+    Me.dtpStart = CDbl(rs!tournamentStartDate)
     Me.dtpEind = CDbl(rs!tournamentEnddate)
     Me.UpDnGroupCount.Value = rs!tournamentGroupCount
     Me.upDwnTeamAantal = rs!tournamentTeamCount

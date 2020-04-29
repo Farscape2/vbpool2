@@ -48,7 +48,7 @@ Begin VB.Form newPoolForm
          _ExtentY        =   661
          _Version        =   393216
          BuddyControl    =   "txtPercentage(0)"
-         BuddyDispid     =   196615
+         BuddyDispid     =   196634
          BuddyIndex      =   0
          OrigLeft        =   3720
          OrigTop         =   660
@@ -208,7 +208,7 @@ Begin VB.Form newPoolForm
          _ExtentY        =   661
          _Version        =   393216
          BuddyControl    =   "txtPercentage(1)"
-         BuddyDispid     =   196615
+         BuddyDispid     =   196634
          BuddyIndex      =   1
          OrigLeft        =   3720
          OrigTop         =   660
@@ -254,7 +254,7 @@ Begin VB.Form newPoolForm
          _ExtentY        =   661
          _Version        =   393216
          BuddyControl    =   "txtPercentage(2)"
-         BuddyDispid     =   196615
+         BuddyDispid     =   196634
          BuddyIndex      =   2
          OrigLeft        =   3720
          OrigTop         =   660
@@ -300,7 +300,7 @@ Begin VB.Form newPoolForm
          _ExtentY        =   661
          _Version        =   393216
          BuddyControl    =   "txtPercentage(3)"
-         BuddyDispid     =   196615
+         BuddyDispid     =   196634
          BuddyIndex      =   3
          OrigLeft        =   3720
          OrigTop         =   660
@@ -468,7 +468,6 @@ Begin VB.Form newPoolForm
          Left            =   3000
          TabIndex        =   15
          Top             =   120
-         Visible         =   0   'False
          Width           =   1215
       End
       Begin VB.CommandButton btnClose 
@@ -491,7 +490,7 @@ Begin VB.Form newPoolForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147849217
+      Format          =   146931713
       CurrentDate     =   43932
    End
    Begin MSComCtl2.DTPicker dtpEind 
@@ -504,7 +503,7 @@ Begin VB.Form newPoolForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147849217
+      Format          =   146931713
       CurrentDate     =   43932
    End
    Begin VB.Label Label1 
@@ -595,10 +594,11 @@ Dim sqlstr As String
         sqlstr = sqlstr & tournID & ", '" & .txtPoolName & "', " & CDbl(.dtpStart) & ", " & CDbl(.dtpStart) & ", "
         sqlstr = sqlstr & float(.txtCosts) & ", " & float(.txtHighestDayscore) & ", " & float(.txtHighestPosition) & ", " & float(.txtLowestPosition) & ", "
         For i = 0 To 3
-            sqlstr = sqlstr & float(.txtPercentage(i)) / 100 & ", "
+            sqlstr = sqlstr & float(.txtPercentage(i) / 100) & ", "
         Next
         sqlstr = sqlstr & float(.txtPrizeLastOverall) & ")"
     End With
+    If Not cnOpen(cn) Then openDB
     cn.Execute sqlstr
     Unload Me
 End Sub
@@ -610,8 +610,8 @@ End Sub
 Private Sub Form_Load()
 Dim sqlstr As String
 Dim i As Integer
-Dim rs As ADODB.Recordset
-    Set rs = New ADODB.Recordset
+Dim rs As adodb.Recordset
+    Set rs = New adodb.Recordset
 'set Form defaults
     UnifyForm Me
 

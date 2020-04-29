@@ -4,8 +4,8 @@ Attribute VB_Name = "dbDefinition"
 
 Option Explicit
 
-Public cn As ADODB.Connection      'Access connection
-Public myConn As ADODB.Connection  'MySql Connection
+Public cn As adodb.Connection      'Access connection
+Public myConn As adodb.Connection  'MySql Connection
 
 Public Const dbName = "vbpool2"
 
@@ -17,16 +17,15 @@ Sub openDB()
 Dim fullPath As String
     fullPath = App.Path & "\" & dbName & ".mdb"
     If Dir(fullPath) = "" Then
-        createDb
+        'frmCopyData.Show 1
     End If
-    
-    Set cn = New ADODB.Connection
-    If cn.State = 1 Then cn.Close
+    Set cn = New adodb.Connection
     
     With cn
     '''''''ACCESS Connection
         .Provider = "Microsoft.Jet.OLEDB.4.0;"
         .ConnectionString = "Data Source=" & fullPath
+        .CursorLocation = adUseClient
         .Open
     End With
 End Sub
@@ -36,125 +35,41 @@ Sub openMySql()
     Dim server As String
     Dim driver As String
     Dim cnstr As String
+    Dim passwd As String
+    passwd = "!xjer56!"
     server = "192.168.178.14"
     'server = "jotaservices.duckdns.org"
     driver = "{MariaDB ODBC 3.1 Driver}"
-    Set myConn = New ADODB.Connection
+    Set myConn = New adodb.Connection
     If myConn.State = 1 Then myConn.Close
     With myConn
-        cnstr = "DRIVER=" & driver & ";TCPIP=1;SERVER=" & server & ";DATABASE=" & dbName & ";UID=jeroen;PWD=!xjer56!;port=3306"
+        cnstr = "DRIVER=" & driver & ";TCPIP=1;SERVER=" & server & ";DATABASE=" & dbName & ";UID=jeroen;PWD=" & passwd & ";port=3306"
         .ConnectionString = cnstr
         .CursorLocation = adUseClient
         .Open
     End With
 End Sub
 
-Sub createDb()
-'(re) create an .mdb Access database file, based on the base server MySql connection
-Dim adoCatalog As ADOX.Catalog
-Dim adoTable As ADOX.Table
-Dim newTable As String
-Dim newDb As String
-Dim newConn As String
-Dim rs As ADODB.Recordset
-Dim sqlStr As String
-
-On Error GoTo connError
-    Set myConn = New ADODB.Connection
-    If (myConn.State And adStateClosed) = adStateClosed Then
-        openMySql
-    End If
-    'open connection to mySql
-    'get the tables from the mySql table collection
-    Set rs = New ADODB.Recordset
-    sqlStr = "SHOW TABLES in " & dbName
-    rs.Open sqlStr, myConn, adOpenStatic, adLockReadOnly
-    If rs.EOF Then
-        MsgBox "Geen MySQL tabellen gevonden!", vbOKOnly, "FOUT"
-        Exit Sub
-    End If
-    
-    ' MDB to be created. In app.path
-    newDb = App.Path & "\" & dbName & ".mdb"
-    ' Drop the existing database, if any.
-    On Error Resume Next 'in case not found
-    If (cn.State And adStateOpen) = adStateOpen Then
-        cn.Close
-    End If
-    Kill newDb
-    On Error GoTo 0
-    
-    'Create instance of the ADOX-object.
-    Set adoCatalog = New ADOX.Catalog
-    ' Create the db
-    newConn = "Provider = Microsoft.Jet.OLEDB.4.0;Data Source=" & newDb & ";"
-
-    adoCatalog.Create (newConn)
-    
-    Do While Not rs.EOF
-        newTable = rs.Fields(0)
-        'copy the tabledefs to the mdb
-        Set adoTable = New ADOX.Table
-        adoTable.Name = newTable
-        adoTable.ParentCatalog = adoCatalog
-        If newTable = "tblGroupLayout" Then
-            'why doesn't this one work
-            'Stop
-        End If
-        duplicateFields adoTable, newTable
-        adoCatalog.Tables.Append adoTable
-        rs.MoveNext
-        Set adoTable = Nothing
-    Loop
-    
+Function tableExists(srcTable As String)
+'check if table exists in local database
+Dim rs As adodb.Recordset
+    If Not cnOpen(cn) Then openDB
+    Set rs = cn.OpenSchema(adSchemaColumns, Array(Empty, Empty, srcTable, Empty))
+    tableExists = Not (rs.BOF And rs.EOF)
     rs.Close
     Set rs = Nothing
-    Set adoCatalog = Nothing
-    
-    MsgBox "New vbpool.MDB Created - '" & newDb & "'", vbInformation
-    Exit Sub
-connError:
-    MsgBox "Connectie met mySql server is niet gelukt, database is niet aangemaakt/overschreven", vbOKOnly, "Database aanmaken"
-End Sub
+End Function
 
-Sub duplicateFields(toTable As ADOX.Table, fromTbl As String)
-    'copy tbl fields to Access database
-    Dim rs As ADODB.Recordset  'to store the columns
-    Dim col As ADOX.Column
-    Dim sqlStr As String
-    Dim ln As Integer
-    Dim fldName As String
-    'get all tables from the server
-    Set rs = New ADODB.Recordset
-    sqlStr = "SHOW COLUMNS in " & fromTbl & " in " & dbName
-    rs.Open sqlStr, myConn, adOpenStatic, adLockReadOnly
-    'copy the field defintion
-    
-    With toTable
-        Do While Not rs.EOF
-            fldName = rs.Fields(0).Value
-            Set col = New ADOX.Column
-            col.Name = fldName
-            col.Type = cFieldType(rs.Fields("Type"))
-            .Columns.Append col
-            If InStr(LCase(rs.Fields("Type")), "varchar") Then
-                ln = Val(Mid(rs.Fields("Type"), 9, Len(rs.Fields("Type")) - 9))
-                .Columns(fldName).DefinedSize = ln
-            End If
-            If LCase(rs.Fields("Extra")) = "auto_increment" And rs.Fields("Type") = "int(11)" Then
-                .Columns(fldName).Properties("AutoIncrement").Value = True
-                .Keys.Append "PrimaryKey", adKeyPrimary, fldName
-            End If
-            rs.MoveNext
-        Loop
-    End With
-    
-    'release from memory
-    rs.Close
-    Set rs = Nothing
-    Set col = Nothing
-    
-End Sub
+Function recordsExist(tblName As String)
+    Dim rs As adodb.Recordset
+    If tableExists(tblName) Then
+        Set rs = New adodb.Recordset
+        rs.Open "Select * from " & tblName, cn, adOpenKeyset, adLockReadOnly
+        recordsExist = Not rs.EOF
+    Else
+        recordsExist = False
+    End If
+End Function
 
 Function cFieldType(fldType As String) As Integer
 'convert mySQL fldType to ADODB type
@@ -183,3 +98,255 @@ Function cFieldType(fldType As String) As Integer
 End Function
 
 
+'create the database
+Sub createDb()
+    Dim adoCat As adox.Catalog
+    Dim tbl As adox.Table
+    Dim setupDb As String
+    Dim newDb As String
+    Dim msg As String
+    Dim fileName As String
+    
+    ' MDB to be created. In app.path
+    newDb = App.Path & "\" & dbName & ".mdb"
+    ' Drop the existing database, if any.
+    If Dir(newDb) > "" Then
+        msg = "Er is al een database " & newDb & vbNewLine
+        msg = msg & "Wil je een kopie hiervan bewaren?" & vbNewLine
+        If MsgBox(msg, vbYesNo, "Nieuwe database aanmaken") = vbYes Then
+            FileCopy newDb, newDb & ".bak"
+        End If
+        Kill newDb 'remove the old db
+    End If
+    setupDb = App.Path & "\vbpoolSetup.mdb"
+    If Dir(setupDb) = "" Then 'no setupDb, make one
+        Set adoCat = New adox.Catalog
+        ' Create the db
+        adoCat.Create ("Provider='Microsoft.Jet.OLEDB.4.0';Data Source=" & newDb & ";")
+        'add local tables to db
+        makeTables
+    Else
+        FileCopy setupDb, newDb
+    End If
+    MsgBox "Nieuwe database is aangemaakt." & vbNewLine & "Vul de gegevens in en kies een wachtwoord", vbOKOnly + vbInformation, "Nieuwe installatie"
+    If Not cnOpen(cn) Then openDB
+    frmOrganisation.Show 1
+End Sub
+
+Sub makeTables()
+    Dim sqlstr As String
+    'new local tables just in case
+    If Not cnOpen(cn) Then openDB 'set the connection
+    
+    'address table
+    sqlstr = "CREATE TABLE tblAddress ( "
+    sqlstr = sqlstr & "addressID INTEGER NOT NULL, "
+    sqlstr = sqlstr & "firstname VARCHAR(50), "
+    sqlstr = sqlstr & "middlename VARCHAR(32), "
+    sqlstr = sqlstr & "lastname VARCHAR(50), "
+    sqlstr = sqlstr & "shortname VARCHAR(24), "
+    sqlstr = sqlstr & "address VARCHAR(50), "
+    sqlstr = sqlstr & "postalcode VARCHAR(10), "
+    sqlstr = sqlstr & "city VARCHAR(50), "
+    sqlstr = sqlstr & "telephone VARCHAR(20), "
+    sqlstr = sqlstr & "email VarChar(255) "
+    sqlstr = sqlstr & ") "
+    cn.Execute sqlstr
+    sqlstr = "CREATE INDEX PrimaryKey on tblAddress (addressID) WITH PRIMARY"
+    cn.Execute sqlstr
+    
+    'competitorpoints
+    sqlstr = "CREATE TABLE tblCompetitorPoints ("
+    sqlstr = sqlstr & "competitorID INTEGER NOT NULL,"
+    sqlstr = sqlstr & "matchNumber INTEGER NOT NULL,"
+    sqlstr = sqlstr & "pointsMatchTeams INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsGroupStanding INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsFinals_8 INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsFinals_4 INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsFinals_2 INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsFinals_34 INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsFinal INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsMatchResults INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTopscorers INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsOther INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsDayTotal INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsGrandTotal INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "poisitionDay INTEGER,"
+    sqlstr = sqlstr & "positionTotal INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "moneyDay DECIMAL(19,4) DEFAULT 0,"
+    sqlstr = sqlstr & "moneyDayPosition DECIMAL(19,4) DEFAULT 0,"
+    sqlstr = sqlstr & "moneyDayLast DECIMAL(19,4),"
+    sqlstr = sqlstr & "moneyTotal DECIMAL(19,4) DEFAULT 0,"
+    sqlstr = sqlstr & "moneyDayTotal DECIMAL(19,4) DEFAULT 0,"
+    sqlstr = sqlstr & "pointsDay INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "positionMatches INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "poinstDayGoals INTEGER,"
+    sqlstr = sqlstr & "pointsHalfTime INTEGER,"
+    sqlstr = sqlstr & "pointsFulltime INTEGER,"
+    sqlstr = sqlstr & "pointsToto INTEGER,"
+    sqlstr = sqlstr & "pointsGrpA INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsGrpB INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsGrpC INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsGrpD INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsGrpE INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsGrpF INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsGrpG INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsGrpH INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals8A INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals8B INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals8C INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals8D INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals8E INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals8F INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals8G INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals8H INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals4A INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals4B INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals4C INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals4D INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals2A INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals2B INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinals34 INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTeamsFinal INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointsTotalAfterFinal34 INTEGER DEFAULT 0"
+    sqlstr = sqlstr & ")"
+    cn.Execute sqlstr
+    
+    'deelnemers
+    sqlstr = "CREATE TABLE tblCompetitors ("
+    sqlstr = sqlstr & "competitorID INTEGER NOT NULL, "
+    sqlstr = sqlstr & "poolid INTEGER NOT NULL,"
+    sqlstr = sqlstr & "addressID INTEGER NOT NULL,"
+    sqlstr = sqlstr & "nickName VARCHAR(50) NOT NULL,"
+    sqlstr = sqlstr & "payed YESNO DEFAULT 0,"
+    sqlstr = sqlstr & "predictionTeam1 INTEGER,"
+    sqlstr = sqlstr & "predictionTeam2 INTEGER,"
+    sqlstr = sqlstr & "predictionTeam3 INTEGER,"
+    sqlstr = sqlstr & "predictionTeam4 INTEGER"
+    sqlstr = sqlstr & ") "
+    cn.Execute sqlstr
+    sqlstr = "CREATE INDEX PrimaryKey on tblCompetitors (competitorID) WITH PRIMARY"
+    cn.Execute sqlstr
+
+    'pool points
+    sqlstr = "CREATE TABLE tblPoolPoints ("
+    sqlstr = sqlstr & "poolid INTEGER NOT NULL,"
+    sqlstr = sqlstr & "pointTypeID INTEGER NOT NULL,"
+    sqlstr = sqlstr & "pointPointsAward INTEGER DEFAULT 0,"
+    sqlstr = sqlstr & "pointPointsMargin byte DEFAULT 0 )"
+    cn.Execute sqlstr
+
+    'pools
+    sqlstr = "CREATE TABLE tblPools ("
+    sqlstr = sqlstr & "poolID INTEGER NOT NULL DEFAULT 0,"
+    sqlstr = sqlstr & "tournamentID INTEGER DEFAULT NULL,"
+    sqlstr = sqlstr & "organisationID INTEGER DEFAULT NULL,"
+    sqlstr = sqlstr & "poolName varchar(50) DEFAULT NULL,"
+    sqlstr = sqlstr & "poolStartAcceptForms datetime DEFAULT NULL,"
+    sqlstr = sqlstr & "poolEndAcceptForms datetime DEFAULT NULL,"
+    sqlstr = sqlstr & "poolCost decimal(19,4) DEFAULT 10.0000,"
+    sqlstr = sqlstr & "prizeHighDayScore decimal(19,4) DEFAULT 0.0000,"
+    sqlstr = sqlstr & "prizeHighDayOverallPosition decimal(19,4) DEFAULT 0.0000,"
+    sqlstr = sqlstr & "prizeLowDayOverallPosition decimal(19,4) DEFAULT 0.0000,"
+    sqlstr = sqlstr & "prizePercentageFirst double DEFAULT 0,"
+    sqlstr = sqlstr & "prizePercentageSecond double DEFAULT 0,"
+    sqlstr = sqlstr & "prizePercentageThird double DEFAULT 0,"
+    sqlstr = sqlstr & "prizePercentageFourth double DEFAULT 0,"
+    sqlstr = sqlstr & "prizeLowFinalOverallPosition decimal(19,4) DEFAULT 0.0000"
+    sqlstr = sqlstr & ")"
+    cn.Execute sqlstr
+    sqlstr = "CREATE INDEX PrimaryKey on tblPools (poolID) WITH PRIMARY"
+    cn.Execute sqlstr
+    
+    'predictions - Groups
+    sqlstr = "CREATE TABLE tblPredictionGroupResults ("
+    sqlstr = sqlstr & "competitorID INTEGER NOT NULL,"
+    sqlstr = sqlstr & "groupLetter varchar(1) DEFAULT NULL,"
+    sqlstr = sqlstr & "predictionGroupPosition1 varchar(255) DEFAULT NULL,"
+    sqlstr = sqlstr & "predictionGroupPosition2 varchar(255) DEFAULT NULL,"
+    sqlstr = sqlstr & "predictionGroupPosition3 varchar(255) DEFAULT NULL,"
+    sqlstr = sqlstr & "predictionGroupPosition4 varchar(255) DEFAULT NULL"
+    sqlstr = sqlstr & ")"
+    cn.Execute sqlstr
+
+
+    sqlstr = "CREATE TABLE tblPredictionTopscorers ("
+    sqlstr = sqlstr & "competitorID INTEGER NOT NULL,"
+    sqlstr = sqlstr & "predictionTopscorerPosittion INTEGER DEFAULT NULL,"
+    sqlstr = sqlstr & "predictionTopscorePlayerID INTEGER DEFAULT NULL,"
+    sqlstr = sqlstr & "predictionTopscoreGoals INTEGER DEFAULT NULL"
+    sqlstr = sqlstr & ")"
+    cn.Execute sqlstr
+
+    sqlstr = "CREATE TABLE tblPrediction_Finals ("
+    sqlstr = sqlstr & "competitorID INTEGER NOT NULL,"
+    sqlstr = sqlstr & "matchNumber INTEGER DEFAULT NULL,"
+    sqlstr = sqlstr & "teamNameA INTEGER DEFAULT NULL,"
+    sqlstr = sqlstr & "teamNameB INTEGER DEFAULT NULL"
+    sqlstr = sqlstr & ")"
+    cn.Execute sqlstr
+    
+    sqlstr = "CREATE TABLE tblPrediction_MatchResults ("
+    sqlstr = sqlstr & "competitorID INTEGER DEFAULT NULL,"
+    sqlstr = sqlstr & "matchNumber INTEGER DEFAULT NULL,"
+    sqlstr = sqlstr & "predictionGoalsHalftimeA BYTE DEFAULT NULL,"
+    sqlstr = sqlstr & "predictionGoalsHalftimeB BYTE DEFAULT 0,"
+    sqlstr = sqlstr & "predictionGoalsFulltimeA BYTE DEFAULT 0,"
+    sqlstr = sqlstr & "predictionGoalsFulltimeB BYTE DEFAULT 0,"
+    sqlstr = sqlstr & "predictionResultToto BYTE DEFAULT NULL"
+    sqlstr = sqlstr & ")"
+    cn.Execute sqlstr
+    
+    sqlstr = "CREATE TABLE tblPrediction_Numbers ("
+    sqlstr = sqlstr & "competitorID INTEGER NOT NULL,"
+    sqlstr = sqlstr & "predictionTypeID INTEGER DEFAULT NULL,"
+    sqlstr = sqlstr & "predictionNumber INTEGER DEFAULT NULL"
+    sqlstr = sqlstr & ")"
+    cn.Execute sqlstr
+    
+    sqlstr = "CREATE TABLE tblUsers ("
+    sqlstr = sqlstr & "userID INTEGER NOT NULL, "
+    sqlstr = sqlstr & "username VARCHAR(50), "
+    sqlstr = sqlstr & "Passwd VARCHAR(50) NOT NULL"
+    sqlstr = sqlstr & ")"
+    cn.Execute sqlstr
+    
+End Sub
+
+Function cnOpen(adoCn As adodb.Connection) As Boolean
+
+    '----------------------------------------------------------------
+    '#PURPOSE: Checks whether the supplied db connection is alive and
+    '          hasn't had it's TCP connection forcibly closed by remote
+    '          host, for example, as happens during an undock event
+    '#RETURNS: True if the supplied db is connected and error-free,
+    '          False otherwise
+    '#AUTHOR:  Belladonna
+    '----------------------------------------------------------------
+
+    Dim i As Long
+    Dim cmd As New adodb.Command
+
+    'Set up SQL command to return 1
+    cmd.CommandText = "SELECT 1"
+    On Error GoTo endFunction
+    cmd.ActiveConnection = adoCn
+
+    'Run a simple query, to test the connection
+    On Error Resume Next
+    i = cmd.Execute.Fields(0)
+    On Error GoTo 0
+
+    'Tidy up
+    Set cmd = Nothing
+
+    'If i is 1, connection is open
+    If i = 1 Then
+        cnOpen = True
+    Else
+        cnOpen = False
+    End If
+    Exit Function
+endFunction:
+    cnOpen = False
+End Function

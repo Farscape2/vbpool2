@@ -1,8 +1,8 @@
 VERSION 5.00
-Object = "{67397AA1-7FB1-11D0-B148-00A0C922E820}#6.0#0"; "MSADODC.OCX"
 Object = "{F0D2F211-CCB0-11D0-A316-00AA00688B10}#1.0#0"; "MSDATLST.OCX"
 Object = "{CDE57A40-8B86-11D0-B3C6-00A0C90AEA82}#1.0#0"; "MSDATGRD.OCX"
 Object = "{86CF1D34-0C5F-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCT2.OCX"
+Object = "{67397AA1-7FB1-11D0-B148-00A0C922E820}#6.0#0"; "MSADODC.OCX"
 Begin VB.Form matchlistForm 
    Caption         =   "Wedstrijden"
    ClientHeight    =   9630
@@ -22,11 +22,22 @@ Begin VB.Form matchlistForm
    ScaleHeight     =   9630
    ScaleWidth      =   12705
    StartUpPosition =   3  'Windows Default
+   Begin MSDataListLib.DataCombo cmbTeamA 
+      Height          =   360
+      Left            =   3120
+      TabIndex        =   20
+      Top             =   720
+      Width           =   1935
+      _ExtentX        =   3413
+      _ExtentY        =   635
+      _Version        =   393216
+      Text            =   ""
+   End
    Begin VB.TextBox txtOrder 
       Alignment       =   2  'Center
       Height          =   375
       Left            =   11040
-      TabIndex        =   21
+      TabIndex        =   17
       Top             =   720
       Width           =   420
    End
@@ -34,7 +45,7 @@ Begin VB.Form matchlistForm
       Caption         =   "Sluiten"
       Height          =   375
       Left            =   10680
-      TabIndex        =   14
+      TabIndex        =   10
       Top             =   9120
       Width           =   1815
    End
@@ -57,20 +68,9 @@ Begin VB.Form matchlistForm
       Caption         =   "Opslaan"
       Height          =   495
       Left            =   11760
-      TabIndex        =   11
+      TabIndex        =   7
       Top             =   600
       Width           =   855
-   End
-   Begin MSDataListLib.DataCombo cmbTeamA 
-      Height          =   360
-      Left            =   3120
-      TabIndex        =   7
-      Top             =   720
-      Width           =   1935
-      _ExtentX        =   3413
-      _ExtentY        =   635
-      _Version        =   393216
-      Text            =   ""
    End
    Begin MSComCtl2.UpDown UpDnMinutes 
       Height          =   375
@@ -135,7 +135,7 @@ Begin VB.Form matchlistForm
    Begin MSDataGridLib.DataGrid grdMatches 
       Height          =   7815
       Left            =   240
-      TabIndex        =   13
+      TabIndex        =   9
       Top             =   1200
       Width           =   12360
       _ExtentX        =   21802
@@ -188,39 +188,6 @@ Begin VB.Form matchlistForm
          EndProperty
       EndProperty
    End
-   Begin MSDataListLib.DataCombo cmbTeamB 
-      Height          =   360
-      Left            =   5160
-      TabIndex        =   8
-      Top             =   720
-      Width           =   1935
-      _ExtentX        =   3413
-      _ExtentY        =   635
-      _Version        =   393216
-      Text            =   ""
-   End
-   Begin MSDataListLib.DataCombo cmbTypes 
-      Height          =   360
-      Left            =   7200
-      TabIndex        =   9
-      Top             =   720
-      Width           =   1935
-      _ExtentX        =   3413
-      _ExtentY        =   635
-      _Version        =   393216
-      Text            =   ""
-   End
-   Begin MSDataListLib.DataCombo cmbLocation 
-      Height          =   360
-      Left            =   9240
-      TabIndex        =   10
-      Top             =   720
-      Width           =   1815
-      _ExtentX        =   3201
-      _ExtentY        =   635
-      _Version        =   393216
-      Text            =   ""
-   End
    Begin MSComCtl2.UpDown UpDnHours 
       Height          =   375
       Left            =   1950
@@ -243,7 +210,7 @@ Begin VB.Form matchlistForm
       _ExtentY        =   661
       _Version        =   393216
       CustomFormat    =   "dd-MM"
-      Format          =   148176899
+      Format          =   149553155
       CurrentDate     =   43939
    End
    Begin MSComCtl2.UpDown upDnNr 
@@ -271,7 +238,7 @@ Begin VB.Form matchlistForm
    Begin MSComCtl2.UpDown UpDnOrder 
       Height          =   375
       Left            =   11460
-      TabIndex        =   22
+      TabIndex        =   18
       Top             =   720
       Width           =   255
       _ExtentX        =   450
@@ -290,6 +257,39 @@ Begin VB.Form matchlistForm
       BuddyProperty   =   65547
       Enabled         =   -1  'True
    End
+   Begin MSDataListLib.DataCombo cmbTeamB 
+      Height          =   360
+      Left            =   5040
+      TabIndex        =   21
+      Top             =   720
+      Width           =   1935
+      _ExtentX        =   3413
+      _ExtentY        =   635
+      _Version        =   393216
+      Text            =   ""
+   End
+   Begin MSDataListLib.DataCombo cmbTypes 
+      Height          =   360
+      Left            =   6960
+      TabIndex        =   22
+      Top             =   720
+      Width           =   2055
+      _ExtentX        =   3625
+      _ExtentY        =   635
+      _Version        =   393216
+      Text            =   ""
+   End
+   Begin MSDataListLib.DataCombo cmbLocation 
+      Height          =   360
+      Left            =   9000
+      TabIndex        =   23
+      Top             =   720
+      Width           =   2055
+      _ExtentX        =   3625
+      _ExtentY        =   635
+      _Version        =   393216
+      Text            =   ""
+   End
    Begin VB.Label Label2 
       Alignment       =   1  'Right Justify
       BackStyle       =   0  'Transparent
@@ -297,7 +297,7 @@ Begin VB.Form matchlistForm
       Height          =   255
       Index           =   7
       Left            =   10800
-      TabIndex        =   23
+      TabIndex        =   19
       Top             =   480
       Width           =   855
    End
@@ -307,7 +307,7 @@ Begin VB.Form matchlistForm
       Height          =   255
       Index           =   6
       Left            =   9240
-      TabIndex        =   20
+      TabIndex        =   16
       Top             =   480
       Width           =   1575
    End
@@ -317,7 +317,7 @@ Begin VB.Form matchlistForm
       Height          =   255
       Index           =   5
       Left            =   7200
-      TabIndex        =   19
+      TabIndex        =   15
       Top             =   480
       Width           =   1575
    End
@@ -327,7 +327,7 @@ Begin VB.Form matchlistForm
       Height          =   255
       Index           =   4
       Left            =   5160
-      TabIndex        =   18
+      TabIndex        =   14
       Top             =   480
       Width           =   1575
    End
@@ -337,7 +337,7 @@ Begin VB.Form matchlistForm
       Height          =   255
       Index           =   3
       Left            =   3120
-      TabIndex        =   17
+      TabIndex        =   13
       Top             =   480
       Width           =   1935
    End
@@ -348,7 +348,7 @@ Begin VB.Form matchlistForm
       Height          =   255
       Index           =   2
       Left            =   2160
-      TabIndex        =   16
+      TabIndex        =   12
       Top             =   480
       Width           =   1095
    End
@@ -358,7 +358,7 @@ Begin VB.Form matchlistForm
       Height          =   255
       Index           =   1
       Left            =   1080
-      TabIndex        =   15
+      TabIndex        =   11
       Top             =   480
       Width           =   975
    End
@@ -369,7 +369,7 @@ Begin VB.Form matchlistForm
       Height          =   255
       Index           =   0
       Left            =   240
-      TabIndex        =   12
+      TabIndex        =   8
       Top             =   480
       Width           =   495
    End
@@ -400,10 +400,10 @@ Dim rsLocation As ADODB.Recordset
 
 Sub setMatchGrid()
 Dim sqlstr As String
-Dim rs As ADODB.Recordset
-Set rs = New ADODB.Recordset
-Dim dCol As Column
-    
+'Dim rs As ADODB.Recordset
+'Set rs = New ADODB.Recordset
+Dim dCol As Object
+
     sqlstr = "SELECT m.matchNumber as Wedstr, m.matchDate as Datum, matchTime as Tijd, "
     sqlstr = sqlstr & " ta.teamName as Team1, tb.teamName as Team2, t.matchTypeDescription as Type, s.stadiumName & '/' & s.stadiumLocation as Locatie,"
     sqlstr = sqlstr & " a.teamcode as CodeA, b.teamcode as CodeB, t.matchtypeId as typeId, s.stadiumId as stadiumId, m.matchOrder as volgorde"
@@ -418,7 +418,7 @@ Dim dCol As Column
     sqlstr = sqlstr & " AND b.tournamentID = " & thisTournament
     sqlstr = sqlstr & " ORDER BY m.matchNumber"
     
-    rs.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
+'    rs.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
     
     With Me.dtcMatches
         .ConnectionString = cn
@@ -457,7 +457,7 @@ Dim dCol As Column
         Set dCol = .Columns.Add(4)
         dCol.Caption = "TeamA"
         dCol.DataField = "Team1"
-        dCol.Width = 2000
+        dCol.Width = 1900
         dCol.Visible = True
         Set dCol = .Columns.Add(5)
         dCol.Caption = "  B"
@@ -501,47 +501,45 @@ Dim dCol As Column
 End Sub
 
 Sub setEditBar()
-Set rs = New ADODB.Recordset
-Set rsTypes = New ADODB.Recordset
-Set rsLocation = New ADODB.Recordset
+    Set rs = New ADODB.Recordset
+    Set rsTypes = New ADODB.Recordset
+    Set rsLocation = New ADODB.Recordset
 
 Dim sqlstr As String
+
+    ' Using DataCombo boxes for a change. Is so much easties in this case
+    ' ComboBox.ItemData can only be long data type
 
     sqlstr = "Select teamcode, teamCode & ': ' & teamName as team "
     sqlstr = sqlstr & "from tblTournamentTeamCodes c LEFT JOIN tblTeamNames n on c.teamId = n.teamnameid"
     sqlstr = sqlstr & " Where c.tournamentid = " & thisTournament
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
-    If Not rs.EOF Then rs.MoveLast
-
     With Me.cmbTeamA
         Set .RowSource = rs
         .ListField = "team"
         .BoundColumn = "teamcode"
-        .Refresh
     End With
     With Me.cmbTeamB
         Set .RowSource = rs
         .ListField = "team"
         .BoundColumn = "teamcode"
-        .Refresh
     End With
+    
     sqlstr = "Select matchtypeId as id , matchtypedescription as descr from tblMatchTypes"
     rsTypes.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     With Me.cmbTypes
         Set .RowSource = rsTypes
         .ListField = "descr"
         .BoundColumn = "id"
-        .Refresh
     End With
+    
     sqlstr = "Select stadiumId as id, stadiumName & '/' & stadiumLocation as name from tblStadiums order by stadiumName"
     rsLocation.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     With Me.cmbLocation
         Set .RowSource = rsLocation
         .ListField = "name"
         .BoundColumn = "id"
-        .Refresh
     End With
-    
     
     Me.dtDate = getTournamentInfo("tournamentStartDate")
     Me.UpDnHours = 20
@@ -600,6 +598,10 @@ Private Sub btnSave_Click()
     
 End Sub
 
+Private Sub cmbType_Click(Area As Integer)
+
+End Sub
+
 Private Sub Form_Load()
 
     setEditBar
@@ -628,6 +630,7 @@ Private Sub grdMatches_RowColChange(LastRow As Variant, ByVal LastCol As Integer
         Me.upDnNr = !wedstr
         Me.dtDate = !datum
         Me.txtTime = Format(!tijd, "hh:mm")
+        
         Me.cmbTeamA.BoundText = !CodeA
         Me.cmbTeamB.BoundText = !CodeB
         Me.cmbTypes.BoundText = !typeid
