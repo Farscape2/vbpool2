@@ -156,12 +156,11 @@ Dim newConn As String
 Dim rs As ADODB.Recordset
 Dim cols As ADODB.Recordset
 Dim sqlstr As String
-Dim adoTable As adox.Table
-Dim adoCatalog As adox.Catalog
+Dim adoTable As ADOX.Table
+Dim adoCatalog As ADOX.Catalog
 Dim tournTable As Boolean
 
 'On Error GoTo connError
-    'open connection to mySql
     openMySql
     'get the tables from the mySql table collection
     Set rs = New ADODB.Recordset
@@ -171,14 +170,14 @@ Dim tournTable As Boolean
         MsgBox "Geen MySQL tabellen gevonden!", vbOKOnly, "FOUT"
         Exit Sub
     End If
-    Set adoCatalog = New adox.Catalog
+    Set adoCatalog = New ADOX.Catalog
     adoCatalog.ActiveConnection = cn
     Do While Not rs.EOF
         srcTable = rs.Fields(0)
         If Left(srcTable, 6) <> "local_" Then
             'copy the tabledefs to the mdb
             If Not tableExists(srcTable) Then
-                Set adoTable = New adox.Table
+                Set adoTable = New ADOX.Table
                 adoTable.Name = srcTable
                 Me.lblTblName.Caption = "Tabel: " & rs.AbsolutePosition & "/" & rs.RecordCount
                 adoTable.ParentCatalog = adoCatalog
@@ -195,6 +194,8 @@ Dim tournTable As Boolean
         srcTable = rs.Fields(0)
         Me.lblTblName.Caption = "Tabel: " & srcTable
         If Left(srcTable, 6) <> "local_" Then
+            'open connection to mySql
+            openMySql
             cols.Open "SHOW COLUMNS from " & srcTable, myConn, adOpenForwardOnly, adLockReadOnly
             tournTable = False
             Do While Not cols.EOF
@@ -212,7 +213,7 @@ Dim tournTable As Boolean
     rs.Close
     Set rs = Nothing
     Set adoCatalog = Nothing
-    myConn.Close
+    'myConn.Close
     Set myConn = Nothing
     
     Me.lblTblName.Caption = "Klaar! vbpool.MDB ingelezen"
@@ -292,10 +293,10 @@ nextTable:
     Set myConn = Nothing
 End Sub
 
-Sub duplicateFields(toTable As adox.Table, fromTbl As String)
+Sub duplicateFields(toTable As ADOX.Table, fromTbl As String)
     'copy tbl fields to Access database
     Dim rs As ADODB.Recordset  'to store the columns
-    Dim col As adox.Column
+    Dim col As ADOX.Column
     Dim sqlstr As String
     Dim ln As Integer
     Dim fldName As String
@@ -309,7 +310,7 @@ Sub duplicateFields(toTable As adox.Table, fromTbl As String)
     With toTable
         Do While Not rs.EOF
             fldName = rs.Fields(0).value
-            Set col = New adox.Column
+            Set col = New ADOX.Column
             col.Name = fldName
             col.Type = cFieldType(rs.Fields("Type"))
             .Columns.Append col
@@ -320,7 +321,16 @@ Sub duplicateFields(toTable As adox.Table, fromTbl As String)
             If LCase(rs.Fields("Extra")) = "auto_increment" And rs.Fields("Type") = "int(11)" Then
                 .Columns(fldName).Properties("AutoIncrement").value = True
                 .Keys.Append "PrimaryKey", adKeyPrimary, fldName
+            Else
+                If rs.Fields("Type") = "tinyint(3)" Then
+                    .Columns(fldName).Attributes = adColNullable
+                End If
             End If
+            '''' TEST
+            Dim prop As ADOX.Property
+            For Each prop In col.Properties
+                Debug.Print fromTbl, fldName, prop.Name, prop.value
+            Next
             rs.MoveNext
         Loop
     End With

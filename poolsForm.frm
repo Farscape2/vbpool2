@@ -469,7 +469,7 @@ Begin VB.Form poolsForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147390465
+      Format          =   147259393
       CurrentDate     =   43932
    End
    Begin MSComCtl2.DTPicker dtpEind 
@@ -482,7 +482,7 @@ Begin VB.Form poolsForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147390465
+      Format          =   147259393
       CurrentDate     =   43932
    End
    Begin VB.Label lblTitle 
@@ -567,7 +567,7 @@ Option Explicit
 
 Dim editState As Boolean
 
-Dim rsTournaments As adodb.Recordset
+Dim rsTournaments As ADODB.Recordset
 
 
 Private Sub btnClose_Click()
@@ -622,7 +622,7 @@ Private Sub Form_Load()
 Dim ctl As Control
 Dim sqlstr As String
 Dim i As Integer
-    Set rsTournaments = New adodb.Recordset
+    Set rsTournaments = New ADODB.Recordset
 'set Form defaults
     UnifyForm Me
 
@@ -648,8 +648,8 @@ Dim i As Integer
     End With
     
     Me.txtCosts.DataField = "poolCost"
-    Me.dtpStart.DataField = "poolStartAcceptForms"
-    Me.dtpEind.DataField = "poolEndAcceptForms"
+    Me.dtpStart.DataField = "poolFormsFrom"
+    Me.dtpEind.DataField = "poolFormsTill"
     
     'prizes
     Me.txtHighestDayscore.DataField = "prizeHighDayScore"

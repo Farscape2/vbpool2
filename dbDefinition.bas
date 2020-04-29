@@ -130,6 +130,7 @@ Sub createDb()
     MsgBox "Nieuwe database is aangemaakt." & vbNewLine & "Vul de gegevens in en kies een wachtwoord", vbOKOnly + vbInformation, "Nieuwe installatie"
     If Not cnOpen(cn) Then openDB
     frmOrganisation.Show 1
+    frmCopyData.Show 1
     fillDefaultValues
 End Sub
 
@@ -139,6 +140,7 @@ Sub fillDefaultValues()
     Dim rs As ADODB.Recordset
     Dim sqlstr As String
     Dim cmd As ADODB.Command
+    Dim pnts
     Dim orgID As Long
     If Not cnOpen(cn) Then openDB
     Set rs = New ADODB.Recordset
@@ -150,33 +152,32 @@ Sub fillDefaultValues()
     End If
     'get the last tournament ID
     rs.MoveLast
-    thisTournament = rs!tournamentId
+    thisTournament = rs!tournamentid
     rs.Close
     'get the OrganisationID - should be only one organisation
     orgID = getOrganisation("organisationID")
     'create a first record in tblPools
-    sqlstr = "INSERT INTO tblPools (tournamentId, OrganisationId) VALUES (" & thisTournament & ", " & orgID & ")"
+    sqlstr = "INSERT INTO tblPools (tournamentId, OrganisationId, poolName, poolFormsFrom, poolFormsTill, "
+    sqlstr = sqlstr & "poolCost, prizeHighDayScore, prizeHighDayPosition, prizeLowDayposition, "
+    sqlstr = sqlstr & "prizePercentageFirst, prizePercentageSecond, prizePercentageThird, prizePercentageFourth, "
+    sqlstr = sqlstr & "prizeLowFinalPosition ) VALUES ("
+    sqlstr = sqlstr & thisTournament & ", " & orgID & ", 'Eerste pool', " & Date & ", " & getTournamentInfo("tournamentStartDate") - 7 & ", "
+    sqlstr = sqlstr & "10, 2.5, 1, 0.1, 0.5, 0.3, 0.3, 0, 10)"
     cn.Execute sqlstr
-    'default data for thispool
-    rs.Open "Select * from tblPools"
-        rs.MoveLast 'just in case
-        rs!Poolname = "Eerste pool"
-        rs!poolFormsFrom = Date
-        rs!poolformstill = getTournamentInfo("tournamentEndDate") - 7
-        rs!poolcost = 10
-        rs!prizeHighDayScore = 2.5
-        rs!prizeHighDayPosition = 1
-        rs!prizeLowDayPosition = 0.1
-        rs!prizePercentageFirst = 0.5
-        rs!prizePercentageSecond = 0.3
-        rs!prizePercentageThird = 0.2
-        rs!prizePercentageFourth = 0
-        rs!prizeLowFinalPosition = 10
-    rs.Update
-    rs.Close
+    'get the poolId
+    sqlstr = "Select * from tblPools order by poolID"
+    rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+    rs.MoveLast
+    thisPool = rs!poolid
     'default data for points
-    Set cmd = New ADODB.Command
-    'construct command to fill poolpoints with pointtypes
+    sqlstr = "INSERT into tblPoolPoints ( poolID, pointTypeId, pointPointsAward, pointPointsMargin )"
+    sqlstr = sqlstr & " Select " & thisPool & ", pointtypeId , pointDefaultPoints, pointDefaultMargin from tblpointTypes"
+    cn.Execute sqlstr
+'    Do While Not rs.EOF
+'
+'        sqlstr = "Insert into tblPoolPoints (poolId, pointypeID) VALUES ( " & thisPool & ", " & rs!pointtypeid & ")"
+'        rs.MoveNext
+'    Loop
     
     
 End Sub

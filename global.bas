@@ -125,12 +125,8 @@ Public Sub FillCombo(objComboBox As ComboBox, _
     
     oRS.Close                 'Tidy up
     Set oRS = Nothing
-    conn.Close
-    Set conn = Nothing
-    If mySql Then
-        myConn.Close
-        Set myConn = Nothing
-    End If
+    'conn.Close
+    'Set conn = Nothing
 
 End Sub
 

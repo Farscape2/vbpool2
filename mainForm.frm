@@ -58,13 +58,13 @@ Begin VB.Form mainForm
          Strikethrough   =   0   'False
       EndProperty
       ForeColor       =   &H00004000&
-      Height          =   615
+      Height          =   855
       Left            =   720
       TabIndex        =   1
       Tag             =   "kop1"
-      Top             =   3480
+      Top             =   3240
       Visible         =   0   'False
-      Width           =   6615
+      Width           =   7215
    End
    Begin VB.Label lblStartTitle 
       Alignment       =   2  'Center
@@ -316,7 +316,7 @@ End Sub
 
 Private Sub mnuAdmin_Click()
     ' do a count of records to see if ADMIN user exists in the table
-    Dim rsData As adodb.Recordset
+    Dim rsData As ADODB.Recordset
     Set rsData = cn.Execute("SELECT Count(*) FROM tblOrganisation")
     
     ' if there are users in the table, then prompt for login
