@@ -152,12 +152,6 @@ Private Sub Form_Load()
     
 End Sub
 
-Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
-    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
-    Set rs = Nothing
-
-End Sub
-
 Private Sub OKButton_Click()
     thisPool = Me.cmbSelPool.ItemData(Me.cmbSelPool.ListIndex)
     thisTournament = getThisPoolTournamentId

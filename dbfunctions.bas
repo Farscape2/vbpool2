@@ -3,13 +3,18 @@ Option Explicit
 
 Function getOrganisation(Optional field As String)
 'get the name for the organisation of this pool / or just the content of field
-Dim adoCmd As adodb.Command
-Dim rs As adodb.Recordset
+Dim adoCmd As ADODB.Command
+Dim rs As ADODB.Recordset
 Dim sqlstr As String
 Dim result As String
-    
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .CursorLocation = adUseClient
+        .Open
+    End With
     sqlstr = "Select * from tblOrganisation"
-    Set adoCmd = New adodb.Command
+    Set adoCmd = New ADODB.Command
     With adoCmd
         .ActiveConnection = cn
         .CommandType = adCmdText
@@ -19,12 +24,12 @@ Dim result As String
 
     If Not rs.EOF Then
         If field = "" Then
-            result = rs!firstname
+            result = Trim(rs!firstname)
             If rs!middlename > "" Then
-                result = result & " " & rs!middlename
+                result = result & " " & Trim(rs!middlename)
             End If
             If rs!lastname > "" Then
-                result = result & " " & rs!lastname
+                result = result & " " & Trim(rs!lastname)
             End If
         Else
             result = rs(field)
@@ -33,15 +38,23 @@ Dim result As String
     getOrganisation = result
     rs.Close
     Set rs = Nothing
+    cn.Close
 End Function
 
 Function getPoolInfo(fldName As String)
 'return the value of fieldnmame in tblPools
-Dim adoCmd As adodb.Command
-Dim rs As adodb.Recordset
+Dim adoCmd As ADODB.Command
+Dim rs As ADODB.Recordset
 Dim sqlstr As String
+    
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .CursorLocation = adUseClient
+        .Open
+    End With
 
-    Set adoCmd = New adodb.Command
+    Set adoCmd = New ADODB.Command
     sqlstr = "Select " & fldName & " from tblPools where poolid = ?"
     With adoCmd
         .ActiveConnection = cn
@@ -60,19 +73,32 @@ Dim sqlstr As String
     rs.Close
     Set rs = Nothing
     Set adoCmd = Nothing
-    
+    cn.Close
 End Function
 
-Function getTournamentInfo(fldName As String)
+Function getTournamentInfo(fldName As String, Optional mySql As Boolean)
 'return the value of fieldnmame in tblTournaments
-    Dim adoCmd As adodb.Command
-    Set adoCmd = New adodb.Command
+    Dim conn As ADODB.Connection
+    Dim adoCmd As ADODB.Command
+    Set adoCmd = New ADODB.Command
     Dim sqlstr As String
     Dim result As Variant
-    Dim rs As adodb.Recordset
+    Dim rs As ADODB.Recordset
+    
+    Set cn = New ADODB.Connection
+    With cn
+        If mySql Then
+            .ConnectionString = mySqlConn
+        Else
+            .ConnectionString = lclConn
+        End If
+        .CursorLocation = adUseClient
+        .Open
+    End With
+    
     sqlstr = "Select * from tblTournaments Where tournamentID = ? "
     With adoCmd
-        .ActiveConnection = cn
+        .ActiveConnection = conn
         .CommandType = adCmdText
         .CommandText = sqlstr
         .Prepared = True
@@ -84,11 +110,12 @@ Function getTournamentInfo(fldName As String)
         ' add description as extra - Access doesn't understand concat
         If fldName = "description" Then
             result = rs!tournamenttype & " - " & rs!tournamentYear
-        End If
-        If rs(fldName).Type = adBoolean Then
-            result = CBool(rs(fldName)) * 1
         Else
-            result = rs(fldName)
+            If rs(fldName).Type = adBoolean Then
+                result = CBool(rs(fldName)) * 1
+            Else
+                result = rs(fldName)
+            End If
         End If
     Else
         result = Null
@@ -97,13 +124,19 @@ Function getTournamentInfo(fldName As String)
     rs.Close
     Set rs = Nothing
     Set adoCmd = Nothing
-    
+    cn.Close
 End Function
 
 Function chkPoolHasCompetitors(pool As Long)
 'are there competitors for this pool
-    Dim rs As adodb.Recordset
-    Set rs = New adodb.Recordset
+    Dim rs As ADODB.Recordset
+    Set rs = New ADODB.Recordset
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .CursorLocation = adUseClient
+        .Open
+    End With
 
     Dim sqlstr As String
         sqlstr = "Select  poolID from tblCompetitors Where poolid = " & pool
@@ -111,24 +144,40 @@ Function chkPoolHasCompetitors(pool As Long)
         chkPoolHasCompetitors = Not rs.EOF
     rs.Close
     Set rs = Nothing
+    cn.Close
 End Function
 
 Function chkTournamentHasPools(tournament As Long)
 'are there pools for this tournament?
-    Dim rs As adodb.Recordset
-    Set rs = New adodb.Recordset
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .CursorLocation = adUseClient
+        .Open
+    End With
+
+    Dim rs As ADODB.Recordset
+    Set rs = New ADODB.Recordset
     Dim sqlstr As String
         sqlstr = "Select tournamentID from tblPools Where tournamentid = " & tournament
         rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
         chkTournamentHasPools = Not rs.EOF
     rs.Close
     Set rs = Nothing
+    cn.Close
 End Function
 
 Function getThisPoolTournamentId() As Long
 'return the tournament for the current pool
-    Dim rs As adodb.Recordset
-    Set rs = New adodb.Recordset
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .CursorLocation = adUseClient
+        .Open
+    End With
+
+    Dim rs As ADODB.Recordset
+    Set rs = New ADODB.Recordset
     getThisPoolTournamentId = 0
     Dim sqlstr As String
     sqlstr = "Select tournamentID from tblPools Where poolid = " & thisPool
@@ -139,12 +188,20 @@ Function getThisPoolTournamentId() As Long
     End If
     rs.Close
     Set rs = Nothing
+    cn.Close
 End Function
 
 Function chkTournamentStarted()
 'check to see if torunament already started
-    Dim rs As adodb.Recordset
-    Set rs = New adodb.Recordset
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .CursorLocation = adUseClient
+        .Open
+    End With
+
+    Dim rs As ADODB.Recordset
+    Set rs = New ADODB.Recordset
     Dim sqlstr As String
     chkTournamentStarted = False
     sqlstr = "Select * from tblTournaments Where tournamentid = " & getThisPoolTournamentId()
@@ -154,9 +211,10 @@ Function chkTournamentStarted()
     End If
     rs.Close
     Set rs = Nothing
+    cn.Close
 End Function
 
-Function supportsTransactions(cnn As adodb.Connection) As Boolean
+Function supportsTransactions(cnn As ADODB.Connection) As Boolean
 'check if connection supports transactions
     On Error GoTo err_supportsTransactions:
         Dim lValue As Long
@@ -174,46 +232,69 @@ End Function
 
 Function tournamentHasSchedule() As Boolean
 'check if there is already a base schedule made
-    Dim rs As adodb.Recordset
-    Set rs = New adodb.Recordset
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .CursorLocation = adUseClient
+        .Open
+    End With
+
+    Dim rs As ADODB.Recordset
+    Set rs = New ADODB.Recordset
     Dim sqlstr As String
     sqlstr = "select * from tblTournamentSchedule where tournamentid = " & thisTournament
     rs.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
     tournamentHasSchedule = Not rs.EOF
     rs.Close
     Set rs = Nothing
+    cn.Close
 End Function
 
 Function tournamentBaseSchedule() As Boolean
 'check if there is already a base schedule made
-    Dim rs As adodb.Recordset
-    Set rs = New adodb.Recordset
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .CursorLocation = adUseClient
+        .Open
+    End With
+
+    Dim rs As ADODB.Recordset
+    Set rs = New ADODB.Recordset
     Dim sqlstr As String
     sqlstr = "select * from tblTournamentTeamCodes where tournamentid = " & thisTournament
     rs.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
     tournamentBaseSchedule = Not rs.EOF
     rs.Close
     Set rs = Nothing
+    cn.Close
 End Function
 
 Sub generateSchedule()
 'this routine builds the teams codes table for later use in Schedule. There we will add teamnames to these codes
 
-Dim rsSchedule As adodb.Recordset
-Dim rs As adodb.Recordset
+Dim rsSchedule As ADODB.Recordset
+Dim rs As ADODB.Recordset
 Dim sqlstr As String
 Dim msg As String
-Dim qry As adodb.Command
+Dim qry As ADODB.Command
 Dim makeSchedule As Boolean
 Dim letter As Integer
 Dim matches As Integer
 Dim groupSize  As Integer
-Dim i As Integer, j As Integer
+Dim i As Integer, J As Integer
 Dim teamCode As String
 
-    Set rsSchedule = New adodb.Recordset
-    Set rs = New adodb.Recordset
-    Set qry = New adodb.Command
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .CursorLocation = adUseClient
+        .Open
+    End With
+
+    Set rsSchedule = New ADODB.Recordset
+    Set rs = New ADODB.Recordset
+    Set qry = New ADODB.Command
     
     'we will exit
     'if there are is already a base schedule (in tblTournamentTeamCodses) for this tournament
@@ -233,10 +314,10 @@ Dim teamCode As String
     rsSchedule.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
     With rsSchedule
         For i = 1 To rs!groups
-            For j = 1 To groupSize
+            For J = 1 To groupSize
                 .AddNew
                 !tournamentID = thisTournament
-                teamCode = Chr(i + 64) & Format(j, "0")
+                teamCode = Chr(i + 64) & Format(J, "0")
                 !teamCode = teamCode
                 .Update
             Next
@@ -291,16 +372,23 @@ Dim teamCode As String
     If (rsSchedule.State And adStateOpen) = adStateOpen Then rsSchedule.Close
     Set rs = Nothing
     Set rsSchedule = Nothing
+    cn.Close
 End Sub
 
-
 Sub addPlayers()
-'add all playters in the tblPeople table from a country in this tournament
+'add all players in the tblPeople table from a country in this tournament
     Dim sqlstr As String
-    Dim rsTeams As adodb.Recordset
-    Dim rsPlayers As adodb.Recordset
-    Set rsTeams = New adodb.Recordset
-    Set rsPlayers = New adodb.Recordset
+    Dim rsTeams As ADODB.Recordset
+    Dim rsPlayers As ADODB.Recordset
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .CursorLocation = adUseClient
+        .Open
+    End With
+
+    Set rsTeams = New ADODB.Recordset
+    Set rsPlayers = New ADODB.Recordset
     'remove all players in thistournament first
     sqlstr = "Delete from tblTeamPlayers where tournamentid = " & thisTournament
     cn.Execute sqlstr
@@ -326,12 +414,13 @@ Sub addPlayers()
     Set rsTeams = Nothing
     If (rsPlayers.State And adStateOpen) = adStateOpen Then rsPlayers.Close
     Set rsPlayers = Nothing
+    cn.Close
 End Sub
  
 Function getTeamInfo(teamId As Long, fld As String)
     Dim sqlstr As String
-    Dim rs As adodb.Recordset
-    Set rs = New adodb.Recordset
+    Dim rs As ADODB.Recordset
+    Set rs = New ADODB.Recordset
     sqlstr = "Select * from tblTeamNames where teamNameId = " & teamId
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     If Not rs.EOF Then
@@ -346,8 +435,8 @@ End Function
 Function getTeamId(tournamentTeamCode As Long)
 'get the basic id  of a tournament teamcode
     Dim sqlstr As String
-    Dim rs As adodb.Recordset
-    Set rs = New adodb.Recordset
+    Dim rs As ADODB.Recordset
+    Set rs = New ADODB.Recordset
     
     sqlstr = "Select * from tblTournamentTeamCodes where teamCodeId = " & tournamentTeamCode
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
@@ -363,8 +452,8 @@ End Function
 Function getTournamentTeamCode(teamId As Long)
 'get the teamId from a tounamentTeamCode
     Dim sqlstr As String
-    Dim rs As adodb.Recordset
-    Set rs = New adodb.Recordset
+    Dim rs As ADODB.Recordset
+    Set rs = New ADODB.Recordset
     sqlstr = "Select * from tblTournamentTeamCodes where tournamentId = " & thisTournament
     sqlstr = sqlstr & " AND teamId = " & teamId
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
@@ -381,8 +470,8 @@ End Function
 
 Function playerInTournamentTeam(playerId As Long, teamId As Long)
     Dim sqlstr As String
-    Dim rs As adodb.Recordset
-    Set rs = New adodb.Recordset
+    Dim rs As ADODB.Recordset
+    Set rs = New ADODB.Recordset
     sqlstr = "Select * from tblTeamPlayers where teamId = " & teamId
     sqlstr = sqlstr & " AND playerId = " & playerId
     sqlstr = sqlstr & " AND tournamentId = " & thisTournament
@@ -396,8 +485,8 @@ End Function
 
 Function playerExists(fName As String, mName As String, lName As String, NickName As String)
     Dim sqlstr As String
-    Dim rs As adodb.Recordset
-    Set rs = New adodb.Recordset
+    Dim rs As ADODB.Recordset
+    Set rs = New ADODB.Recordset
     sqlstr = "Select * from tblPeople where (firstname = '" & fName
     sqlstr = sqlstr & "' AND middleName = '" & mName
     sqlstr = sqlstr & "' AND lastName = '" & lName
@@ -416,10 +505,10 @@ Function convertTournamentScheduleTable()
 '
 'this makes the relation between schedule and teamcodes more intuitive, allbeit more complex (on two fields: tournamentID AND teamCode)
     
-    Dim rsTn As adodb.Recordset
-    Dim rsCodes As adodb.Recordset
-    Set rsTn = New adodb.Recordset
-    Set rsCodes = New adodb.Recordset
+    Dim rsTn As ADODB.Recordset
+    Dim rsCodes As ADODB.Recordset
+    Set rsTn = New ADODB.Recordset
+    Set rsCodes = New ADODB.Recordset
     Dim sqlstr As String
     sqlstr = "select * from  tblTournamentTeamCodes where teamCodeID > 0"
     rsCodes.Open sqlstr, cn, adOpenKeyset, adLockOptimistic

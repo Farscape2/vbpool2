@@ -212,6 +212,7 @@ Private Sub Form_Load()
     'size form half the screen size
     Me.Width = Screen.Width / 2
     Me.Height = Screen.Height / 2
+    write2Log "Main form opened", True
     
     centerForm Me
     UnifyForm Me
@@ -333,6 +334,7 @@ End Sub
 
 Private Sub mnuConvert_Click()
     convertTournamentScheduleTable
+    write2Log "Conversion attempted", True
 End Sub
 
 Private Sub mnuDblPlayers_Click()
@@ -347,12 +349,15 @@ Private Sub mnuExitApp_Click()
             Set objForm = Nothing
         End If
     Next
+    write2Log "App ended", True
     Unload Me
 End Sub
 
 Private Sub mnuFileOpen_Click()
     openPool.Show 1
     updateForm
+    write2Log "Pool opened", True
+
 End Sub
 
 Private Sub mnuNewPool_Click()
@@ -368,6 +373,7 @@ Private Sub mnuPoolBasicData_Click()
     poolsForm.Show 1
     DoEvents
     updateForm
+
 End Sub
 
 Private Sub mnuPoolSettings_Click()

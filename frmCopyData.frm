@@ -20,18 +20,19 @@ Begin VB.Form frmCopyData
    StartUpPosition =   3  'Windows Default
    Begin VB.ComboBox cmbTournament 
       Height          =   360
-      Left            =   4200
+      Left            =   4080
       TabIndex        =   6
-      Top             =   1027
-      Width           =   1575
+      Top             =   720
+      Width           =   1815
    End
    Begin VB.CheckBox chkNewDb 
       Alignment       =   1  'Right Justify
       Caption         =   "Nieuwe database aanmaken"
       Height          =   255
-      Left            =   120
+      Left            =   1080
       TabIndex        =   5
-      Top             =   1080
+      Top             =   2640
+      Visible         =   0   'False
       Width           =   2775
    End
    Begin VB.CommandButton btnCancel 
@@ -50,13 +51,33 @@ Begin VB.Form frmCopyData
       Top             =   1920
       Width           =   1575
    End
-   Begin VB.Label Label2 
-      Caption         =   "Toernooi"
+   Begin VB.Label lblTournamentInfo 
+      Alignment       =   2  'Center
+      BackStyle       =   0  'Transparent
       Height          =   255
-      Left            =   3240
+      Left            =   4080
+      TabIndex        =   9
+      Top             =   1155
+      Width           =   1815
+   End
+   Begin VB.Label Label2 
+      BackStyle       =   0  'Transparent
+      Caption         =   "Van"
+      Height          =   255
+      Index           =   2
+      Left            =   3480
+      TabIndex        =   8
+      Top             =   1155
+      Width           =   495
+   End
+   Begin VB.Label Label2 
+      Caption         =   "Selecteer toernooi voor deze pool"
+      Height          =   255
+      Index           =   0
+      Left            =   240
       TabIndex        =   7
-      Top             =   1080
-      Width           =   855
+      Top             =   720
+      Width           =   3135
    End
    Begin VB.Shape shpFill 
       FillColor       =   &H0000C000&
@@ -74,29 +95,27 @@ Begin VB.Form frmCopyData
    End
    Begin VB.Label lblRecord 
       Alignment       =   2  'Center
-      BackStyle       =   0  'Transparent
       Height          =   375
-      Left            =   120
+      Left            =   240
       TabIndex        =   4
       Tag             =   "kop"
-      Top             =   1800
-      Width           =   4000
+      Top             =   2040
+      Width           =   3885
    End
    Begin VB.Label lblTblName 
       Alignment       =   2  'Center
-      BackStyle       =   0  'Transparent
       Height          =   375
-      Left            =   120
+      Left            =   240
       TabIndex        =   3
       Tag             =   "kop"
-      Top             =   1440
-      Width           =   5655
+      Top             =   1560
+      Width           =   3855
    End
    Begin VB.Label Label1 
       Alignment       =   2  'Center
       BackStyle       =   0  'Transparent
-      Caption         =   "Importeer de tabellen van de mySQL server naar de lokale database vbpool2.mdb"
-      Height          =   735
+      Caption         =   "Haal de basisgegevens op van het internet"
+      Height          =   495
       Left            =   120
       TabIndex        =   0
       Tag             =   "kop"
@@ -135,6 +154,14 @@ Dim msg As String
         copyTournamentTables
         'copyData
     End If
+End Sub
+
+Private Sub cmbTournament_Click()
+Dim periodText As String
+    thisTournament = val(Me.cmbTournament.ItemData(Me.cmbTournament.ListIndex))
+    periodText = Format(getTournamentInfo("tournamentStartDate", True), "ddd d MMM")
+    periodText = periodText & " - " & Format(getTournamentInfo("tournamentEndDate", True), "ddd d MMM")
+    Me.lblTournamentInfo.Caption = periodText
 End Sub
 
 Private Sub Form_Load()
@@ -315,7 +342,7 @@ Sub duplicateFields(toTable As ADOX.Table, fromTbl As String)
             col.Type = cFieldType(rs.Fields("Type"))
             .Columns.Append col
             If InStr(LCase(rs.Fields("Type")), "varchar") Then
-                ln = Val(Mid(rs.Fields("Type"), 9, Len(rs.Fields("Type")) - 9))
+                ln = val(Mid(rs.Fields("Type"), 9, Len(rs.Fields("Type")) - 9))
                 .Columns(fldName).DefinedSize = ln
             End If
             If LCase(rs.Fields("Extra")) = "auto_increment" And rs.Fields("Type") = "int(11)" Then

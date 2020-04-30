@@ -12,6 +12,7 @@ Public Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 Sub Main()
     Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
+    write2Log "App started", True
     'check other instance of app
     If App.PrevInstance = True Then
         MsgBox "VBPool2.0 draait al...."
@@ -20,11 +21,12 @@ Sub Main()
     'set and open the database
     If Dir(App.Path & "\" & dbName & ".mdb") = "" Then
         createDb
+        write2Log "No vbpool2.mdb, dbcreated"
     End If
     
     If recordsExist("tblPools") Then
         ' get last poolID
-        thisPool = Val(GetSetting(App.EXEName, "global", "lastpool", 0))
+        thisPool = val(GetSetting(App.EXEName, "global", "lastpool", 0))
     End If
     If thisPool Then
         thisTournament = getThisPoolTournamentId()
@@ -74,7 +76,7 @@ Function float(strNumber As String) As String
 'convert formatted dutch float number to dot seperated value
     Dim number As String
     If InStr(strNumber, "%") Then
-        strNumber = Val(Left(strNumber, Len(strNumber) - 1)) / 100
+        strNumber = val(Left(strNumber, Len(strNumber) - 1)) / 100
     End If
     
     If Not IsNumeric(strNumber) Then
@@ -83,6 +85,18 @@ Function float(strNumber As String) As String
         float = Replace(strNumber, ",", ".")
     End If
 End Function
+
+Public Function setCombo(objCmb As ComboBox, val As Variant)
+    'set the combo listitem based on val in the listindex
+    Dim i As Integer
+    With objCmb
+        Do While Not .ItemData(i) = val
+            i = i + 1
+        Loop
+        objCmb.ListIndex = i
+    End With
+End Function
+
 
 Public Sub FillCombo(objComboBox As ComboBox, _
                      strSQL As String, _
@@ -171,7 +185,11 @@ Public Function DoLogin() As Boolean
             End If
         End If
     Loop
-    
+    If Not LoginSuccessful Then
+        write2Log "Login failed", True
+    Else
+        write2Log "Login successfull", True
+    End If
     DoLogin = LoginSuccessful
 End Function
 
@@ -184,4 +202,22 @@ Public Function nz(strValue As Variant, Optional alternative As String = "") As 
     End If
 End Function
 
+Public Sub write2Log(txt, Optional timekolom As Boolean)
+Dim iFileNr As Integer
+Dim filenaam As String
+Dim timestamp  As String
+
+    iFileNr = FreeFile
+    filenaam = App.Path & "\vbpool20.log"
+    If timekolom Then
+        timestamp = Format(Now(), "YYYY-MM-DD hh:nn:ss")
+    Else
+        timestamp = Space(20)
+    End If
+    
+    Open filenaam For Append As #iFileNr
+        Print #iFileNr, timestamp, txt
+    Close #iFileNr
+
+End Sub
 

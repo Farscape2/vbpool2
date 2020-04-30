@@ -1,5 +1,4 @@
 VERSION 5.00
-Object = "{F0D2F211-CCB0-11D0-A316-00AA00688B10}#1.0#0"; "MSDATLST.OCX"
 Object = "{86CF1D34-0C5F-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCT2.OCX"
 Object = "{C932BA88-4374-101B-A56C-00AA003668DC}#1.1#0"; "MSMASK32.OCX"
 Object = "{67397AA1-7FB1-11D0-B148-00A0C922E820}#6.0#0"; "MSADODC.OCX"
@@ -29,7 +28,7 @@ Begin VB.Form poolsForm
       Caption         =   "Prijzen"
       Height          =   2295
       Left            =   0
-      TabIndex        =   10
+      TabIndex        =   9
       Top             =   2280
       Width           =   5775
       Begin MSMask.MaskEdBox txtHighestDayscore 
@@ -46,7 +45,7 @@ Begin VB.Form poolsForm
          DataSource      =   "dtcPools"
          Height          =   375
          Left            =   1560
-         TabIndex        =   11
+         TabIndex        =   10
          Top             =   660
          Width           =   855
          _ExtentX        =   1508
@@ -69,7 +68,7 @@ Begin VB.Form poolsForm
          DataSource      =   "dtcPools"
          Height          =   375
          Left            =   1560
-         TabIndex        =   12
+         TabIndex        =   11
          Top             =   1132
          Width           =   855
          _ExtentX        =   1508
@@ -91,7 +90,7 @@ Begin VB.Form poolsForm
          DataSource      =   "dtcPools"
          Height          =   375
          Left            =   1560
-         TabIndex        =   13
+         TabIndex        =   12
          Top             =   1650
          Width           =   855
          _ExtentX        =   1508
@@ -115,7 +114,7 @@ Begin VB.Form poolsForm
          Height          =   375
          Index           =   0
          Left            =   3240
-         TabIndex        =   14
+         TabIndex        =   13
          Top             =   660
          Width           =   735
          _ExtentX        =   1296
@@ -138,7 +137,7 @@ Begin VB.Form poolsForm
          DataSource      =   "dtcPools"
          Height          =   375
          Left            =   3600
-         TabIndex        =   18
+         TabIndex        =   17
          Top             =   1650
          Width           =   855
          _ExtentX        =   1508
@@ -162,7 +161,7 @@ Begin VB.Form poolsForm
          Height          =   375
          Index           =   1
          Left            =   4680
-         TabIndex        =   15
+         TabIndex        =   14
          Top             =   600
          Width           =   735
          _ExtentX        =   1296
@@ -186,7 +185,7 @@ Begin VB.Form poolsForm
          Height          =   375
          Index           =   2
          Left            =   3240
-         TabIndex        =   16
+         TabIndex        =   15
          Top             =   1132
          Width           =   735
          _ExtentX        =   1296
@@ -210,7 +209,7 @@ Begin VB.Form poolsForm
          Height          =   375
          Index           =   3
          Left            =   4680
-         TabIndex        =   17
+         TabIndex        =   16
          Top             =   1132
          Width           =   735
          _ExtentX        =   1296
@@ -224,7 +223,7 @@ Begin VB.Form poolsForm
          Caption         =   "%"
          Height          =   615
          Left            =   4680
-         TabIndex        =   34
+         TabIndex        =   33
          Top             =   1680
          Width           =   1095
       End
@@ -235,7 +234,7 @@ Begin VB.Form poolsForm
          ForeColor       =   &H00004000&
          Height          =   255
          Left            =   2880
-         TabIndex        =   33
+         TabIndex        =   32
          Top             =   1710
          Width           =   615
       End
@@ -246,7 +245,7 @@ Begin VB.Form poolsForm
          ForeColor       =   &H00004000&
          Height          =   255
          Left            =   120
-         TabIndex        =   32
+         TabIndex        =   31
          Top             =   1710
          Width           =   1215
       End
@@ -257,7 +256,7 @@ Begin VB.Form poolsForm
          ForeColor       =   &H00004000&
          Height          =   255
          Left            =   120
-         TabIndex        =   31
+         TabIndex        =   30
          Top             =   1192
          Width           =   1215
       End
@@ -268,7 +267,7 @@ Begin VB.Form poolsForm
          ForeColor       =   &H00004000&
          Height          =   375
          Left            =   0
-         TabIndex        =   30
+         TabIndex        =   29
          Top             =   660
          Width           =   1335
       End
@@ -277,7 +276,7 @@ Begin VB.Form poolsForm
          Caption         =   "2e"
          Height          =   375
          Left            =   4320
-         TabIndex        =   29
+         TabIndex        =   28
          Top             =   660
          Width           =   375
       End
@@ -286,7 +285,7 @@ Begin VB.Form poolsForm
          Caption         =   "1e"
          Height          =   375
          Left            =   2880
-         TabIndex        =   28
+         TabIndex        =   27
          Top             =   660
          Width           =   375
       End
@@ -295,7 +294,7 @@ Begin VB.Form poolsForm
          Caption         =   "4e"
          Height          =   255
          Left            =   4320
-         TabIndex        =   27
+         TabIndex        =   26
          Top             =   1192
          Width           =   375
       End
@@ -304,7 +303,7 @@ Begin VB.Form poolsForm
          Caption         =   "3e"
          Height          =   255
          Left            =   2880
-         TabIndex        =   26
+         TabIndex        =   25
          Top             =   1192
          Width           =   375
       End
@@ -313,7 +312,7 @@ Begin VB.Form poolsForm
          Caption         =   "Eindstand"
          Height          =   255
          Left            =   3840
-         TabIndex        =   25
+         TabIndex        =   24
          Top             =   240
          Width           =   1215
       End
@@ -328,7 +327,7 @@ Begin VB.Form poolsForm
          Caption         =   "Dagprijzen"
          Height          =   255
          Left            =   720
-         TabIndex        =   24
+         TabIndex        =   23
          Top             =   240
          Width           =   1575
       End
@@ -336,11 +335,11 @@ Begin VB.Form poolsForm
    Begin MSMask.MaskEdBox txtCosts 
       DataSource      =   "dtcPools"
       Height          =   375
-      Left            =   3960
-      TabIndex        =   5
-      Top             =   1260
-      Width           =   1095
-      _ExtentX        =   1931
+      Left            =   240
+      TabIndex        =   4
+      Top             =   1740
+      Width           =   855
+      _ExtentX        =   1508
       _ExtentY        =   661
       _Version        =   393216
       Format          =   "€ #,##0.00"
@@ -361,7 +360,7 @@ Begin VB.Form poolsForm
       Left            =   0
       ScaleHeight     =   675
       ScaleWidth      =   5730
-      TabIndex        =   23
+      TabIndex        =   22
       Top             =   4620
       Width           =   5790
       Begin VB.CommandButton btnCancel 
@@ -369,7 +368,7 @@ Begin VB.Form poolsForm
          Caption         =   "Annuleren"
          Height          =   495
          Left            =   2880
-         TabIndex        =   20
+         TabIndex        =   19
          Top             =   120
          Visible         =   0   'False
          Width           =   1215
@@ -378,15 +377,15 @@ Begin VB.Form poolsForm
          Caption         =   "Wissen"
          Height          =   495
          Left            =   2880
-         TabIndex        =   21
+         TabIndex        =   20
          Top             =   120
          Width           =   1215
       End
       Begin VB.CommandButton btnSave 
          Caption         =   "Opslaan"
          Height          =   495
-         Left            =   1575
-         TabIndex        =   19
+         Left            =   1560
+         TabIndex        =   18
          Top             =   120
          Width           =   1215
       End
@@ -395,7 +394,7 @@ Begin VB.Form poolsForm
          Default         =   -1  'True
          Height          =   495
          Left            =   4245
-         TabIndex        =   22
+         TabIndex        =   21
          Top             =   120
          Width           =   1215
       End
@@ -447,42 +446,30 @@ Begin VB.Form poolsForm
       EndProperty
       _Version        =   393216
    End
-   Begin MSDataListLib.DataCombo cmbTournaments 
-      DataSource      =   "dtcPools"
-      Height          =   360
-      Left            =   1080
-      TabIndex        =   3
-      Top             =   1267
-      Width           =   1575
-      _ExtentX        =   2778
-      _ExtentY        =   635
-      _Version        =   393216
-      Text            =   ""
-   End
    Begin MSComCtl2.DTPicker dtpStart 
       DataSource      =   "dtcPools"
       Height          =   375
-      Left            =   1080
-      TabIndex        =   7
+      Left            =   2400
+      TabIndex        =   6
       Top             =   1740
-      Width           =   1575
-      _ExtentX        =   2778
+      Width           =   1455
+      _ExtentX        =   2566
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147259393
+      Format          =   149159937
       CurrentDate     =   43932
    End
    Begin MSComCtl2.DTPicker dtpEind 
       DataSource      =   "dtcPools"
       Height          =   375
-      Left            =   3600
-      TabIndex        =   9
+      Left            =   4320
+      TabIndex        =   8
       Top             =   1740
-      Width           =   1575
-      _ExtentX        =   2778
+      Width           =   1455
+      _ExtentX        =   2566
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147259393
+      Format          =   149159937
       CurrentDate     =   43932
    End
    Begin VB.Label lblTitle 
@@ -491,7 +478,7 @@ Begin VB.Form poolsForm
       Caption         =   "Pool gegevens aanpassen"
       Height          =   375
       Left            =   240
-      TabIndex        =   35
+      TabIndex        =   34
       Tag             =   "kop"
       Top             =   120
       Width           =   5415
@@ -502,10 +489,10 @@ Begin VB.Form poolsForm
       Caption         =   "Inleg "
       ForeColor       =   &H00004000&
       Height          =   255
-      Left            =   2880
-      TabIndex        =   4
-      Top             =   1320
-      Width           =   735
+      Left            =   240
+      TabIndex        =   3
+      Top             =   1440
+      Width           =   495
    End
    Begin VB.Label Label7 
       Alignment       =   1  'Right Justify
@@ -530,8 +517,8 @@ Begin VB.Form poolsForm
       Caption         =   "tot"
       ForeColor       =   &H00004000&
       Height          =   255
-      Left            =   3000
-      TabIndex        =   8
+      Left            =   3840
+      TabIndex        =   7
       Top             =   1800
       Width           =   375
    End
@@ -541,21 +528,20 @@ Begin VB.Form poolsForm
       Caption         =   "Inleveren"
       ForeColor       =   &H00004000&
       Height          =   255
-      Left            =   0
-      TabIndex        =   6
+      Left            =   1320
+      TabIndex        =   5
       Top             =   1800
-      Width           =   975
+      Width           =   855
    End
-   Begin VB.Label Label2 
-      Alignment       =   1  'Right Justify
+   Begin VB.Label lblTournament 
       BackStyle       =   0  'Transparent
       Caption         =   "Toernooi"
       ForeColor       =   &H00004000&
       Height          =   255
-      Left            =   120
+      Left            =   1080
       TabIndex        =   2
-      Top             =   1320
-      Width           =   855
+      Top             =   1200
+      Width           =   4455
    End
 End
 Attribute VB_Name = "poolsForm"
@@ -566,9 +552,6 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Dim editState As Boolean
-
-Dim rsTournaments As ADODB.Recordset
-
 
 Private Sub btnClose_Click()
     Unload Me
@@ -604,70 +587,88 @@ Private Sub btnCancel_Click()
 End Sub
 
 Private Sub btnSave_Click()
+    Dim rs As ADODB.Recordset
+    Dim sqlstr As String
     If editState Then
-        Me.dtcPools.Recordset.Update
-        cn.CommitTrans
+        Set cn = New ADODB.Connection
+        With cn
+            .ConnectionString = lclConn()
+            .CursorLocation = adUseClient
+            .Open
+        End With
+        Set rs = New ADODB.Recordset
+        sqlstr = "Select * from tblPools where poolId = " & thisPool
+        If thisPool = 0 Then
+            MsgBox "Geen poolID actief", vbOKOnly + vbCritical, "Kan niet opslaan"
+            Exit Sub
+        End If
+        sqlstr = "UPDATE tblPools SET tournamentId = " & thisTournament
+        sqlstr = sqlstr & ", OrganisationId="
+        sqlstr = sqlstr & ", poolName='" & Me.txtPoolName & "'"
+        sqlstr = sqlstr & ", poolFormsFrom=" & CDbl(Me.dtpStart)
+        sqlstr = sqlstr & ", poolFormsTill=" & CDbl(Me.dtpEind)
+        sqlstr = sqlstr & ", poolCost=" & val(float(Me.txtCosts.Text))
+        sqlstr = sqlstr & ", prizeHighDayScore=" & val(float(Me.txtHighestDayscore))
+        sqlstr = sqlstr & ", prizeHighDayPosition=" & val(float(Me.txtHighestPosition))
+        sqlstr = sqlstr & ", prizeLowDayposition=" & val(float(Me.txtLowestPosition))
+        sqlstr = sqlstr & ", prizePercentageFirst=" & val(float(Me.txtPercentage(0)))
+        sqlstr = sqlstr & ", prizePercentageSecond=" & val(float(Me.txtPercentage(1)))
+        sqlstr = sqlstr & ", prizePercentageThird=" & val(float(Me.txtPercentage(2)))
+        sqlstr = sqlstr & ", prizePercentageFourth=" & val(float(Me.txtPercentage(3)))
+        sqlstr = sqlstr & ", prizeLowFinalPosition=" & val(float(Me.txtPrizeLastOverall))
+                
         setState False
         DoEvents
     Else
         setState True
-        If (supportsTransactions(cn)) Then
-            cn.BeginTrans
-        End If
     End If
-    
+    rs.Close
+    Set rs = Nothing
+    cn.Close
 End Sub
 
 Private Sub Form_Load()
-Dim ctl As Control
 Dim sqlstr As String
 Dim i As Integer
-    Set rsTournaments = New ADODB.Recordset
+Dim rs As ADODB.Recordset
+Set rs = New ADODB.Recordset
+Dim tnInfo As String
+'basis tabel
+    sqlstr = "Select * from tblPools where poolid=" & thisPool
+    rs.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
+'fill the fields
+
+    Me.txtPoolName.Text = rs!poolname
+    
+    tnInfo = getTournamentInfo("description")
+    tnInfo = tnInfo & " van " & Format(getTournamentInfo("tournamentStartDate"), "ddd d mmm")
+    tnInfo = tnInfo & " - " & Format(getTournamentInfo("tournamentEndDate"), "ddd d mmm")
+    Me.lblTournament = "Toernooi: " & tnInfo
+    Me.txtCosts.Text = rs!poolCost
+    Me.dtpStart = rs!poolFormsFrom
+    Me.dtpEind = rs!poolFormsTill
+'    'prizes
+    Me.txtHighestDayscore = rs!prizeHighDayScore
+    Me.txtHighestPosition = rs!prizeHighDayPosition
+    Me.txtLowestPosition = rs!prizeLowDayPosition
+    Me.txtPercentage(0) = rs!prizePercentageFirst
+    Me.txtPercentage(1) = rs!prizePercentageSecond
+    Me.txtPercentage(2) = rs!prizePercentageThird
+    Me.txtPercentage(3) = rs!prizePercentageFourth
+    Me.txtPrizeLastOverall = rs!prizeLowFinalPosition
+'
+    
+    Me.btnSave.Enabled = Not chkTournamentStarted()
+    Me.btnDelete.Enabled = Not chkTournamentStarted()
 'set Form defaults
     UnifyForm Me
 
 'back color of frame
     Me.frmPrizes.BackColor = Me.BackColor
-'basis tabel
-    With Me.dtcPools
-        .ConnectionString = cn.ConnectionString
-        .CommandType = adCmdText
-        .RecordSource = "select * from tblPools where poolid=" & thisPool
-    End With
-
-'bindings
-    Me.txtPoolName.DataField = "poolName"
-    sqlstr = "Select tournamentID, tournamentType & ' - ' & tournamentYear as tournament from tblTournaments order by tournamentYear"
-    rsTournaments.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
-    With Me.cmbTournaments
-        Set .RowSource = rsTournaments
-        Set .DataSource = Me.dtcPools
-        .BoundColumn = "tournamentId"
-        .ListField = "tournament"
-        .DataField = "tournamentId"
-    End With
-    
-    Me.txtCosts.DataField = "poolCost"
-    Me.dtpStart.DataField = "poolFormsFrom"
-    Me.dtpEind.DataField = "poolFormsTill"
-    
-    'prizes
-    Me.txtHighestDayscore.DataField = "prizeHighDayScore"
-    Me.txtHighestPosition.DataField = "prizeHighDayPosition"
-    Me.txtLowestPosition.DataField = "prizeLowDayPosition"
-    
-    Me.txtPercentage(0).DataField = "prizePercentageFirst"
-    Me.txtPercentage(1).DataField = "prizePercentageSecond"
-    Me.txtPercentage(2).DataField = "prizePercentageThird"
-    Me.txtPercentage(3).DataField = "prizePercentageFourth"
-    Me.txtPrizeLastOverall.DataField = "prizeLowFinalPosition"
-    
-    
-    Me.btnSave.Enabled = Not chkTournamentStarted()
-    Me.btnDelete.Enabled = Not chkTournamentStarted()
     'set form state
     setState False
-
+    rs.Close
+    Set rs = Nothing
 End Sub
 
 Sub setState(edit As Boolean)
@@ -701,7 +702,7 @@ Sub calcTotalPercentage()
     Dim i As Integer
     totalPerc = 0
     For i = 0 To 3
-        totalPerc = totalPerc + Val(float(Me.txtPercentage(i).Text))
+        totalPerc = totalPerc + val(float(Me.txtPercentage(i).Text))
     Next
     Me.lblTotal.Caption = Format(totalPerc, "0.0%")
     If totalPerc <> 1 Then
@@ -710,11 +711,6 @@ Sub calcTotalPercentage()
     Else
         Me.lblTotal.ForeColor = Me.Label15.ForeColor
     End If
-End Sub
-
-Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
-    If (rsTournaments.State And adStateOpen) = adStateOpen Then rsTournaments.Close
-    Set rsTournaments = Nothing
 End Sub
 
 Private Sub txtPercentage_LostFocus(Index As Integer)
