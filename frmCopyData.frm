@@ -130,6 +130,9 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Dim cn As ADODB.Connection
+Dim myConn As ADODB.Connection
+
 Private Sub btnCancel_Click()
     Unload Me
 End Sub
@@ -139,6 +142,7 @@ Dim msg As String
 
     msg = "Nieuwe Pool database aanmaken?"
     If chkNewDb Then
+    'OBSOLETE
         If MsgBox(msg, vbYesNo + vbQuestion, "Nieuwe database") = vbYes Then
         '(re) create an .mdb Access database file, for the local tables
             createDb
@@ -159,18 +163,33 @@ End Sub
 Private Sub cmbTournament_Click()
 Dim periodText As String
     thisTournament = val(Me.cmbTournament.ItemData(Me.cmbTournament.ListIndex))
-    periodText = Format(getTournamentInfo("tournamentStartDate", True), "ddd d MMM")
-    periodText = periodText & " - " & Format(getTournamentInfo("tournamentEndDate", True), "ddd d MMM")
+    periodText = Format(getTournamentInfo("tournamentStartDate", myConn), "ddd d MMM")
+    periodText = periodText & " - " & Format(getTournamentInfo("tournamentEndDate", myConn), "ddd d MMM")
     Me.lblTournamentInfo.Caption = periodText
 End Sub
 
 Private Sub Form_Load()
 Dim sqlstr As String
+    
+    Set myConn = New ADODB.Connection
+    With myConn
+        'connect to mySql database
+        .ConnectionString = mySqlConn
+        .Open
+    End With
+
+    Set cn = New ADODB.Connection
+    With cn
+        'connetc to local db
+        .ConnectionString = lclConn
+        .Open
+    End With
+    
     'fill combobox
     sqlstr = "Select tournamentID, "
     sqlstr = sqlstr & " concat(tournamentYear, ' - ', tournamentType) "
     sqlstr = sqlstr & " as tournament from tblTournaments order by tournamentYear"
-    FillCombo Me.cmbTournament, sqlstr, "tournament", "tournamentID", True
+    FillCombo Me.cmbTournament, sqlstr, myConn, "tournament", "tournamentID"
     
     UnifyForm Me
     centerForm Me
@@ -179,75 +198,64 @@ End Sub
 Sub copyTournamentTables()
 Dim srcTable As String
 Dim newDb As String
-Dim newConn As String
-Dim rs As ADODB.Recordset
-Dim cols As ADODB.Recordset
+Dim rsTables As ADODB.Recordset
+Dim rsCols As ADODB.Recordset
 Dim sqlstr As String
-Dim adoTable As ADOX.Table
-Dim adoCatalog As ADOX.Catalog
 Dim tournTable As Boolean
-
-'On Error GoTo connError
-    openMySql
     'get the tables from the mySql table collection
-    Set rs = New ADODB.Recordset
+    Set rsTables = New ADODB.Recordset
     sqlstr = "SHOW TABLES in " & dbName
-    rs.Open sqlstr, myConn, adOpenStatic, adLockReadOnly
-    If rs.EOF Then
+    rsTables.Open sqlstr, myConn, adOpenStatic, adLockReadOnly
+    If rsTables.EOF Then
         MsgBox "Geen MySQL tabellen gevonden!", vbOKOnly, "FOUT"
         Exit Sub
     End If
-    Set adoCatalog = New ADOX.Catalog
-    adoCatalog.ActiveConnection = cn
-    Do While Not rs.EOF
-        srcTable = rs.Fields(0)
-        If Left(srcTable, 6) <> "local_" Then
-            'copy the tabledefs to the mdb
-            If Not tableExists(srcTable) Then
-                Set adoTable = New ADOX.Table
-                adoTable.Name = srcTable
-                Me.lblTblName.Caption = "Tabel: " & rs.AbsolutePosition & "/" & rs.RecordCount
-                adoTable.ParentCatalog = adoCatalog
-                duplicateFields adoTable, srcTable
-                adoCatalog.Tables.Append adoTable
-                Set adoTable = Nothing
-            End If
-        End If
-        rs.MoveNext
-    Loop
-    rs.MoveFirst
-    Do While Not rs.EOF
-        Set cols = New ADODB.Recordset
-        srcTable = rs.Fields(0)
-        Me.lblTblName.Caption = "Tabel: " & srcTable
+'    Set adoCatalog = New ADOX.Catalog
+'    adoCatalog.ActiveConnection = cn
+'    Do While Not rsTables.EOF
+'        srcTable = rsTables.Fields(0)
+'        If Left(srcTable, 6) <> "local_" Then 'skip the tables for local use
+'            'copy the tabledefs to the mdb
+'            'normally this should not be necessary, all the tables are in the dummy database
+'            'keep it just in case
+'            If Not tableExists(srcTable, cn) Then
+'                Set adoTable = New ADOX.Table
+'                adoTable.Name = srcTable
+'                Me.lblTblName.Caption = "Tabel: " & rsTables.AbsolutePosition & "/" & rsTables.RecordCount
+'                adoTable.ParentCatalog = adoCatalog
+'                duplicateFields adoTable, srcTable
+'                adoCatalog.Tables.Append adoTable
+'                Set adoTable = Nothing
+'            End If
+'        End If
+'        rsTables.MoveNext
+'    Loop
+    rsTables.MoveFirst
+    Do While Not rsTables.EOF
+        Set rsCols = New ADODB.Recordset
+        srcTable = rsTables.Fields(0)
         If Left(srcTable, 6) <> "local_" Then
             'open connection to mySql
-            openMySql
-            cols.Open "SHOW COLUMNS from " & srcTable, myConn, adOpenForwardOnly, adLockReadOnly
+            Me.lblTblName.Caption = "Tabel: " & srcTable
+            rsCols.Open "SHOW COLUMNS from " & srcTable, myConn, adOpenForwardOnly, adLockReadOnly
             tournTable = False
-            Do While Not cols.EOF
-                If UCase(cols.Fields(0)) = "TOURNAMENTID" Then
+            Do While Not rsCols.EOF 'check if there is a field for tournamentID, if so copy only data for this tournament
+                If UCase(rsCols.Fields(0)) = "TOURNAMENTID" Then
                     tournTable = True
                     Exit Do
                 End If
-                cols.MoveNext
+                rsCols.MoveNext
             Loop
             copyData srcTable, tournTable
         End If
-        rs.MoveNext
+        rsTables.MoveNext
     Loop
     
-    rs.Close
-    Set rs = Nothing
-    Set adoCatalog = Nothing
-    'myConn.Close
-    Set myConn = Nothing
+    rsTables.Close
+    Set rsTables = Nothing
     
-    Me.lblTblName.Caption = "Klaar! vbpool.MDB ingelezen"
+    Me.lblTblName.Caption = "Klaar! Alles ingelezen"
     Me.lblRecord.Caption = ""
-    Exit Sub
-connError:
-    MsgBox "Connectie met mySql server is niet gelukt, database is niet aangemaakt/overschreven", vbOKOnly, "Database aanmaken"
 End Sub
 
 Sub copyData(tblName As String, tournTable As Boolean)
@@ -261,11 +269,6 @@ Dim dellstr As String
 Dim delstr As String
 Dim valStr As String
 Dim fld As field
-    'open mySQL connectin
-    openMySql
-    
-    'open the access database
-    If Not cnOpen(cn) Then openDB
     
     Set cmnd = New ADODB.Command
     'open the fromTable
@@ -289,19 +292,20 @@ Dim fld As field
     rsTo.Open "Select * from " & tblName, cn, adOpenKeyset, adLockOptimistic
     Do While Not rsFrom.EOF  'loop through records
         rsTo.AddNew
+        'show info on form
         Me.shpFill.Width = rsFrom.AbsolutePosition * (Me.shpBorder.Width / rsFrom.RecordCount)
         Me.lblRecord.Caption = "Record " & rsFrom.AbsolutePosition & "/" & rsFrom.RecordCount
         DoEvents
         For Each fld In rsFrom.Fields  'loop through fields
-            If fld.Name = "moneydaylast" Then Stop
             If Not IsNull(fld.value) Then
                 rsTo(fld.Name) = fld.value
             Else
                 If rsTo(fld.Name).Attributes = 70 Or rsTo(fld.Name).Attributes = 86 Then
+                'if the field can not be NULL / just in case
                     If rsTo(fld.Name).Type = adVarWChar Then
-                        rsTo(fld.Name) = ""
+                        rsTo(fld.Name) = "" 'set it to empty string
                     Else
-                        rsTo(fld.Name) = 0
+                        rsTo(fld.Name) = 0 'set it to 0
                     End If
                 End If
             End If
@@ -309,65 +313,82 @@ Dim fld As field
         rsTo.Update
         rsFrom.MoveNext 'next record
     Loop
-nextTable:
     'tidy up
     rsFrom.Close
     Set rsFrom = Nothing
+    
     Set cmnd = Nothing
+    
     rsTo.Close
     Set rsTo = Nothing
-    myConn.Close
-    Set myConn = Nothing
+    
 End Sub
 
-Sub duplicateFields(toTable As ADOX.Table, fromTbl As String)
-    'copy tbl fields to Access database
-    Dim rs As ADODB.Recordset  'to store the columns
-    Dim col As ADOX.Column
-    Dim sqlstr As String
-    Dim ln As Integer
-    Dim fldName As String
-    openMySql
-    'get all tables from the server
-    Set rs = New ADODB.Recordset
-    sqlstr = "SHOW COLUMNS in " & fromTbl & " in " & dbName
-    rs.Open sqlstr, myConn, adOpenStatic, adLockReadOnly
-    'copy the field defintion
-    
-    With toTable
-        Do While Not rs.EOF
-            fldName = rs.Fields(0).value
-            Set col = New ADOX.Column
-            col.Name = fldName
-            col.Type = cFieldType(rs.Fields("Type"))
-            .Columns.Append col
-            If InStr(LCase(rs.Fields("Type")), "varchar") Then
-                ln = val(Mid(rs.Fields("Type"), 9, Len(rs.Fields("Type")) - 9))
-                .Columns(fldName).DefinedSize = ln
-            End If
-            If LCase(rs.Fields("Extra")) = "auto_increment" And rs.Fields("Type") = "int(11)" Then
-                .Columns(fldName).Properties("AutoIncrement").value = True
-                .Keys.Append "PrimaryKey", adKeyPrimary, fldName
-            Else
-                If rs.Fields("Type") = "tinyint(3)" Then
-                    .Columns(fldName).Attributes = adColNullable
-                End If
-            End If
-            '''' TEST
-            Dim prop As ADOX.Property
-            For Each prop In col.Properties
-                Debug.Print fromTbl, fldName, prop.Name, prop.value
-            Next
-            rs.MoveNext
-        Loop
-    End With
-    
-    'release from memory
-    rs.Close
-    Set rs = Nothing
-    Set col = Nothing
-    myConn.Close
-    Set myConn = Nothing
+'Sub duplicateFields(toTable As ADOX.Table, fromTbl As String)
+'    'copy tbl fields to Access database
+'    Dim rs As ADODB.Recordset  'to store the columns
+'    Dim col As ADOX.Column
+'    Dim sqlstr As String
+'    Dim ln As Integer
+'    openMySql
+'    'get all tables from the server
+'    Set rs = New ADODB.Recordset
+'    sqlstr = "SHOW COLUMNS in " & fromTbl & " in " & dbName
+'    rs.Open sqlstr, myConn, adOpenStatic, adLockReadOnly
+'    'copy the field defintion
+'
+'    With toTable
+'        Do While Not rs.EOF
+'            fldName = rs.Fields(0).value
+'            Set col = New ADOX.Column
+'            col.Name = fldName
+'            col.Type = cFieldType(rs.Fields("Type"))
+'            .Columns.Append col
+'            If InStr(LCase(rs.Fields("Type")), "varchar") Then
+'                ln = val(Mid(rs.Fields("Type"), 9, Len(rs.Fields("Type")) - 9))
+'                .Columns(fldName).DefinedSize = ln
+'            End If
+'            If LCase(rs.Fields("Extra")) = "auto_increment" And rs.Fields("Type") = "int(11)" Then
+'                .Columns(fldName).Properties("AutoIncrement").value = True
+'                .Keys.Append "PrimaryKey", adKeyPrimary, fldName
+'            Else
+'                If rs.Fields("Type") = "tinyint(3)" Then
+'                    .Columns(fldName).Attributes = adColNullable
+'                End If
+'            End If
+'            '''' TEST
+'            Dim prop As ADOX.Property
+'            For Each prop In col.Properties
+'                Debug.Print fromTbl, fldName, prop.Name, prop.value
+'            Next
+'            rs.MoveNext
+'        Loop
+'    End With
+'
+'    'release from memory
+'    rs.Close
+'    Set rs = Nothing
+'    Set col = Nothing
+'    myConn.Close
+'    Set myConn = Nothing
+'End Sub
+'
+'
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+    'Clean-up procedure
+    If Not cn Is Nothing Then
+        'first, check if the state is open, if yes then close it
+        If (cn.State And adStateOpen) = adStateOpen Then
+            cn.Close
+        End If
+        'set them to nothing
+        Set cn = Nothing
+    End If
+    'same comment with cn
+    If Not myConn Is Nothing Then
+        If (myConn.State And adStateOpen) = adStateOpen Then
+            myConn.Close
+        End If
+        Set myConn = Nothing
+    End If
 End Sub
-
-

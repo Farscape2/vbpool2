@@ -210,7 +210,7 @@ Begin VB.Form matchlistForm
       _ExtentY        =   661
       _Version        =   393216
       CustomFormat    =   "dd-MM"
-      Format          =   149553155
+      Format          =   147980291
       CurrentDate     =   43939
    End
    Begin MSComCtl2.UpDown upDnNr 
@@ -394,14 +394,14 @@ Option Explicit
 
 Dim dontMove As Boolean 'prevent editBar from updateting
 
+Dim cn As ADODB.Connection
 Dim rs As ADODB.Recordset
+Dim rsTeams As ADODB.Recordset
 Dim rsTypes As ADODB.Recordset
 Dim rsLocation As ADODB.Recordset
 
 Sub setMatchGrid()
 Dim sqlstr As String
-'Dim rs As ADODB.Recordset
-'Set rs = New ADODB.Recordset
 Dim dCol As Object
 
     sqlstr = "SELECT m.matchNumber as Wedstr, m.matchDate as Datum, matchTime as Tijd, "
@@ -417,8 +417,6 @@ Dim dCol As Object
     sqlstr = sqlstr & " AND a.tournamentID = " & thisTournament
     sqlstr = sqlstr & " AND b.tournamentID = " & thisTournament
     sqlstr = sqlstr & " ORDER BY m.matchNumber"
-    
-'    rs.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
     
     With Me.dtcMatches
         .ConnectionString = cn
@@ -501,26 +499,28 @@ Dim dCol As Object
 End Sub
 
 Sub setEditBar()
-    Set rs = New ADODB.Recordset
+
+    Set rsTeams = New ADODB.Recordset
     Set rsTypes = New ADODB.Recordset
     Set rsLocation = New ADODB.Recordset
 
-Dim sqlstr As String
+    Dim sqlstr As String
 
     ' Using DataCombo boxes for a change. Is so much easties in this case
-    ' ComboBox.ItemData can only be long data type
+    ' Normal ComboBox.ItemData can only be long data type
+    'besides it is doing strange thing when filling and getting the actual value
 
     sqlstr = "Select teamcode, teamCode & ': ' & teamName as team "
     sqlstr = sqlstr & "from tblTournamentTeamCodes c LEFT JOIN tblTeamNames n on c.teamId = n.teamnameid"
     sqlstr = sqlstr & " Where c.tournamentid = " & thisTournament
-    rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+    rsTeams.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     With Me.cmbTeamA
-        Set .RowSource = rs
+        Set .RowSource = rsTeams
         .ListField = "team"
         .BoundColumn = "teamcode"
     End With
     With Me.cmbTeamB
-        Set .RowSource = rs
+        Set .RowSource = rsTeams
         .ListField = "team"
         .BoundColumn = "teamcode"
     End With
@@ -541,7 +541,7 @@ Dim sqlstr As String
         .BoundColumn = "id"
     End With
     
-    Me.dtDate = getTournamentInfo("tournamentStartDate")
+    Me.dtDate = getTournamentInfo("tournamentStartDate", cn)
     Me.UpDnHours = 20
     
     
@@ -571,7 +571,7 @@ Private Sub btnSave_Click()
     
     sqlstr = "Select * from tblTournamentSchedule Where tournamentId = " & thisTournament
     rs.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
-    rs.Find "matchNumber = " & Val(Me.txtNr)
+    rs.Find "matchNumber = " & val(Me.txtNr)
     
     If rs.EOF Then 'add new match
         rs.AddNew
@@ -594,7 +594,7 @@ Private Sub btnSave_Click()
     Set Me.grdMatches.DataSource = Me.dtcMatches
     Me.grdMatches.Refresh
     DoEvents
-    Me.dtcMatches.Recordset.Move Val(Me.txtNr) - 1, 0
+    Me.dtcMatches.Recordset.Move val(Me.txtNr) - 1, 0
     
 End Sub
 
@@ -603,7 +603,13 @@ Private Sub cmbType_Click(Area As Integer)
 End Sub
 
 Private Sub Form_Load()
-
+    'open the database
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn()
+        .Open
+    End With
+    
     setEditBar
     setMatchGrid
     
@@ -613,13 +619,28 @@ Private Sub Form_Load()
 End Sub
 
 Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
-    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
-    Set rs = Nothing
-    If (rsLocation.State And adStateOpen) = adStateOpen Then rsLocation.Close
-    Set rsLocation = Nothing
-    If (rsTypes.State And adStateOpen) = adStateOpen Then rsTypes.Close
-    Set rsTypes = Nothing
-
+    If Not rs Is Nothing Then
+        If (rs.State And adStateOpen) = adStateOpen Then rs.Close
+        Set rs = Nothing
+    End If
+    If Not rsTeams Is Nothing Then
+        If (rsTeams.State And adStateOpen) = adStateOpen Then rsTeams.Close
+        Set rsTeams = Nothing
+    End If
+    
+    If Not rsLocation Is Nothing Then
+        If (rsLocation.State And adStateOpen) = adStateOpen Then rsLocation.Close
+        Set rsLocation = Nothing
+    End If
+    If Not rsTypes Is Nothing Then
+        If (rsTypes.State And adStateOpen) = adStateOpen Then rsTypes.Close
+        Set rsTypes = Nothing
+    End If
+    If Not cn Is Nothing Then
+        If (cn.State And adStateOpen) = adStateOpen Then cn.Close
+        Set cn = Nothing
+    End If
+    
 End Sub
 
 Private Sub grdMatches_RowColChange(LastRow As Variant, ByVal LastCol As Integer)

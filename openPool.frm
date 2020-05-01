@@ -116,6 +116,7 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Dim rs As ADODB.Recordset
+Dim cn As ADODB.Connection
 
 Private Sub CancelButton_Click()
     Unload Me
@@ -126,11 +127,9 @@ Private Sub cmbSelPool_Click()
     Dim sqlstr As String
     Dim lstID As Long
     
-    Set rs = New ADODB.Recordset
-    
     lstID = Me.cmbSelPool.ItemData(Me.cmbSelPool.ListIndex)
     thisPool = lstID
-    sqlstr = "Select * from tblTournaments WHERE tournamentID=" & getThisPoolTournamentId()
+    sqlstr = "Select * from tblTournaments WHERE tournamentID=" & getThisPoolTournamentId(cn)
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     If Not rs.EOF Then
         With Me
@@ -144,17 +143,47 @@ Private Sub cmbSelPool_Click()
 End Sub
 
 Private Sub Form_Load()
+
     Dim sqlstr As String
+    
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .CursorLocation = adUseClient
+        .Open
+    End With
+    
+    Set rs = New ADODB.Recordset
+    
     sqlstr = "Select * from tblPools"
-    FillCombo Me.cmbSelPool, sqlstr, "poolName", "poolId"
+    FillCombo Me.cmbSelPool, sqlstr, cn, "poolName", "poolId"
 'set Form defaults
     UnifyForm Me
     
 End Sub
 
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+    'Clean-up procedure
+    If Not rs Is Nothing Then
+        'first, check if the state is open, if yes then close it
+        If (rs.State And adStateOpen) = adStateOpen Then
+            rs.Close
+        End If
+        'set them to nothing
+        Set rs = Nothing
+    End If
+    'same comment with rs
+    If Not cn Is Nothing Then
+        If (cn.State And adStateOpen) = adStateOpen Then
+            cn.Close
+        End If
+        Set cn = Nothing
+    End If
+End Sub
+
 Private Sub OKButton_Click()
     thisPool = Me.cmbSelPool.ItemData(Me.cmbSelPool.ListIndex)
-    thisTournament = getThisPoolTournamentId
+    thisTournament = getThisPoolTournamentId(cn)
     SaveSetting App.EXEName, "global", "lastpool", thisPool
     Unload Me
 End Sub

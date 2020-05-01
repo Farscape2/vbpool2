@@ -4,29 +4,27 @@ Attribute VB_Name = "dbDefinition"
 
 Option Explicit
 
-Public cn As ADODB.Connection      'Access connection
-Public myConn As ADODB.Connection  'MySql Connection
-
 Public Const dbName = "vbpool2"
 
-Sub openDB()
-
-'open local database connection to the access mdb file
-Dim fullPath As String
-    fullPath = App.Path & "\" & dbName & ".mdb"
-    If Dir(fullPath) = "" Then
-        'frmCopyData.Show 1
-    End If
-    Set cn = New ADODB.Connection
-    
-    With cn
-    '''''''ACCESS Connection
-        .Provider = "Microsoft.Jet.OLEDB.4.0;"
-        .ConnectionString = "Data Source=" & fullPath
-        .CursorLocation = adUseClient
-        .Open
-    End With
-End Sub
+'Sub openDB()
+'
+''open local database connection to the access mdb file
+'Dim fullPath As String
+'    Dim cn As ADODB.Connection
+'    fullPath = App.Path & "\" & dbName & ".mdb"
+'    If Dir(fullPath) = "" Then
+'        'frmCopyData.Show 1
+'    End If
+'    Set cn = New ADODB.Connection
+'
+'    With cn
+'    '''''''ACCESS Connection
+'        .Provider = "Microsoft.Jet.OLEDB.4.0;"
+'        .ConnectionString = "Data Source=" & fullPath
+'        .CursorLocation = adUseClient
+'        .Open
+'    End With
+'End Sub
 
 Function lclConn()
 Dim fullPath As String
@@ -48,54 +46,38 @@ Function mySqlConn()
 
 End Function
 
-Sub openMySql()
-'open mySql server connection
-    Dim server As String
-    Dim driver As String
-    Dim cnstr As String
-    Dim passwd As String
-    passwd = "!xjer56!"
-    server = "192.168.178.14"
-    'server = "jotaservices.duckdns.org"
-    driver = "{MariaDB ODBC 3.1 Driver}"
-    Set myConn = New ADODB.Connection
-    With myConn
-        cnstr = "DRIVER=" & driver & ";TCPIP=1;SERVER=" & server & ";DATABASE=" & dbName & ";UID=jeroen;PWD=" & passwd & ";port=3306"
-        .ConnectionString = cnstr
-        .CursorLocation = adUseClient
-        .Open
-    End With
-End Sub
+'Sub openMySql()
+''open mySql server connection
+'    Dim server As String
+'    Dim driver As String
+'    Dim cnstr As String
+'    Dim passwd As String
+'    passwd = "!xjer56!"
+'    server = "192.168.178.14"
+'    'server = "jotaservices.duckdns.org"
+'    driver = "{MariaDB ODBC 3.1 Driver}"
+'    Set myConn = New ADODB.Connection
+'    With myConn
+'        cnstr = "DRIVER=" & driver & ";TCPIP=1;SERVER=" & server & ";DATABASE=" & dbName & ";UID=jeroen;PWD=" & passwd & ";port=3306"
+'        .ConnectionString = cnstr
+'        .CursorLocation = adUseClient
+'        .Open
+'    End With
+'End Sub
+'
 
-Function tableExists(srcTable As String, Optional mySql)
+Function tableExists(srcTable As String, cn As ADODB.Connection)
 'check if table exists in local database
 Dim rs As ADODB.Recordset
-    Set cn = New ADODB.Connection
-    With cn
-        .CursorLocation = adUseClient
-        If mySql Then
-            cn.ConnectionString = mySqlConn()
-        Else
-            cn.ConnectionString = lclConn()
-        End If
-        .Open
-    End With
     Set rs = cn.OpenSchema(adSchemaColumns, Array(Empty, Empty, srcTable, Empty))
     tableExists = Not (rs.BOF And rs.EOF)
     rs.Close
     Set rs = Nothing
-    cn.Close
 End Function
 
-Function recordsExist(tblName As String)
+Function recordsExist(tblName As String, cn As ADODB.Connection)
     Dim rs As ADODB.Recordset
-    Set cn = New ADODB.Connection
-    With cn
-        .CursorLocation = adUseClient
-        cn.ConnectionString = lclConn()
-        .Open
-    End With
-    If tableExists(tblName) Then
+    If tableExists(tblName, cn) Then
         Set rs = New ADODB.Recordset
         rs.Open "Select * from " & tblName, cn, adOpenKeyset, adLockReadOnly
         recordsExist = Not rs.EOF
@@ -104,7 +86,6 @@ Function recordsExist(tblName As String)
     End If
     rs.Close
     Set rs = Nothing
-    cn.Close
 End Function
 
 Function cFieldType(fldType As String) As Integer
@@ -155,70 +136,52 @@ Sub createDb()
         Kill newDb 'remove the old db
     End If
     setupDb = App.Path & "\vbpoolSetup.mdb"
-    If Dir(setupDb) = "" Then 'no setupDb, make one
-        Set adoCat = New ADOX.Catalog
-        ' Create the db
-        adoCat.Create ("Provider='Microsoft.Jet.OLEDB.4.0';Data Source=" & newDb & ";")
-        'add local tables to db
-        makeTables
-    Else
-        FileCopy setupDb, newDb
-    End If
+    FileCopy setupDb, newDb
     Set adoCat = Nothing
-    MsgBox "Nieuwe database is aangemaakt." & vbNewLine & "Vul de gegevens in en kies een wachtwoord", vbOKOnly + vbInformation, "Nieuwe installatie"
-    If Not cnOpen(cn) Then openDB
-    frmOrganisation.Show 1
-    frmCopyData.Show 1
-    fillDefaultValues
-    
+'    MsgBox "Nieuwe database is aangemaakt." & vbNewLine & "Vul de gegevens in en kies een wachtwoord", vbOKOnly + vbInformation, "Nieuwe installatie"
+''get tournament data
+'    frmCopyData.Show 1  'maybe do this automatically the first time?
+''fill tables with default values
+'    fillDefaultValues
+''get organisation data
+'    frmOrganisation.Show 1
+'
 End Sub
 
 
 Sub fillDefaultValues()
 'fill some tables with default values
+    Dim cn As ADODB.Connection
     Dim rs As ADODB.Recordset
     Dim sqlstr As String
     Dim cmd As ADODB.Command
-    Dim pnts
+    Dim tournament As String
     Dim orgID As Long
     Set cn = New ADODB.Connection
     With cn
-        .ConnectionString = mySqlConn
-        .CursorLocation = adUseServer
+        .ConnectionString = lclConn
         .Open
     End With
-    'get last tournament
-    Set rs = New ADODB.Recordset
-    sqlstr = "Select * from tblTournaments ORDER BY tournamentStartDate"
-    rs.Open sqlstr, myConn, adOpenKeyset, adLockReadOnly
-    If rs.EOF Then
-        MsgBox "Database problem", vbOKOnly + vbCritical, "Contact Jota"
+    If thisTournament = 0 Then
+        MsgBox "Geen toernooi geselcteerd ??, Heel vreemd!", vbOKOnly + vbCritical, "Database Fout in fillDefaultValues"
         Exit Sub
     End If
-    'get the last tournament ID
-    rs.MoveLast
-    thisTournament = rs!tournamentID
-    rs.Close
-    cn.Close
-    'file the first pool record
-    With cn
-        .ConnectionString = lclConn
-        .CursorLocation = adUseClient
-        .Open
-    End With
+    tournament = getTournamentInfo("description", cn)
+    'fill the first pool record
     'get the OrganisationID - should be only one organisation
-    orgID = getOrganisation("organisationID")
+    orgID = 1 'no longer need the organisation field, but just in case...
     'create a first record in tblPools
     sqlstr = "INSERT INTO tblPools (tournamentId, OrganisationId, poolName, poolFormsFrom, poolFormsTill, "
     sqlstr = sqlstr & "poolCost, prizeHighDayScore, prizeHighDayPosition, prizeLowDayposition, "
     sqlstr = sqlstr & "prizePercentageFirst, prizePercentageSecond, prizePercentageThird, prizePercentageFourth, "
     sqlstr = sqlstr & "prizeLowFinalPosition ) VALUES ("
-    sqlstr = sqlstr & thisTournament & ", " & orgID & ", 'Eerste pool', " & CDbl(Date) & ", " & CDbl(getTournamentInfo("tournamentStartDate", True) - 7) & ", "
+    sqlstr = sqlstr & thisTournament & ", " & orgID & ", '" & tournament & " pool" & "', " & CDbl(Date) & ", " & CDbl(getTournamentInfo("tournamentStartDate", cn) - 7) & ", "
     sqlstr = sqlstr & "10, 2.5, 1, 0.1, 0.5, 0.3, 0.3, 0, 10)"
     cn.Execute sqlstr
     
-    'set the thisPool global var
+    'set the thisPool global variable
     sqlstr = "Select * from tblPools order by poolID"
+    Set rs = New ADODB.Recordset
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     rs.MoveLast
     thisPool = rs!poolid
@@ -226,25 +189,33 @@ Sub fillDefaultValues()
     'default data for points
     sqlstr = "INSERT into tblPoolPoints ( poolID, pointTypeId, pointPointsAward, pointPointsMargin )"
     sqlstr = sqlstr & " Select " & thisPool & ", pointtypeId , pointDefaultPoints, pointDefaultMargin from tblpointTypes"
-    cn.Execute sqlstr
-    
-    rs.Close
-    Set rs = Nothing
-    cn.Close
-End Sub
-Sub makeTables()
-    Dim sqlstr As String
-    'new local tables just in case
-    Set cn = New ADODB.Connection
-    With cn
-        .CursorLocation = adUseClient
-        If mySql Then
-            cn.ConnectionString = mySqlConn()
-        Else
-            cn.ConnectionString = lclConn()
+    If Not getTournamentInfo("tournamentThirdPlace", cn) Then 'do not import 3rd and 4th place categories
+        sqlstr = sqlstr & " WHERE pointTypeCategory <> 7"
+        If getTournamentInfo("tournamentTeamCount", cn) <= 16 Then 'do not import 8th final categories
+            sqlstr = sqlstr & " AND pointTypeCategory <> 2"
         End If
-        .Open
-    End With
+    End If
+    cn.Execute sqlstr
+    If Not rs Is Nothing Then
+        If (rs.State And adStateOpen) = adStateOpen Then
+            rs.Close
+        End If
+        Set rs = Nothing
+    End If
+    
+    If Not cn Is Nothing Then
+        If (cn.State And adStateOpen) = adStateOpen Then
+            cn.Close
+        End If
+        Set cn = Nothing
+    End If
+End Sub
+
+Sub makeTables(cn As ADODB.Connection)
+    Dim sqlstr As String
+    'OBSOLETE, just leave it here
+    'new local tables just in case
+    
     'address table
     sqlstr = "CREATE TABLE tblAddress ( "
     sqlstr = sqlstr & "addressID INTEGER NOT NULL, "
@@ -419,43 +390,5 @@ Sub makeTables()
     
     cn.Execute sqlstr
     
-    cn.Close
 End Sub
 
-Function cnOpen(adoCn As ADODB.Connection) As Boolean
-
-    '----------------------------------------------------------------
-    '#PURPOSE: Checks whether the supplied db connection is alive and
-    '          hasn't had it's TCP connection forcibly closed by remote
-    '          host, for example, as happens during an undock event
-    '#RETURNS: True if the supplied db is connected and error-free,
-    '          False otherwise
-    '#AUTHOR:  Belladonna
-    '----------------------------------------------------------------
-
-    Dim i As Long
-    Dim cmd As New ADODB.Command
-
-    'Set up SQL command to return 1
-    cmd.CommandText = "SELECT 1"
-    On Error GoTo endFunction
-    cmd.ActiveConnection = adoCn
-
-    'Run a simple query, to test the connection
-    On Error Resume Next
-    i = cmd.Execute.Fields(0)
-    On Error GoTo 0
-
-    'Tidy up
-    Set cmd = Nothing
-
-    'If i is 1, connection is open
-    If i = 1 Then
-        cnOpen = True
-    Else
-        cnOpen = False
-    End If
-    Exit Function
-endFunction:
-    cnOpen = False
-End Function

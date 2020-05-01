@@ -206,9 +206,55 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
-Private Sub Form_Load()
+Dim cn As ADODB.Connection
 
-'set Form defaults
+Private Sub Form_Activate()
+Dim msg As String
+    If thisPool = 0 Then
+        msg = "Welkom bij Jota's Voetbalpool"
+        msg = msg & vbNewLine & vbNewLine
+        msg = msg & "We konden nog geen gegevens vinden in het systeem."
+        msg = msg & vbNewLine
+        msg = msg & "Vul eerst het volgende formulier in."
+        msg = msg & vbNewLine
+        msg = msg & "De gegevens worden gebuikt bij de verschillende afdrukken,"
+        msg = msg & vbNewLine
+        msg = msg & "dus maak er geen zootje van ;-)"
+        MsgBox msg, vbOKOnly + vbInformation, "Nieuwe start"
+        ''get organisation data
+            frmOrganisation.Show 1
+        ''get tournament data
+        msg = "Welkom bij Jota's Voetbalpool"
+        msg = msg & vbNewLine & vbNewLine
+        msg = msg & "Dank voor het invullen."
+        msg = msg & vbNewLine
+        msg = msg & "We gaan nu de gegevens van het laatst bekende toernooi van de server halen"
+        msg = msg & vbNewLine
+        msg = msg & "en vullen dan de Voetbalpool met standaard instellingen,"
+        msg = msg & vbNewLine
+        msg = msg & "die je later natuurlijk kunt aanpassen."
+        msg = msg & vbNewLine & vbNewLine
+        msg = msg & "Klik op OK en dan een ogenblik geduld, zo gebeurd..."
+        MsgBox msg, vbOKOnly + vbInformation, "Nieuwe start"
+        'copy the tournament data
+        getTournamentTables
+        ''fill tables with default values
+        fillDefaultValues
+        '
+    End If
+    DoEvents 'why not
+    updateForm
+End Sub
+
+Private Sub Form_Load()
+    Dim msg As String
+'open db connection
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn()
+        .Open
+    End With
+    'set Form defaults
     'size form half the screen size
     Me.Width = Screen.Width / 2
     Me.Height = Screen.Height / 2
@@ -222,11 +268,11 @@ Private Sub Form_Load()
 End Sub
 
 Sub updateForm()
-    Me.mnuFileOpen.Enabled = recordsExist("tblPools")
+    Me.mnuFileOpen.Enabled = recordsExist("tblPools", cn)
     Me.mnuPrint.Enabled = thisPool
     Me.mnuEditPool.Enabled = thisPool
     
-    Me.mnuNewPool.Enabled = recordsExist("tblTournaments")
+    Me.mnuNewPool.Enabled = recordsExist("tblTournaments", cn)
     Me.mnuPoolCompetitors.Enabled = thisPool
     Me.mnuDblPlayers.Visible = adminLogin 'just for admin
     Me.mnuConvert.Visible = adminLogin 'just for admin
@@ -243,12 +289,12 @@ Sub updateForm()
     If thisPool Then
         
         With Me.lblStartTitle
-            .Caption = getOrganisation()
+            .Caption = getOrganisation(cn)
             .BackColor = Me.BackColor
             .BackStyle = 1
         End With
         With Me.lblPoolName
-            .Caption = nz(getPoolInfo("poolName"), "")
+            .Caption = getPoolInfo("poolName", cn)
             .Visible = True
             .BackColor = Me.BackColor
             .BackStyle = 1
@@ -316,13 +362,10 @@ Private Sub mnuAbout_Click()
 End Sub
 
 Private Sub mnuAdmin_Click()
-    ' do a count of records to see if ADMIN user exists in the table
-    Dim rsData As ADODB.Recordset
-    Set rsData = cn.Execute("SELECT Count(*) FROM tblOrganisation")
-    
+' do a count of records to see if ADMIN user exists in the table
     ' if there are users in the table, then prompt for login
-    If rsData.Fields(0).value = 0 Then
-        frmOrganisation.Show , 1 'there is no organisation yet
+    If Not recordsExist("tblOrganisation", cn) Then
+        frmOrganisation.Show 1  'there is no organisation yet
     Else
         adminLogin = DoLogin
         If Not adminLogin Then
@@ -343,6 +386,14 @@ End Sub
 
 Private Sub mnuExitApp_Click()
     Dim objForm As Form
+    
+    If Not cn Is Nothing Then
+        If (cn.State And adStateOpen) = adStateOpen Then
+            cn.Close
+        End If
+        Set cn = Nothing
+    End If
+    
     For Each objForm In Forms
         If objForm.Name <> Me.Name Then
             Unload objForm
@@ -382,12 +433,12 @@ End Sub
 
 Private Sub mnuStartOver_Click()
     Dim msg As String
-    msg = "Hiermee kun je de gegevens van toernooien (opnieuw) inlezen."
+    msg = "Hiermee kun je de gegevens van het huidige toernooi (opnieuw) inlezen."
     msg = msg & vbNewLine & "Alle door jou toegevoegde gegevens blijven onveranderd."
     msg = msg & vbNewLine & "Zorg dat je een werkende internet verbinding hebt,"
     msg = msg & vbNewLine & "anders kan het niet"
     msg = msg & vbNewLine & vbNewLine & "Druk op OK als je het zeker weet of anders op Annuleren"
-    If MsgBox(msg, vbOKCancel, "Data opnieuw inlezen") = vbOK Then
+    If MsgBox(msg, vbOKCancel, "Data inlezen") = vbOK Then
         frmCopyData.Show 1
     End If
     updateForm

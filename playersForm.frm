@@ -94,11 +94,13 @@ Option Explicit
 'to preserve the tournamentTeamCode
 Dim thisTeam As Long
 
+Dim cn As ADODB.Connection
+
 Dim rs As ADODB.Recordset
 
 Private Sub btnNew_Click()
     'add player to database
-    playerAddForm.Country = getTeamInfo(Me.cmbTeams.ItemData(Me.cmbTeams.ListIndex), "teamCountryId")
+    playerAddForm.Country = getTeamInfo(Me.cmbTeams.ItemData(Me.cmbTeams.ListIndex), "teamCountryId", cn)
     playerAddForm.Show 1
     updateListview
 End Sub
@@ -113,13 +115,19 @@ Private Sub cmbTeams_Click()
 End Sub
 
 Private Sub Form_Load()
-'fill teams combo
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn()
+        .Open
+    End With
     Set rs = New ADODB.Recordset
     Dim sqlstr As String
     sqlstr = "Select * from tblTeamNames Where teamtype <>0  and teamNameId IN "
     sqlstr = sqlstr & " (Select teamid from tblTournamentTeamCodes where tournamentid = " & thisTournament
     sqlstr = sqlstr & " ) Order by teamName"
-    FillCombo Me.cmbTeams, sqlstr, "teamName", "teamNameid"
+    'fill teams combo
+        
+    FillCombo Me.cmbTeams, sqlstr, cn, "teamName", "teamNameid"
 '    rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
 '    With Me.cmbTeams
 '        Set .RowSource = rs
@@ -146,7 +154,7 @@ Sub updateListview()
     thisTeam = Me.cmbTeams.ItemData(Me.cmbTeams.ListIndex)
     
     sqlstr = "Select* from tblPeople "
-    sqlstr = sqlstr & " Where countryCode = " & nz(getTeamInfo(thisTeam, "teamCountryId"), 0)
+    sqlstr = sqlstr & " Where countryCode = " & nz(getTeamInfo(thisTeam, "teamCountryId", cn), 0)
     sqlstr = sqlstr & " and function1 >1 and function1 <6"
     sqlstr = sqlstr & " Order by nickname"
     rsPlayers.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
@@ -162,7 +170,7 @@ Sub updateListview()
         Do While Not rsPlayers.EOF
             Set lItem = .ListItems.Add(1)
             lItem.Text = rsPlayers!NickName
-            lItem.Checked = playerInTournamentTeam(rsPlayers!peopleid, thisTeam)
+            lItem.Checked = playerInTournamentTeam(rsPlayers!peopleid, thisTeam, cn)
             lItem.SubItems(1) = nz(rsPlayers!peopleid, "")
             rsPlayers.MoveNext
         Loop
@@ -173,8 +181,22 @@ Sub updateListview()
 End Sub
 
 Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
-    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
-    Set rs = Nothing
+    'Clean-up procedure
+    If Not rs Is Nothing Then
+        'first, check if the state is open, if yes then close it
+        If (rs.State And adStateOpen) = adStateOpen Then
+            rs.Close
+        End If
+        'set them to nothing
+        Set rs = Nothing
+    End If
+    'same comment with rs
+    If Not cn Is Nothing Then
+        If (cn.State And adStateOpen) = adStateOpen Then
+            cn.Close
+        End If
+        Set cn = Nothing
+    End If
 End Sub
 
 Private Sub lstPlayers_ItemCheck(ByVal Item As MSComctlLib.ListItem)
@@ -184,12 +206,12 @@ Private Sub lstPlayers_ItemCheck(ByVal Item As MSComctlLib.ListItem)
         sqlstr = "Insert into tblTeamPlayers (tournamentId, teamId, playerId) "
         sqlstr = sqlstr & "VALUES (" & thisTournament
         sqlstr = sqlstr & ", " & thisTeam
-        sqlstr = sqlstr & ", " & Val(Item.SubItems(1))
+        sqlstr = sqlstr & ", " & val(Item.SubItems(1))
         sqlstr = sqlstr & ")"
     Else
         sqlstr = "Delete from tblTeamPlayers where tournamentId = " & thisTournament
         sqlstr = sqlstr & " AND teamID = " & thisTeam
-        sqlstr = sqlstr & " AND playerId = " & Val(Item.SubItems(1))
+        sqlstr = sqlstr & " AND playerId = " & val(Item.SubItems(1))
     End If
     cn.Execute sqlstr
 End Sub

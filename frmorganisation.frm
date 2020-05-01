@@ -29,7 +29,7 @@ Begin VB.Form frmOrganisation
       IMEMode         =   3  'DISABLE
       Left            =   1530
       PasswordChar    =   "*"
-      TabIndex        =   16
+      TabIndex        =   14
       Top             =   2520
       Width           =   2895
    End
@@ -37,7 +37,7 @@ Begin VB.Form frmOrganisation
       Caption         =   "Opslaan"
       Height          =   375
       Left            =   4680
-      TabIndex        =   14
+      TabIndex        =   15
       Top             =   2520
       Width           =   1575
    End
@@ -108,7 +108,7 @@ Begin VB.Form frmOrganisation
       Caption         =   "Nieuw admin wachtwoord:"
       Height          =   495
       Left            =   45
-      TabIndex        =   15
+      TabIndex        =   16
       Top             =   2520
       Width           =   1335
    End
@@ -182,13 +182,15 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Dim rs As ADODB.Recordset
+Dim cn As ADODB.Connection
 
 Private Sub btnSave_Click()
     Dim MD5 As New clsMD5
     Dim sqlstr As String
     On Error GoTo dberror
-    If Not cnOpen(cn) Then openDB
+    Dim newPassword As String
     'organisation data
+    newPassword = UCase(MD5.DigestStrToHexStr(Me.txtPassword))
     cn.Execute "Delete from tblOrganisation"
     sqlstr = "INSERT INTO tblOrganisation ("
     sqlstr = sqlstr & "firstname, middlename, lastname, "
@@ -202,7 +204,7 @@ Private Sub btnSave_Click()
     sqlstr = sqlstr & ", '" & Me.txtCity & "'"
     sqlstr = sqlstr & ", '" & Me.txtPhone & "'"
     sqlstr = sqlstr & ", '" & Me.txtEmail & "'"
-    sqlstr = sqlstr & ", '" & UCase(MD5.DigestStrToHexStr(Me.txtPassword)) & "')"
+    sqlstr = sqlstr & ", '" & newPassword & "')"
     cn.Execute sqlstr
     Unload Me
     Exit Sub
@@ -212,14 +214,20 @@ dberror:
 End Sub
 
 Private Sub Form_Load()
-    Set rs = New ADODB.Recordset
     Dim sqlstr As String
     
-    If Not cnOpen(cn) Then openDB
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .Open
+    End With
         
+    Set rs = New ADODB.Recordset
+    
     sqlstr = "Select * from tblOrganisation"
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     If Not rs.EOF Then
+        rs.MoveFirst 'should be only one record
         Me.txtVnaam = rs!firstname
         Me.txtTnaam = rs!middlename
         Me.txtAnaam = rs!lastname
@@ -233,3 +241,22 @@ Private Sub Form_Load()
     centerForm Me
 End Sub
 
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+    'Clean-up procedure
+    'rs recordset
+    If Not rs Is Nothing Then
+        If (rs.State And adStateOpen) = adStateOpen Then
+            rs.Close
+        End If
+        Set rs = Nothing
+    End If
+    'same comment with cn
+    If Not cn Is Nothing Then
+        'first, check if the state is open, if yes then close it
+        If (cn.State And adStateOpen) = adStateOpen Then
+            cn.Close
+        End If
+        'set them to nothing
+        Set cn = Nothing
+    End If
+End Sub

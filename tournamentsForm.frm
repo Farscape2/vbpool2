@@ -122,7 +122,7 @@ Begin VB.Form tournamentsForm
       _ExtentX        =   2990
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   149553153
+      Format          =   147718145
       CurrentDate     =   43932
    End
    Begin VB.ComboBox cmbYear 
@@ -151,7 +151,7 @@ Begin VB.Form tournamentsForm
       _ExtentX        =   2990
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   149553153
+      Format          =   147718145
       CurrentDate     =   43932
    End
    Begin MSComCtl2.UpDown UpDnGroupCount 
@@ -278,6 +278,10 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Dim cn As ADODB.Connection
+Dim rs As ADODB.Recordset
+Dim adoCmd As ADODB.Command
+
 Dim editState As Boolean
 
 Private Sub btnClose_Click()
@@ -285,21 +289,18 @@ Private Sub btnClose_Click()
 End Sub
 
 Private Sub btnCancel_Click()
-    cn.RollbackTrans
     setState False
 End Sub
 
 Private Sub btnSave_Click()
 
     If editState Then
-        cn.CommitTrans
         setState False
         'check / generate the tournament schedule
         generateSchedule
         
     Else
         setState True
-        cn.BeginTrans
     End If
     
 End Sub
@@ -307,22 +308,23 @@ End Sub
 Private Sub Form_Load()
 Dim i As Integer
 Dim ctl As Control
-Dim rs As ADODB.Recordset
-Dim adoCmd As ADODB.Command
 
 Dim sqlstr As String
 
 Set adoCmd = New ADODB.Command
 
-'set Form defaults
-    UnifyForm Me
+Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn()
+        .Open
+    End With
     sqlstr = "Select * from tblTournaments WHERE tournamentID = ?"
     With adoCmd
         .ActiveConnection = cn
         .CommandType = adCmdText
         .CommandText = sqlstr
         .Parameters.Append .CreateParameter("id", adInteger, adParamInput)
-        .Parameters("id").Value = thisTournament
+        .Parameters("id").value = thisTournament
         Set rs = .Execute
     End With
     
@@ -338,13 +340,13 @@ Set adoCmd = New ADODB.Command
         Next
     End With
     sqlstr = "Select * from tblCountries order by countryName"
-    FillCombo Me.cmbLanden, sqlstr, "countryname", "countryid"
+    FillCombo Me.cmbLanden, sqlstr, cn, "countryname", "countryid"
     
     Me.cmbType = rs!tournamenttype
     Me.cmbYear = rs!tournamentYear
     Me.dtpStart = CDbl(rs!tournamentStartDate)
     Me.dtpEind = CDbl(rs!tournamentEnddate)
-    Me.UpDnGroupCount.Value = rs!tournamentGroupCount
+    Me.UpDnGroupCount.value = rs!tournamentGroupCount
     Me.upDwnTeamAantal = rs!tournamentTeamCount
     For i = 0 To Me.cmbLanden.ListCount - 1
         If Me.cmbLanden.ItemData(i) = rs!tournamentLocationID Then
@@ -353,33 +355,14 @@ Set adoCmd = New ADODB.Command
         End If
     Next
         
-'    With Me.dtpStart
-'        Set .DataSource = Me.dtcTournaments
-'        .DataField = "tournamentStartDate"
-'    End With
-'    With Me.dtpEind
-'        Set .DataSource = Me.dtcTournaments
-'        .DataField = "tournamentEndDate"
-'    End With
-'    With Me.txtTeamAantal
-'        Set .DataSource = Me.dtcTournaments
-'        .DataField = "tournamentTeamCount"
-'    End With
-'    With Me.txtGroupCount
-'        Set .DataSource = Me.dtcTournaments
-'        .DataField = "tournamentGroupCount"
-'    End With
-'    With Me.chkThrirdPlace
-'        Set .DataSource = Me.dtcTournaments
-'        .DataField = "tournamentThirdPlace"
-'    End With
-    
-    Me.btnSave.Enabled = Not chkTournamentStarted()
+    Me.btnSave.Enabled = Not chkTournamentStarted(cn)
+
+    'set Form defaults
+    UnifyForm Me
 
     'set form state
     setState False
-    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
-    Set rs = Nothing
+
 End Sub
 
 Sub setState(edit As Boolean)
@@ -408,3 +391,16 @@ Dim ctl As Control
 End Sub
 
 
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+    If Not rs Is Nothing Then
+        If (rs.State And adStateOpen) = adStateOpen Then rs.Close
+        Set rs = Nothing
+    End If
+    If Not cn Is Nothing Then
+        If (cn.State And adStateOpen) = adStateOpen Then cn.Close
+        Set cn = Nothing
+    End If
+    If Not adoCmd Is Nothing Then
+        Set adoCmd = Nothing
+    End If
+End Sub

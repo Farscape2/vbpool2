@@ -277,7 +277,8 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
-Dim rs As adodb.Recordset
+Dim rs As ADODB.Recordset
+Dim cn As ADODB.Connection
 
 Dim cmbGridSelect As Boolean
 
@@ -287,13 +288,12 @@ Dim cmbGridSelect As Boolean
 Private Sub btnClose_Click()
 'check if any row has 0 point and delete this record
     Dim msg As String
-    Dim qry As adodb.Command
+    Dim qry As ADODB.Command
     Dim sqlstr As String
     Dim rows As Long
-    Set qry = New adodb.Command
+    Set qry = New ADODB.Command
     sqlstr = "Delete from tblPoolPoints where poolid = " & thisPool
     sqlstr = sqlstr & " AND pointPointsAward = 0 "
-    cn.BeginTrans
     qry.ActiveConnection = cn
     qry.CommandText = sqlstr
     qry.CommandType = adCmdText
@@ -312,12 +312,12 @@ Private Sub btnClose_Click()
 End Sub
 
 Sub insertRecord()
-Dim qry As adodb.Command
+Dim qry As ADODB.Command
 
 Dim sqlstr As String
 Dim rows As Long
 
-    Set qry = New adodb.Command
+    Set qry = New ADODB.Command
     sqlstr = "insert into tblPoolPoints (poolID, pointTypeId, pointPointsAward, pointPointsMargin) "
     sqlstr = sqlstr & "VALUES ( " & thisPool
     sqlstr = sqlstr & ", " & Me.cmbPointTypes.ItemData(Me.cmbPointTypes.ListIndex)
@@ -342,7 +342,7 @@ Private Sub cmbPointTypes_Click()
         cmbGridSelect = True 'prevent executing rowcolchange
         .MoveFirst 'to start find at first row
         cmbGridSelect = False
-        .Find "id = " & Val(Me.cmbPointTypes.ItemData(Me.cmbPointTypes.ListIndex))
+        .Find "id = " & val(Me.cmbPointTypes.ItemData(Me.cmbPointTypes.ListIndex))
         If .EOF Then 'not found
             'add new record
             insertRecord
@@ -352,16 +352,23 @@ End Sub
 
 Private Sub Form_Load()
     Dim sqlstr As String
-    Set rs = New adodb.Recordset
+    
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn()
+        .Open
+    End With
+    
+    Set rs = New ADODB.Recordset
     sqlstr = "Select pointtypeId as id, pointTypeDescription as omschrijving from tblPointtypes "
-    If Not getTournamentInfo("tournamentThirdPlace") Then
+    If Not getTournamentInfo("tournamentThirdPlace", cn) Then
         'exclude pointtype catgory "Kleine Finale"
         sqlstr = sqlstr & " where pointTypeCategory <> 6"
     End If
     
     sqlstr = sqlstr & " order by pointtypecategory, pointtypelistorder"
     
-    FillCombo Me.cmbPointTypes, sqlstr, "omschrijving", "id"
+    FillCombo Me.cmbPointTypes, sqlstr, cn, "omschrijving", "id"
 '    rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
 '    With Me.cmbPointTypes
 '        Set .RowSource = rs
@@ -378,7 +385,7 @@ Private Sub Form_Load()
     sqlstr = sqlstr & "on a.pointtypeid = b.pointtypeid"
     sqlstr = sqlstr & " where a.poolID = " & thisPool
     sqlstr = sqlstr & " order by b.pointtypecategory, b.pointtypelistorder"
-    If Not cnOpen(cn) Then openDB
+    
     With rs
         .CursorLocation = adUseClient
         .Open sqlstr, cn, adOpenKeyset, adLockOptimistic

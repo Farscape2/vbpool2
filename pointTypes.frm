@@ -308,7 +308,7 @@ Option Explicit
 
 Dim newState As Boolean
 Dim rs As ADODB.Recordset
-
+Dim cn As ADODB.Connection
 
 Private Sub btnClose_Click()
     Unload Me
@@ -336,8 +336,8 @@ Private Sub btnSave_Click()
            .AddNew
         End If
         !pointTypeDescription = Me.txtDescription
-        !pointtypeCategory = Val(Me.cmbCategories.BoundText)
-        !pointtypelistorder = Val(Me.txtOrder)
+        !pointtypeCategory = val(Me.cmbCategories.BoundText)
+        !pointtypelistorder = val(Me.txtOrder)
         .Update
     End With
     Me.dtcPointTypes.Refresh
@@ -350,7 +350,11 @@ End Sub
 Private Sub Form_Load()
 Dim sqlstr As String
     Set rs = New ADODB.Recordset
-
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn()
+        .Open
+    End With
 
     sqlstr = "Select pointtypeid as id, pointtypedescription as Omschrijving, pointcategoryId as categoryId, "
     sqlstr = sqlstr & "pointcategorydescription as categorie, pointtypelistorder as volgorde from tblPointTypes a"
@@ -375,6 +379,26 @@ Dim sqlstr As String
     rs.Close
 End Sub
 
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+'tidy up
+    'Clean-up procedure
+    If Not rs Is Nothing Then
+        'first, check if the state is open, if yes then close it
+        If (rs.State And adStateOpen) = adStateOpen Then
+            rs.Close
+        End If
+        'set them to nothing
+        Set rs = Nothing
+    End If
+    'same comment with rs
+    If Not cn Is Nothing Then
+        If (cn.State And adStateOpen) = adStateOpen Then
+            cn.Close
+        End If
+        Set cn = Nothing
+    End If
+End Sub
+
 Private Sub grdPointTypes_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
     UpdateEditFields
 End Sub
@@ -384,7 +408,7 @@ Sub UpdateEditFields()
     With Me.dtcPointTypes.Recordset
         Me.txtDescription = .Fields("omschrijving")
         Me.cmbCategories.BoundText = .Fields("categoryId")
-        Me.UpDnOrder.Value = .Fields("volgorde")
+        Me.UpDnOrder.value = .Fields("volgorde")
     End With
 End Sub
 

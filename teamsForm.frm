@@ -72,6 +72,8 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Dim cn As ADODB.Connection
+
 Sub makeForm()
 Dim adoCmd As ADODB.Command
 
@@ -91,18 +93,12 @@ Dim grp As Integer
 
     Set adoCmd = New ADODB.Command
     
-    'check if the base schedule is made
-    
-    If Not tournamentHasSchedule Then
-        generateSchedule
-    End If
-    
     'fill combobox with teamnames
     sqlstr = "Select teamNameId, TeamName, teamShortname, teamType from tblTeamNames"
-    If getTournamentInfo("tournamentType") = "EK" Then
+    If getTournamentInfo("tournamentType", cn) = "EK" Then
         sqlstr = sqlstr & " Where teamtype <= 1"
     End If
-    If getTournamentInfo("tournamentType") = "CL" Then
+    If getTournamentInfo("tournamentType", cn) = "CL" Then
         sqlstr = sqlstr & " Where teamtype > 2"
     End If
 '    rsTeamNames.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
@@ -118,8 +114,8 @@ Dim grp As Integer
     End With
     If rsTeamNames.EOF Then Exit Sub
     
-    groups = nz(getTournamentInfo("tournamentGroupCount"), 0)
-    teams = getTournamentInfo("tournamentTeamCount")
+    groups = nz(getTournamentInfo("tournamentGroupCount", cn), 0)
+    teams = getTournamentInfo("tournamentTeamCount", cn)
     groupSize = teams / groups
     counter = 0
     grp = 0
@@ -141,18 +137,18 @@ Dim grp As Integer
                 counter = counter + 1
                 If lblPoolNr.Count < counter Then
                     Load Me.lblPoolNr(counter - 1)
-                    Load Me.CMBtEAMS(counter - 1)
+                    Load Me.cmbTeams(counter - 1)
                     Me.lblPoolNr(counter - 1).Visible = True
-                    Me.CMBtEAMS(counter - 1).Visible = True
-                    Me.CMBtEAMS(counter - 1).TabIndex = counter
+                    Me.cmbTeams(counter - 1).Visible = True
+                    Me.cmbTeams(counter - 1).TabIndex = counter
                 End If
                 With Me.lblPoolNr(counter - 1)
                     .Caption = grpCounter
                     .Left = 300 + (col - 1) * 2200
                     .Top = 600 + (grpCounter - 1) * 360 + (row - 1) * (.Height + 100 + (groupSize * 360))
                 End With
-                FillCombo Me.CMBtEAMS(counter - 1), sqlstr, "teamname", "teamNameId"
-                With Me.CMBtEAMS(counter - 1)
+                FillCombo Me.cmbTeams(counter - 1), sqlstr, cn, "teamname", "teamNameId"
+                With Me.cmbTeams(counter - 1)
 '                    Set .RowSource = rsTeamNames
 '                    .ListField = "teamname"
 '                    .BoundColumn = "teamNameId"
@@ -190,7 +186,7 @@ Private Sub btnClose_Click()
             Unload ctl
         End If
     Next
-    For Each ctl In CMBtEAMS
+    For Each ctl In cmbTeams
         If ctl.Index <> 0 Then
             Unload ctl
         End If
@@ -211,11 +207,11 @@ End Sub
 Private Sub cmbTeams_LostFocus(Index As Integer)
 Dim sqlstr As String
 Dim cmd As New ADODB.Command
-    If Me.CMBtEAMS(Index).Text = "" Then Exit Sub
+    If Me.cmbTeams(Index).Text = "" Then Exit Sub
     'find and update the record based on the tag of the control
-    sqlstr = "Update tblTournamentTeamCodes Set teamId = " & Me.CMBtEAMS(Index).ItemData(Me.CMBtEAMS(Index).ListIndex)
+    sqlstr = "Update tblTournamentTeamCodes Set teamId = " & Me.cmbTeams(Index).ItemData(Me.cmbTeams(Index).ListIndex)
     sqlstr = sqlstr & " WHERE tournamentID = " & thisTournament
-    sqlstr = sqlstr & " AND teamcode = '" & Me.CMBtEAMS(Index).Tag & "'"
+    sqlstr = sqlstr & " AND teamcode = '" & Me.cmbTeams(Index).Tag & "'"
     On Error GoTo dataerror
     cn.BeginTrans
     With cmd
@@ -233,13 +229,19 @@ End Sub
 
 Private Sub Form_Activate()
 Dim i As Integer
-For i = Me.CMBtEAMS.Count - 1 To 0 Step -1
-    Me.CMBtEAMS(i).SetFocus
-Next
-Me.btnPlayers.SetFocus
+    For i = Me.cmbTeams.Count - 1 To 0 Step -1
+        Me.cmbTeams(i).SetFocus
+    Next
+    Me.btnPlayers.SetFocus
 End Sub
 
 Private Sub Form_Load()
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn()
+        .Open
+    End With
+    
     makeForm
 '    Me.cmbTeams().SetFocus
     centerForm Me
@@ -248,8 +250,10 @@ Private Sub Form_Load()
 End Sub
 
 Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
-'    If (rsTeamNames.State And adStateOpen) = adStateOpen Then rsTeamNames.Close
-'    If (rsTeamCodes.State And adStateOpen) = adStateOpen Then rsTeamCodes.Close
-'    Set rsTeamNames = Nothing
-'    Set rsTeamCodes = Nothing
+    If Not cn Is Nothing Then
+        If (cn.State And adStateOpen) = adStateOpen Then
+            cn.Close
+        End If
+        Set cn = Nothing
+    End If
 End Sub

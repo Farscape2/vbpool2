@@ -1,18 +1,12 @@
 Attribute VB_Name = "dbfunctions"
 Option Explicit
 
-Function getOrganisation(Optional field As String)
+Function getOrganisation(cn As ADODB.Connection, Optional field As String) As String
 'get the name for the organisation of this pool / or just the content of field
 Dim adoCmd As ADODB.Command
 Dim rs As ADODB.Recordset
 Dim sqlstr As String
 Dim result As String
-    Set cn = New ADODB.Connection
-    With cn
-        .ConnectionString = lclConn
-        .CursorLocation = adUseClient
-        .Open
-    End With
     sqlstr = "Select * from tblOrganisation"
     Set adoCmd = New ADODB.Command
     With adoCmd
@@ -31,6 +25,7 @@ Dim result As String
             If rs!lastname > "" Then
                 result = result & " " & Trim(rs!lastname)
             End If
+            result = result & vbNewLine & Trim(rs!address) & vbNewLine & Trim(rs!postalcode) & " " & Trim(rs!city)
         Else
             result = rs(field)
         End If
@@ -38,21 +33,13 @@ Dim result As String
     getOrganisation = result
     rs.Close
     Set rs = Nothing
-    cn.Close
 End Function
 
-Function getPoolInfo(fldName As String)
+Function getPoolInfo(fldName As String, cn As ADODB.Connection)
 'return the value of fieldnmame in tblPools
 Dim adoCmd As ADODB.Command
 Dim rs As ADODB.Recordset
 Dim sqlstr As String
-    
-    Set cn = New ADODB.Connection
-    With cn
-        .ConnectionString = lclConn
-        .CursorLocation = adUseClient
-        .Open
-    End With
 
     Set adoCmd = New ADODB.Command
     sqlstr = "Select " & fldName & " from tblPools where poolid = ?"
@@ -70,35 +57,24 @@ Dim sqlstr As String
     Else
         getPoolInfo = Null
     End If
+    
     rs.Close
     Set rs = Nothing
     Set adoCmd = Nothing
-    cn.Close
+
 End Function
 
-Function getTournamentInfo(fldName As String, Optional mySql As Boolean)
+Function getTournamentInfo(fldName As String, cn As ADODB.Connection)
 'return the value of fieldnmame in tblTournaments
-    Dim conn As ADODB.Connection
     Dim adoCmd As ADODB.Command
     Set adoCmd = New ADODB.Command
     Dim sqlstr As String
     Dim result As Variant
     Dim rs As ADODB.Recordset
     
-    Set cn = New ADODB.Connection
-    With cn
-        If mySql Then
-            .ConnectionString = mySqlConn
-        Else
-            .ConnectionString = lclConn
-        End If
-        .CursorLocation = adUseClient
-        .Open
-    End With
-    
     sqlstr = "Select * from tblTournaments Where tournamentID = ? "
     With adoCmd
-        .ActiveConnection = conn
+        .ActiveConnection = cn
         .CommandType = adCmdText
         .CommandText = sqlstr
         .Prepared = True
@@ -124,38 +100,24 @@ Function getTournamentInfo(fldName As String, Optional mySql As Boolean)
     rs.Close
     Set rs = Nothing
     Set adoCmd = Nothing
-    cn.Close
 End Function
 
-Function chkPoolHasCompetitors(pool As Long)
+Function chkPoolHasCompetitors(pool As Long, cn As ADODB.Connection)
 'are there competitors for this pool
     Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
-    Set cn = New ADODB.Connection
-    With cn
-        .ConnectionString = lclConn
-        .CursorLocation = adUseClient
-        .Open
-    End With
-
     Dim sqlstr As String
+        
         sqlstr = "Select  poolID from tblCompetitors Where poolid = " & pool
         rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
         chkPoolHasCompetitors = Not rs.EOF
+    
     rs.Close
     Set rs = Nothing
-    cn.Close
 End Function
 
-Function chkTournamentHasPools(tournament As Long)
+Function chkTournamentHasPools(tournament As Long, cn As ADODB.Connection)
 'are there pools for this tournament?
-    Set cn = New ADODB.Connection
-    With cn
-        .ConnectionString = lclConn
-        .CursorLocation = adUseClient
-        .Open
-    End With
-
     Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
     Dim sqlstr As String
@@ -164,61 +126,44 @@ Function chkTournamentHasPools(tournament As Long)
         chkTournamentHasPools = Not rs.EOF
     rs.Close
     Set rs = Nothing
-    cn.Close
 End Function
 
-Function getThisPoolTournamentId() As Long
+Function getThisPoolTournamentId(cn As ADODB.Connection) As Long
 'return the tournament for the current pool
-    Set cn = New ADODB.Connection
-    With cn
-        .ConnectionString = lclConn
-        .CursorLocation = adUseClient
-        .Open
-    End With
-
     Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
     getThisPoolTournamentId = 0
     Dim sqlstr As String
     sqlstr = "Select tournamentID from tblPools Where poolid = " & thisPool
-    If Not cnOpen(cn) Then openDB
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     If Not rs.EOF Then
-        getThisPoolTournamentId = rs!tournamentID
+        getThisPoolTournamentId = rs!tournamentid
     End If
     rs.Close
     Set rs = Nothing
-    cn.Close
 End Function
 
-Function chkTournamentStarted()
-'check to see if torunament already started
-    Set cn = New ADODB.Connection
-    With cn
-        .ConnectionString = lclConn
-        .CursorLocation = adUseClient
-        .Open
-    End With
+Function chkTournamentStarted(cn As ADODB.Connection)
+'check to see if tournament already started
 
     Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
     Dim sqlstr As String
     chkTournamentStarted = False
-    sqlstr = "Select * from tblTournaments Where tournamentid = " & getThisPoolTournamentId()
+    sqlstr = "Select * from tblTournaments Where tournamentid = " & getThisPoolTournamentId(cn)
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     If Not rs.EOF Then
         chkTournamentStarted = CDbl(rs!tournamentStartDate) < CDate(Now())
     End If
     rs.Close
     Set rs = Nothing
-    cn.Close
 End Function
 
-Function supportsTransactions(cnn As ADODB.Connection) As Boolean
+Function supportsTransactions(cn As ADODB.Connection) As Boolean
 'check if connection supports transactions
     On Error GoTo err_supportsTransactions:
         Dim lValue As Long
-        lValue = cnn.Properties("Transaction DDL").value
+        lValue = cn.Properties("Transaction DDL").value
         supportsTransactions = True
     Exit Function
 err_supportsTransactions:
@@ -230,15 +175,8 @@ err_supportsTransactions:
     End Select
 End Function
 
-Function tournamentHasSchedule() As Boolean
-'check if there is already a base schedule made
-    Set cn = New ADODB.Connection
-    With cn
-        .ConnectionString = lclConn
-        .CursorLocation = adUseClient
-        .Open
-    End With
-
+Function tournamentHasSchedule(cn As ADODB.Connection) As Boolean
+'check if there is already a schedule made
     Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
     Dim sqlstr As String
@@ -247,18 +185,17 @@ Function tournamentHasSchedule() As Boolean
     tournamentHasSchedule = Not rs.EOF
     rs.Close
     Set rs = Nothing
-    cn.Close
 End Function
 
 Function tournamentBaseSchedule() As Boolean
 'check if there is already a base schedule made
+    Dim cn As ADODB.Connection
     Set cn = New ADODB.Connection
     With cn
         .ConnectionString = lclConn
-        .CursorLocation = adUseClient
         .Open
     End With
-
+    
     Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
     Dim sqlstr As String
@@ -268,6 +205,7 @@ Function tournamentBaseSchedule() As Boolean
     rs.Close
     Set rs = Nothing
     cn.Close
+    Set cn = Nothing
 End Function
 
 Sub generateSchedule()
@@ -285,13 +223,13 @@ Dim groupSize  As Integer
 Dim i As Integer, J As Integer
 Dim teamCode As String
 
+    Dim cn As ADODB.Connection
     Set cn = New ADODB.Connection
     With cn
         .ConnectionString = lclConn
-        .CursorLocation = adUseClient
         .Open
     End With
-
+    
     Set rsSchedule = New ADODB.Recordset
     Set rs = New ADODB.Recordset
     Set qry = New ADODB.Command
@@ -316,40 +254,40 @@ Dim teamCode As String
         For i = 1 To rs!groups
             For J = 1 To groupSize
                 .AddNew
-                !tournamentID = thisTournament
+                !tournamentid = thisTournament
                 teamCode = Chr(i + 64) & Format(J, "0")
                 !teamCode = teamCode
                 .Update
             Next
         Next
         If rs!groups > 4 Then
-        '8th finales (I hope), should be 16 teams
+        '8th finales (normally I hope), should be 16 teams
             For i = 1 To rs!groups
                 .AddNew
-                !tournamentID = thisTournament
+                !tournamentid = thisTournament
                 !teamCode = "1" & Chr(i + 64)
                 .Update
                 .AddNew
-                !tournamentID = thisTournament
+                !tournamentid = thisTournament
                 !teamCode = "2" & Chr(i + 64)
                 .Update
             Next
             'if there are 6 groups then we need to add the best 3rd places to gt to 16
             If rs!groups = 6 Then  'add best 3rd places
                 .AddNew
-                !tournamentID = thisTournament
+                !tournamentid = thisTournament
                 !teamCode = "3ABC"
                 .Update
                 .AddNew
-                !tournamentID = thisTournament
+                !tournamentid = thisTournament
                 !teamCode = "3ABCD"
                 .Update
                 .AddNew
-                !tournamentID = thisTournament
+                !tournamentid = thisTournament
                 !teamCode = "3DEF"
                 .Update
                 .AddNew
-                !tournamentID = thisTournament
+                !tournamentid = thisTournament
                 !teamCode = "3ADEF"
                 .Update
             End If
@@ -357,13 +295,13 @@ Dim teamCode As String
         'other finals just the W(inner) of the matchnumber
         For i = matches + 1 To matches + 15
             .AddNew
-            !tournamentID = thisTournament
+            !tournamentid = thisTournament
             !teamCode = "W" & Format(i, "00")
             .Update
         Next
-        If getTournamentInfo("tournamentThirdPlace") Then 'add match for third place
+        If getTournamentInfo("tournamentThirdPlace", cn) Then 'add match for third place
             .AddNew
-            !tournamentID = thisTournament
+            !tournamentid = thisTournament
             !teamCode = "V" & Format(matches + 14, "00")
             .Update
         End If
@@ -373,22 +311,18 @@ Dim teamCode As String
     Set rs = Nothing
     Set rsSchedule = Nothing
     cn.Close
+    Set cn = Nothing
 End Sub
 
-Sub addPlayers()
+Sub addPlayers(cn As ADODB.Connection)
 'add all players in the tblPeople table from a country in this tournament
     Dim sqlstr As String
     Dim rsTeams As ADODB.Recordset
     Dim rsPlayers As ADODB.Recordset
-    Set cn = New ADODB.Connection
-    With cn
-        .ConnectionString = lclConn
-        .CursorLocation = adUseClient
-        .Open
-    End With
-
+    
     Set rsTeams = New ADODB.Recordset
     Set rsPlayers = New ADODB.Recordset
+    
     'remove all players in thistournament first
     sqlstr = "Delete from tblTeamPlayers where tournamentid = " & thisTournament
     cn.Execute sqlstr
@@ -397,10 +331,13 @@ Sub addPlayers()
     sqlstr = sqlstr & " FROM tblTeamNames b INNER JOIN tblTournamentTeamCodes a ON b.teamNameID = a.teamID"
     sqlstr = sqlstr & " where tournamentID = " & thisTournament
     rsTeams.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
-    If rsTeams.EOF Then Exit Sub
+    
+    If rsTeams.EOF Then Exit Sub 'if there are no eams what are we doing here
+    
     rsTeams.MoveFirst
     Do While Not rsTeams.EOF
-        sqlstr = "Select * from tblPeople where function1 > 1 and function1 < 6 and countryCode = " & rsTeams!teamCountryId
+        'get all football players (function betweeen 2 and 5) from the same country as the team (NOT for clubteams)
+        sqlstr = "Select * from tblPeople where function > 1 and function < 6 and countryCode = " & rsTeams!teamCountryId
         rsPlayers.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
         Do While Not rsPlayers.EOF
             sqlstr = "Insert into tblTeamPlayers (tournamentId, teamId, PlayerId) VALUES (" & thisTournament & "," & rsTeams!teamcodeID & ", " & rsPlayers!peopleid & ")"
@@ -414,10 +351,9 @@ Sub addPlayers()
     Set rsTeams = Nothing
     If (rsPlayers.State And adStateOpen) = adStateOpen Then rsPlayers.Close
     Set rsPlayers = Nothing
-    cn.Close
 End Sub
  
-Function getTeamInfo(teamId As Long, fld As String)
+Function getTeamInfo(teamId As Long, fld As String, cn As ADODB.Connection)
     Dim sqlstr As String
     Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
@@ -432,7 +368,7 @@ Function getTeamInfo(teamId As Long, fld As String)
     Set rs = Nothing
 End Function
 
-Function getTeamId(tournamentTeamCode As Long)
+Function getTeamId(tournamentTeamCode As Long, cn As ADODB.Connection)
 'get the basic id  of a tournament teamcode
     Dim sqlstr As String
     Dim rs As ADODB.Recordset
@@ -449,7 +385,7 @@ Function getTeamId(tournamentTeamCode As Long)
     Set rs = Nothing
 End Function
 
-Function getTournamentTeamCode(teamId As Long)
+Function getTournamentTeamCode(teamId As Long, cn As ADODB.Connection)
 'get the teamId from a tounamentTeamCode
     Dim sqlstr As String
     Dim rs As ADODB.Recordset
@@ -468,7 +404,7 @@ Function getTournamentTeamCode(teamId As Long)
 End Function
 
 
-Function playerInTournamentTeam(playerId As Long, teamId As Long)
+Function playerInTournamentTeam(playerId As Long, teamId As Long, cn As ADODB.Connection)
     Dim sqlstr As String
     Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
@@ -483,7 +419,8 @@ Function playerInTournamentTeam(playerId As Long, teamId As Long)
     Set rs = Nothing
 End Function
 
-Function playerExists(fName As String, mName As String, lName As String, NickName As String)
+Function playerExists(fName As String, mName As String, lName As String, NickName As String, cn As ADODB.Connection)
+    'check double entries
     Dim sqlstr As String
     Dim rs As ADODB.Recordset
     Set rs = New ADODB.Recordset
@@ -504,7 +441,14 @@ Function convertTournamentScheduleTable()
 'change the reference in the tables from teamCodeID(Former primary Key from tblTournamentTeamCodes) to teamCode(string, A1, B2 etc)
 '
 'this makes the relation between schedule and teamcodes more intuitive, allbeit more complex (on two fields: tournamentID AND teamCode)
+    Dim cn As ADODB.Connection
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .Open
+    End With
     
+
     Dim rsTn As ADODB.Recordset
     Dim rsCodes As ADODB.Recordset
     Set rsTn = New ADODB.Recordset
@@ -555,4 +499,19 @@ Function convertTournamentScheduleTable()
         
         rsCodes.MoveNext
     Loop
+    If Not rsTn Is Nothing Then
+        rsTn.Close
+        Set rsTn = Nothing
+    End If
+    If Not rsCodes Is Nothing Then
+        rsCodes.Close
+        Set rsCodes = Nothing
+    End If
+    
+    If Not cn Is Nothing Then
+        If (cn.State And adStateOpen) = adStateOpen Then
+            cn.Close
+        End If
+        Set cn = Nothing
+    End If
 End Function

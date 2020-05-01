@@ -142,6 +142,9 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Dim cn As ADODB.Connection
+Dim rs As ADODB.Recordset
+
 Private currentCountry As Long
 
 Public Property Get Country() As Long
@@ -160,14 +163,14 @@ Private Sub btnSave_Click()
     Dim sqlstr As String
     If Me.txtNickName = "" Then Me.txtNickName = buildNickName
         
-    If Not playerExists(Me.txtVnaam, Me.txtTname, Me.txtAName, Me.txtNickName) Then
+    If Not playerExists(Me.txtVnaam, Me.txtTname, Me.txtAName, Me.txtNickName, cn) Then
         sqlstr = "Insert into tblPeople (firstName, middleName, lastName, nickName, function1, countryCode"
         sqlstr = sqlstr & ") VALUES ('" & Me.txtVnaam
         sqlstr = sqlstr & "','" & Me.txtTname
         sqlstr = sqlstr & "','" & Me.txtAName
         sqlstr = sqlstr & "','" & Me.txtNickName
         sqlstr = sqlstr & "', 3" 'make it a midfielder, for now
-        sqlstr = sqlstr & "," & Val(Me.cmbCountry.BoundText)
+        sqlstr = sqlstr & "," & val(Me.cmbCountry.BoundText)
         sqlstr = sqlstr & ")"
         cn.Execute sqlstr
     Else
@@ -178,9 +181,13 @@ End Sub
 
 Private Sub Form_Load()
 Dim sqlstr As String
-Dim rs As ADODB.Recordset
-Set rs = New ADODB.Recordset
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn()
+        .Open
+    End With
     sqlstr = "Select * from tblCountries "
+    Set rs = New ADODB.Recordset
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     With Me.cmbCountry
         Set .RowSource = rs
@@ -190,9 +197,6 @@ Set rs = New ADODB.Recordset
     End With
     Me.cmbCountry.BoundText = Country
     UnifyForm Me
-    
-    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
-    Set rs = Nothing
 End Sub
 
 Function buildNickName()
@@ -205,6 +209,25 @@ Dim NickName As String
     If Me.txtTname > "" Then NickName = NickName & " " & Me.txtTname
     buildNickName = Trim(NickName)
 End Function
+
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+    'Clean-up procedure
+    If Not rs Is Nothing Then
+        'first, check if the state is open, if yes then close it
+        If (rs.State And adStateOpen) = adStateOpen Then
+            rs.Close
+        End If
+        'set them to nothing
+        Set rs = Nothing
+    End If
+    'same comment with rs
+    If Not cn Is Nothing Then
+        If (cn.State And adStateOpen) = adStateOpen Then
+            cn.Close
+        End If
+        Set cn = Nothing
+    End If
+End Sub
 
 Private Sub Label4_Click()
     Me.txtNickName = buildNickName

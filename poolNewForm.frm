@@ -490,7 +490,7 @@ Begin VB.Form newPoolForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147456001
+      Format          =   147849217
       CurrentDate     =   43932
    End
    Begin MSComCtl2.DTPicker dtpEind 
@@ -503,7 +503,7 @@ Begin VB.Form newPoolForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147456001
+      Format          =   147849217
       CurrentDate     =   43932
    End
    Begin VB.Label Label1 
@@ -580,6 +580,8 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
+Dim cn As ADODB.Connection
+
 Private Sub btnClose_Click()
 Dim sqlstr As String
     Dim i As Integer
@@ -598,7 +600,6 @@ Dim sqlstr As String
         Next
         sqlstr = sqlstr & float(.txtPrizeLastOverall) & ")"
     End With
-    If Not cnOpen(cn) Then openDB
     cn.Execute sqlstr
     Unload Me
 End Sub
@@ -610,27 +611,27 @@ End Sub
 Private Sub Form_Load()
 Dim sqlstr As String
 Dim i As Integer
-Dim rs As adodb.Recordset
-    Set rs = New adodb.Recordset
-'set Form defaults
-    UnifyForm Me
 
+    Set cn = New ADODB.Connection
+    With cn
+        .ConnectionString = lclConn
+        .CursorLocation = adUseClient
+        .Open
+    End With
+        
 'back color of frame
     Me.frmPrizes.BackColor = Me.BackColor
 'basis tabel
 
 'fill tournament combo
     sqlstr = "Select tournamentID, "
-    If dBaseType = "ACCESS" Then
-        sqlstr = sqlstr & " tournamentYear & ' - '  & tournamentType "
-    Else
-        sqlstr = sqlstr & " concat(tournamentYear, ' - ', tournamentType) "
-    End If
+    sqlstr = sqlstr & " tournamentYear & ' - '  & tournamentType "
     sqlstr = sqlstr & " as tournament from tblTournaments order by tournamentYear"
-    FillCombo Me.cmbTournaments, sqlstr, "tournament", "tournamentID"
+    FillCombo Me.cmbTournaments, sqlstr, cn, "tournament", "tournamentID"
     
-    If (rs.State And adStateOpen) = adStateOpen Then rs.Close
-    Set rs = Nothing
+'set Form defaults
+    UnifyForm Me
+
     
 End Sub
 
@@ -640,7 +641,7 @@ Sub calcTotalPercentage()
     Dim i As Integer
     
     For i = 0 To 3
-        totalPerc = totalPerc + Val(float(Me.txtPercentage(i).Text))
+        totalPerc = totalPerc + val(float(Me.txtPercentage(i).Text))
     Next
     Me.lblTotal.Caption = Format(totalPerc / 100, "0%")
     If totalPerc <> 100 Then
@@ -648,6 +649,17 @@ Sub calcTotalPercentage()
     Else
         Me.lblTotal.ForeColor = Me.Label1.ForeColor
     End If
+End Sub
+
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+'tidy up
+    If Not cn Is Nothing Then
+        If (cn.State And adStateOpen) = adStateOpen Then
+            cn.Close
+        End If
+        Set cn = Nothing
+    End If
+    
 End Sub
 
 Private Sub txtPercentage_LostFocus(Index As Integer)
