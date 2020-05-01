@@ -31,6 +31,7 @@ Begin VB.Form frmOrganisation
       PasswordChar    =   "*"
       TabIndex        =   14
       Top             =   2520
+      Visible         =   0   'False
       Width           =   2895
    End
    Begin VB.CommandButton btnSave 
@@ -110,6 +111,7 @@ Begin VB.Form frmOrganisation
       Left            =   45
       TabIndex        =   16
       Top             =   2520
+      Visible         =   0   'False
       Width           =   1335
    End
    Begin VB.Label Label5 
@@ -190,7 +192,7 @@ Private Sub btnSave_Click()
     On Error GoTo dberror
     Dim newPassword As String
     'organisation data
-    newPassword = UCase(MD5.DigestStrToHexStr(Me.txtPassword))
+'    newPassword = UCase(MD5.DigestStrToHexStr(Me.txtPassword))
     cn.Execute "Delete from tblOrganisation"
     sqlstr = "INSERT INTO tblOrganisation ("
     sqlstr = sqlstr & "firstname, middlename, lastname, "

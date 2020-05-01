@@ -25,7 +25,7 @@ Dim result As String
             If rs!lastname > "" Then
                 result = result & " " & Trim(rs!lastname)
             End If
-            result = result & vbNewLine & Trim(rs!address) & vbNewLine & Trim(rs!postalcode) & " " & Trim(rs!city)
+'            result = result & vbNewLine & Trim(rs!address) & vbNewLine & Trim(rs!postalcode) & " " & Trim(rs!city)
         Else
             result = rs(field)
         End If
@@ -137,7 +137,7 @@ Function getThisPoolTournamentId(cn As ADODB.Connection) As Long
     sqlstr = "Select tournamentID from tblPools Where poolid = " & thisPool
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     If Not rs.EOF Then
-        getThisPoolTournamentId = rs!tournamentid
+        getThisPoolTournamentId = rs!tournamentID
     End If
     rs.Close
     Set rs = Nothing
@@ -254,7 +254,7 @@ Dim teamCode As String
         For i = 1 To rs!groups
             For J = 1 To groupSize
                 .AddNew
-                !tournamentid = thisTournament
+                !tournamentID = thisTournament
                 teamCode = Chr(i + 64) & Format(J, "0")
                 !teamCode = teamCode
                 .Update
@@ -264,30 +264,30 @@ Dim teamCode As String
         '8th finales (normally I hope), should be 16 teams
             For i = 1 To rs!groups
                 .AddNew
-                !tournamentid = thisTournament
+                !tournamentID = thisTournament
                 !teamCode = "1" & Chr(i + 64)
                 .Update
                 .AddNew
-                !tournamentid = thisTournament
+                !tournamentID = thisTournament
                 !teamCode = "2" & Chr(i + 64)
                 .Update
             Next
             'if there are 6 groups then we need to add the best 3rd places to gt to 16
             If rs!groups = 6 Then  'add best 3rd places
                 .AddNew
-                !tournamentid = thisTournament
+                !tournamentID = thisTournament
                 !teamCode = "3ABC"
                 .Update
                 .AddNew
-                !tournamentid = thisTournament
+                !tournamentID = thisTournament
                 !teamCode = "3ABCD"
                 .Update
                 .AddNew
-                !tournamentid = thisTournament
+                !tournamentID = thisTournament
                 !teamCode = "3DEF"
                 .Update
                 .AddNew
-                !tournamentid = thisTournament
+                !tournamentID = thisTournament
                 !teamCode = "3ADEF"
                 .Update
             End If
@@ -295,13 +295,13 @@ Dim teamCode As String
         'other finals just the W(inner) of the matchnumber
         For i = matches + 1 To matches + 15
             .AddNew
-            !tournamentid = thisTournament
+            !tournamentID = thisTournament
             !teamCode = "W" & Format(i, "00")
             .Update
         Next
         If getTournamentInfo("tournamentThirdPlace", cn) Then 'add match for third place
             .AddNew
-            !tournamentid = thisTournament
+            !tournamentID = thisTournament
             !teamCode = "V" & Format(matches + 14, "00")
             .Update
         End If

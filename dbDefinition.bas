@@ -39,8 +39,8 @@ Function mySqlConn()
     Dim cnstr As String
     Dim passwd As String
     passwd = "!xjer56!"
-    server = "192.168.178.14"
-    'server = "jotaservices.duckdns.org"
+    'server = "192.168.178.14"
+    server = "jotaservices.duckdns.org"
     driver = "{MariaDB ODBC 3.1 Driver}"
     mySqlConn = "DRIVER=" & driver & ";TCPIP=1;SERVER=" & server & ";DATABASE=" & dbName & ";UID=jeroen;PWD=" & passwd & ";port=3306;"
 
@@ -117,8 +117,6 @@ End Function
 
 'create the database
 Sub createDb()
-    Dim adoCat As ADOX.Catalog
-    Dim tbl As ADOX.Table
     Dim setupDb As String
     Dim newDb As String
     Dim msg As String
@@ -137,7 +135,6 @@ Sub createDb()
     End If
     setupDb = App.Path & "\vbpoolSetup.mdb"
     FileCopy setupDb, newDb
-    Set adoCat = Nothing
 '    MsgBox "Nieuwe database is aangemaakt." & vbNewLine & "Vul de gegevens in en kies een wachtwoord", vbOKOnly + vbInformation, "Nieuwe installatie"
 ''get tournament data
 '    frmCopyData.Show 1  'maybe do this automatically the first time?
@@ -176,7 +173,7 @@ Sub fillDefaultValues()
     sqlstr = sqlstr & "prizePercentageFirst, prizePercentageSecond, prizePercentageThird, prizePercentageFourth, "
     sqlstr = sqlstr & "prizeLowFinalPosition ) VALUES ("
     sqlstr = sqlstr & thisTournament & ", " & orgID & ", '" & tournament & " pool" & "', " & CDbl(Date) & ", " & CDbl(getTournamentInfo("tournamentStartDate", cn) - 7) & ", "
-    sqlstr = sqlstr & "10, 2.5, 1, 0.1, 0.5, 0.3, 0.3, 0, 10)"
+    sqlstr = sqlstr & "10, 2.5, 1, 0.1, 50, 30, 20, 0, 10)"
     cn.Execute sqlstr
     
     'set the thisPool global variable

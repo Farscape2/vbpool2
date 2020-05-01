@@ -260,6 +260,7 @@ Dim myConn As ADODB.Connection
     Set rsTables = New ADODB.Recordset
     Set myConn = New ADODB.Connection
     With myConn
+        .CursorLocation = adUseClient
         .ConnectionString = mySqlConn
         .Open
     End With
@@ -270,7 +271,7 @@ Dim myConn As ADODB.Connection
         Exit Sub
     End If
     rsTables.MoveLast
-    thisTournament = rsTables!tournamentid
+    thisTournament = rsTables!tournamentID
     rsTables.Close
     'Use different sql in rsTablses now
     sqlstr = "SHOW TABLES in " & dbName

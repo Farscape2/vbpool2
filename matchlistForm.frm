@@ -210,7 +210,7 @@ Begin VB.Form matchlistForm
       _ExtentY        =   661
       _Version        =   393216
       CustomFormat    =   "dd-MM"
-      Format          =   147980291
+      Format          =   61145091
       CurrentDate     =   43939
    End
    Begin MSComCtl2.UpDown upDnNr 
@@ -598,10 +598,6 @@ Private Sub btnSave_Click()
     
 End Sub
 
-Private Sub cmbType_Click(Area As Integer)
-
-End Sub
-
 Private Sub Form_Load()
     'open the database
     Set cn = New ADODB.Connection
@@ -613,9 +609,32 @@ Private Sub Form_Load()
     setEditBar
     setMatchGrid
     
+    setState 'only if admin is logged in is editting possible
+    
     UnifyForm Me
     centerForm Me
 
+End Sub
+
+Sub setState()
+Dim ctl As Control
+Dim col As Object
+    For Each ctl In Me.Controls
+        If TypeOf ctl Is UpDown _
+            Or TypeOf ctl Is ComboBox _
+            Or TypeOf ctl Is DataCombo _
+            Or TypeOf ctl Is DTPicker _
+            Or TypeOf ctl Is TextBox _
+            Or ctl.Name = "btnSave" Then
+            ctl.Enabled = adminLogin
+        End If
+        Me.grdMatches.AllowAddNew = adminLogin
+        Me.grdMatches.AllowDelete = adminLogin
+        Me.grdMatches.AllowUpdate = adminLogin
+        For Each col In Me.grdMatches.Columns
+            col.Locked = Not adminLogin
+        Next
+    Next
 End Sub
 
 Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)

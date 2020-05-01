@@ -175,6 +175,7 @@ Dim sqlstr As String
     With myConn
         'connect to mySql database
         .ConnectionString = mySqlConn
+        .CursorLocation = adUseClient
         .Open
     End With
 
@@ -210,26 +211,6 @@ Dim tournTable As Boolean
         MsgBox "Geen MySQL tabellen gevonden!", vbOKOnly, "FOUT"
         Exit Sub
     End If
-'    Set adoCatalog = New ADOX.Catalog
-'    adoCatalog.ActiveConnection = cn
-'    Do While Not rsTables.EOF
-'        srcTable = rsTables.Fields(0)
-'        If Left(srcTable, 6) <> "local_" Then 'skip the tables for local use
-'            'copy the tabledefs to the mdb
-'            'normally this should not be necessary, all the tables are in the dummy database
-'            'keep it just in case
-'            If Not tableExists(srcTable, cn) Then
-'                Set adoTable = New ADOX.Table
-'                adoTable.Name = srcTable
-'                Me.lblTblName.Caption = "Tabel: " & rsTables.AbsolutePosition & "/" & rsTables.RecordCount
-'                adoTable.ParentCatalog = adoCatalog
-'                duplicateFields adoTable, srcTable
-'                adoCatalog.Tables.Append adoTable
-'                Set adoTable = Nothing
-'            End If
-'        End If
-'        rsTables.MoveNext
-'    Loop
     rsTables.MoveFirst
     Do While Not rsTables.EOF
         Set rsCols = New ADODB.Recordset
@@ -283,6 +264,7 @@ Dim fld As field
             delstr = delstr & " WHERE tournamentID = " & Me.cmbTournament.ItemData(Me.cmbTournament.ListIndex)
         End If
         .CommandText = sqlstr
+        
         Set rsFrom = .Execute
     End With
     'delete records from local table
