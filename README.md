@@ -2,6 +2,19 @@
 VBPool2.0 of VBP2 is een klein Windows programmaatje, geschreven in Visual Basic 6.0, voor een uitgebreide voetbalpool tijdens een groot toernooi zoals de WK of de EK.
 Op dit moment is het nog niet geschikt voor de clubtoernooien xoals de nationale competitie of de Championsleague, wellicht iets voor versie 3.0.
 
+# TODO
+Het systeem is nog lang niet klaar
+Wat er nog moet:
+- Deelnemers formulieren
+- Deelnemers invoeren (webinterface ?)
+- Wedstrijduitslagen verwerken
+- Rapportages:
+  * Poolstand op volgorde/alfabetisch
+  * Grafiek opbouw van punten per deelnemer
+  * Punten per deelnemers per onderdeel
+  * Toernooi - stand van zaken, komende wedstrijden
+  * En nog zo wat ...
+  
 ## Systeem
 Het systeem werkt als volgt:
 
@@ -42,7 +55,7 @@ Het principe is dat elke juist ingevulde voorspelling telt.
 Er zijn voorspellingen waarvan nog niet bekend is welke ploegen daar spelen, maar daarvoor kun je al bijvoorbeeld wel de juiste uitslag invullen,. ook al zijn er hele andere ploegen ingevuld.
 
 ## Installatie
-Kopieer de bestanden vbpool20.exe en vbpoolSetup.mdb naar een lege map/directory.
+Kopieer de bestanden vbp2.exe en vbpSetup.mdb naar een lege map/directory.
 Start vbpool20 door erop te dubbelklikken.
 Je kunt het programma ook opstarten vanuit een commando-venster.
 
@@ -51,3 +64,8 @@ Vervolgens wordt vanaf het internet de gegevens van het laatst bekende voetbalto
 
 ## Vereisten
 Een computer met daarop het Windows besturingesprogramm. Het programma is niet getest op Windows versies eerder dan Windows 7.
+
+## Admin
+Start vbp2 vanuit een terminal (commando ventser) met `vbp2 admin` om speciale rechten te kunnen verkeijgen voor het veranderen van de toernooi gegevens.
+In geval van een totale chaos kunnen te allen tijde de data van de server worden teruggezet.
+
