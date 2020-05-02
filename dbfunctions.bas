@@ -137,7 +137,7 @@ Function getThisPoolTournamentId(cn As ADODB.Connection) As Long
     sqlstr = "Select tournamentID from tblPools Where poolid = " & thisPool
     rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     If Not rs.EOF Then
-        getThisPoolTournamentId = rs!tournamentID
+        getThisPoolTournamentId = rs!TournamentId
     End If
     rs.Close
     Set rs = Nothing
@@ -220,7 +220,7 @@ Dim makeSchedule As Boolean
 Dim letter As Integer
 Dim matches As Integer
 Dim groupSize  As Integer
-Dim i As Integer, J As Integer
+Dim i As Integer, j As Integer
 Dim teamCode As String
 
     Dim cn As ADODB.Connection
@@ -252,10 +252,10 @@ Dim teamCode As String
     rsSchedule.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
     With rsSchedule
         For i = 1 To rs!groups
-            For J = 1 To groupSize
+            For j = 1 To groupSize
                 .AddNew
-                !tournamentID = thisTournament
-                teamCode = Chr(i + 64) & Format(J, "0")
+                !TournamentId = thisTournament
+                teamCode = Chr(i + 64) & Format(j, "0")
                 !teamCode = teamCode
                 .Update
             Next
@@ -264,30 +264,30 @@ Dim teamCode As String
         '8th finales (normally I hope), should be 16 teams
             For i = 1 To rs!groups
                 .AddNew
-                !tournamentID = thisTournament
+                !TournamentId = thisTournament
                 !teamCode = "1" & Chr(i + 64)
                 .Update
                 .AddNew
-                !tournamentID = thisTournament
+                !TournamentId = thisTournament
                 !teamCode = "2" & Chr(i + 64)
                 .Update
             Next
             'if there are 6 groups then we need to add the best 3rd places to gt to 16
             If rs!groups = 6 Then  'add best 3rd places
                 .AddNew
-                !tournamentID = thisTournament
+                !TournamentId = thisTournament
                 !teamCode = "3ABC"
                 .Update
                 .AddNew
-                !tournamentID = thisTournament
+                !TournamentId = thisTournament
                 !teamCode = "3ABCD"
                 .Update
                 .AddNew
-                !tournamentID = thisTournament
+                !TournamentId = thisTournament
                 !teamCode = "3DEF"
                 .Update
                 .AddNew
-                !tournamentID = thisTournament
+                !TournamentId = thisTournament
                 !teamCode = "3ADEF"
                 .Update
             End If
@@ -295,13 +295,13 @@ Dim teamCode As String
         'other finals just the W(inner) of the matchnumber
         For i = matches + 1 To matches + 15
             .AddNew
-            !tournamentID = thisTournament
+            !TournamentId = thisTournament
             !teamCode = "W" & Format(i, "00")
             .Update
         Next
         If getTournamentInfo("tournamentThirdPlace", cn) Then 'add match for third place
             .AddNew
-            !tournamentID = thisTournament
+            !TournamentId = thisTournament
             !teamCode = "V" & Format(matches + 14, "00")
             .Update
         End If
@@ -515,3 +515,81 @@ Function convertTournamentScheduleTable()
         Set cn = Nothing
     End If
 End Function
+
+Function getMatchCount(cn As ADODB.Connection, Optional TournamentId As Long)
+  'return number of matches for current tournament or given tournamentID
+  Dim sqlstr As String
+  Dim rs As ADODB.Recordset
+  If Not TournamentId Then TournamentId = thisTournament
+  Set rs = New ADODB.Recordset
+  sqlstr = "Select COUNT(*) as recAant from tblTournamentSchedule "
+  sqlstr = sqlstr & "WHERE tournamentID = " & TournamentId
+  rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+  If Not rs.EOF Then
+    getMatchCount = rs!recAant
+  Else
+    getMatchCount = 0
+  End If
+  rs.Close
+  Set rs = Nothing
+End Function
+
+Function getLastMatchPlayed(cn As ADODB.Connection)
+'return the matchOrder number of the last match played
+'!!!!!!!!!!!!!!  DO NOT Use MatchNUMBER becasue it can be different then the order of play
+Dim sqlstr As String
+Dim rs As ADODB.Recordset
+  Set rs = New ADODB.Recordset
+  sqlstr = "Select matchOrder from tblTournamentSchedule where tournamentId = " & thisTournament
+  sqlstr = sqlstr & " AND matchPlayed = True Order by matchOrder"
+  rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+  If Not rs.EOF Then
+    rs.MoveLast
+    getLastMatchPlayed = rs!matchOrder
+  Else
+    getLastMatchPlayed = 0
+  End If
+  rs.Close
+  Set rs = Nothing
+End Function
+
+Function getAllMatchesPlayedOnDay(thisDay As Date, cn As ADODB.Connection) As Boolean
+'returns true if all the matches on date thisDay have a final result
+Dim sqlstr As String
+Dim rs As ADODB.Recordset
+Dim matchesToPlay As Integer
+  Set rs = New ADODB.Recordset
+  sqlstr = "Select count(matchDate) as NumberOfMatches from tblTournamentSchedule where tournamentId = " & thisTournament
+  sqlstr = sqlstr & " AND cdbl(matchDate) = " & CDbl(thisDay)
+  rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+  matchesToPlay = rs!NumberofMatches
+  
+  rs.Close
+  sqlstr = sqlstr & " AND matchPlayed = true"
+  rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+  If matchesToPlay > 0 Then
+    getAllMatchesPlayedOnDay = rs!NumberofMatches = matchesToPlay
+  Else
+    getAllMatchesPlayedOnDay = False
+  End If
+
+  rs.Close
+  Set rs = Nothing
+
+End Function
+
+Function getCount(strSQL As String, cn As ADODB.Connection)
+  'return number of records in fromTbl
+  Dim rs As ADODB.Recordset
+  Set rs = New ADODB.Recordset
+  rs.Open strSQL, cn, adOpenKeyset, adLockReadOnly
+  If Not rs.EOF Then
+    rs.MoveLast
+    getCount = rs.RecordCount
+  Else
+    getCount = 0
+  End If
+  rs.Close
+  Set rs = Nothing
+End Function
+

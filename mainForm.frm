@@ -156,7 +156,6 @@ Begin VB.Form mainForm
       End
       Begin VB.Menu mnuPrint 
          Caption         =   "Af&drukken"
-         Enabled         =   0   'False
       End
       Begin VB.Menu mnuExitApp 
          Caption         =   "&Afsluiten"
@@ -523,6 +522,10 @@ End Sub
 
 Private Sub mnuPoolSettings_Click()
     poolPointsForm.Show 1
+End Sub
+
+Private Sub mnuPrint_Click()
+  frmPrintDialog.Show 1
 End Sub
 
 Private Sub mnuStartOver_Click()
