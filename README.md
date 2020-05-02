@@ -55,8 +55,8 @@ Het principe is dat elke juist ingevulde voorspelling telt.
 Er zijn voorspellingen waarvan nog niet bekend is welke ploegen daar spelen, maar daarvoor kun je al bijvoorbeeld wel de juiste uitslag invullen,. ook al zijn er hele andere ploegen ingevuld.
 
 ## Installatie
-Kopieer de bestanden vbp2.exe en vbpSetup.mdb naar een lege map/directory.
-Start vbpool20 door erop te dubbelklikken.
+Kopieer uit de map `compiled` de bestanden `vbp2.exe` en `vbpSetup.mdb` naar een lege map/directory.
+Start **vbp2** door erop te dubbelklikken.
 Je kunt het programma ook opstarten vanuit een commando-venster.
 
 Bij de eerste opstart wordt er een kopie gemaakt van de vbpoolSetup.mdb database. Daarna wordt de gebruiker gevrqagd de gegevens van de organisator in te vullen. 
