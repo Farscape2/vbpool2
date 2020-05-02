@@ -3573,6 +3573,7 @@ Dim savOrient As Integer
             End If
         End If
         Printer.FontTransparent = True
+        If Me.upDnCopies = 0 Then Me.upDnCopies = 1
         Printer.copies = Me.upDnCopies.value
         'afdrRatio = 1
     Else

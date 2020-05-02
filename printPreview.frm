@@ -229,7 +229,7 @@ Private Sub btnPrint_Click()
 End Sub
 
 Private Sub cmbPrev_Click()
-    zoomFactor = val(Me.Combo1) / 100
+    zoomFactor = val(Me.cmbZoom) / 100
     If currentPage > 0 Then
         currentPage = currentPage - 1
         Me.pageContent.Cls
@@ -303,7 +303,7 @@ End Function
 
 
 Private Sub cmbZoom_Click()
-    zoomFactor = val(Me.Combo1) / 100 '* 100
+    zoomFactor = val(Me.cmbZoom) / 100 '* 100
     Me.picHolder.AutoRedraw = True
     Me.picHolder.Move Me.picHolder.Left, Me.picHolder.Top, Printer.Width * zoomFactor, Printer.Height * zoomFactor
     Me.pageContent.Cls
