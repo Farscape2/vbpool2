@@ -5,16 +5,16 @@ Begin VB.Form printPreview
    ClientHeight    =   10950
    ClientLeft      =   60
    ClientTop       =   1005
-   ClientWidth     =   9120
+   ClientWidth     =   10860
    FillColor       =   &H000000FF&
    HelpContextID   =   460
    LinkTopic       =   "Form1"
    ScaleHeight     =   10950
-   ScaleWidth      =   9120
+   ScaleWidth      =   10860
    Begin VB.PictureBox vscrlHolder 
       Align           =   4  'Align Right
       Height          =   10140
-      Left            =   8835
+      Left            =   10575
       Negotiate       =   -1  'True
       ScaleHeight     =   10080
       ScaleWidth      =   225
@@ -37,10 +37,10 @@ Begin VB.Form printPreview
       Left            =   0
       Negotiate       =   -1  'True
       ScaleHeight     =   300
-      ScaleWidth      =   9060
+      ScaleWidth      =   10800
       TabIndex        =   3
       Top             =   10590
-      Width           =   9120
+      Width           =   10860
       Begin VB.HScrollBar HScroll1 
          Height          =   285
          LargeChange     =   5000
@@ -57,10 +57,10 @@ Begin VB.Form printPreview
       Left            =   0
       Negotiate       =   -1  'True
       ScaleHeight     =   390
-      ScaleWidth      =   9060
+      ScaleWidth      =   10800
       TabIndex        =   0
       Top             =   0
-      Width           =   9120
+      Width           =   10860
       Begin VB.ComboBox cmbZoom 
          Height          =   315
          Left            =   840
@@ -155,11 +155,11 @@ Begin VB.Form printPreview
             Strikethrough   =   0   'False
          EndProperty
          Height          =   9270
-         Left            =   195
+         Left            =   120
          ScaleHeight     =   9270
          ScaleWidth      =   7905
          TabIndex        =   12
-         Top             =   75
+         Top             =   120
          Width           =   7905
       End
       Begin VB.PictureBox printPages 
@@ -180,10 +180,10 @@ Begin VB.Form printPreview
             Strikethrough   =   0   'False
          EndProperty
          ForeColor       =   &H80000008&
-         Height          =   5520
+         Height          =   9600
          Index           =   0
          Left            =   105
-         ScaleHeight     =   5520
+         ScaleHeight     =   9600
          ScaleLeft       =   -283
          ScaleMode       =   0  'User
          ScaleTop        =   -283
@@ -216,7 +216,7 @@ Private Sub btnNext_Click()
             Me.pageContent.PaintPicture .Image, 0, 0, .Width * zoomFactor, .Height * zoomFactor
             Me.pageContent.Refresh
         End With
-        'Me.printPages(currentPage).ZOrder
+        Me.printPages(currentPage).ZOrder
     End If
     Me.btnPrev.Enabled = currentPage > 0
     Me.btnNext.Enabled = currentPage < Me.printPages.UBound
@@ -292,7 +292,7 @@ Private Function ScalePicPreviewToPrinter(picPreview As PictureBox) As Double
     ' There are many that you could add here:
     picPreview.Container.Scale (0, 0)-(PgWidth, PgHeight)
     picPreview.Font.Name = Printer.Font.Name
-    picPreview.FontSize = Printer.FontSize * Ratio
+    picPreview.fontSize = Printer.fontSize * Ratio
     picPreview.ForeColor = Printer.ForeColor
     picPreview.FillStyle = vbTransparent
     picPreview.Cls
@@ -321,17 +321,15 @@ Private Sub Form_Load()
     Dim scm As Double
     Dim i As Integer
     
-    Me.Font.Size = Printer.FontSize
+    Me.Font.Size = Printer.fontSize
     Me.Font.Name = Printer.Font.Name
     scm = Me.TextHeight("w") / Printer.TextHeight("w")
-    prtWidth = Printer.Width * scm
-    prtHeight = Printer.Height * scm
+    prtWidth = Printer.Width / scm
+    prtHeight = Printer.Height / scm
     'eerst op 100 % zetten
     Me.printPages(0).Container.Height = prtHeight
     Me.printPages(0).Container.Width = prtWidth - 10
     printRatio = ScalePicPreviewToPrinter(Me.printPages(0))
-    Me.VScroll1.Max = prtHeight
-    Me.HScroll1.Max = prtWidth
     Me.btnPrev.Enabled = False
     currentPage = 0
     For i = 25 To 200 Step 25
@@ -342,9 +340,19 @@ Private Sub Form_Load()
         Me.pageContent.Move .Left, .Top, .Width, .Height
         Me.pageContent.PaintPicture .Image, 0, 0, .Width, .Height
     End With
-    'Me.printPages(0).ScaleHeight = Printer.ScaleHeight * printRatio
-    'Me.printPages(0).ScaleWidth = Printer.ScaleWidth * printRatio
+    Me.Width = Me.pageHolder.Width + 1000
+    Me.Height = Screen.Height - 1500
+    Me.VScroll1.Max = Me.pageHolder.Height - Me.ScaleHeight
+    If Me.ScaleWidth > Me.pageHolder.Width Then
+      Me.HScroll1.Max = 0
+    Else
+      Me.HScroll1.Max = Me.pageHolder.Width - Me.ScaleWidth
+    End If
+    cmbZoom_Click
+    centerForm Me
     Me.Visible = True
+    
+    
 End Sub
 
 Private Sub Form_Resize()
@@ -353,8 +361,6 @@ Dim i As Integer
     Me.HScroll1.Width = Me.hscrlHolder.Width - Me.vscrlHolder.Width
     Me.pageHolder.Left = 100
     Me.pageHolder.Top = 100 + Me.picButtons.Height
-    'Me.pageHolder.Width = Me.HScroll1.Width - 100
-    'Me.pageHolder.Height = Me.vscrlHolder.Height - 100
     For i = 0 To Me.printPages.UBound - 1
     Me.printPages(i).Left = Me.HScroll1 * -1 - Me.printPages(0).ScaleLeft
     Me.printPages(i).Top = Me.VScroll1 * -1 + 450
@@ -364,6 +370,11 @@ Dim i As Integer
     Me.printPages(i).ScaleLeft = Printer.ScaleLeft - 240 '(Printer.Width - Printer.ScaleWidth) / -2
     Next
     Me.btnNext.Enabled = Me.printPages.UBound > 0
+    If Me.ScaleWidth > Me.pageHolder.Width Then
+      Me.HScroll1.Max = 0
+    Else
+      Me.HScroll1.Max = Me.pageHolder.Width - Me.ScaleWidth
+    End If
 
 End Sub
 
