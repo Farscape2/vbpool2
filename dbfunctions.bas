@@ -593,3 +593,21 @@ Function getCount(strSQL As String, cn As ADODB.Connection)
   Set rs = Nothing
 End Function
 
+Function getPoolPoints(decription As String, cn As ADODB.Connection)
+Dim sqlstr As String
+Dim rs As ADODB.Recordset
+  Set rs = New ADODB.Recordset
+  sqlstr = "Select pointPointsAward from tblPoolpoints "
+  sqlstr = sqlstr & " WHERE poolid = " & thisPool
+  sqlstr = sqlstr & " AND pointTypeID IN ("
+  sqlstr = sqlstr & "Select pointTypeID from tblPointtypes WHERE "
+  sqlstr = sqlstr & "pointTypeDescription = '" & decription & "')"
+  rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+  If Not rs.EOF Then
+    getPoolPoints = rs!pointpointsAward
+  Else
+    getPoolPoints = 0
+  End If
+  rs.Close
+  Set rs = Nothing
+End Function

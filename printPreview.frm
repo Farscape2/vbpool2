@@ -66,7 +66,7 @@ Begin VB.Form printPreview
          Left            =   840
          TabIndex        =   10
          Text            =   "100%"
-         Top             =   0
+         Top             =   45
          Width           =   1335
       End
       Begin VB.CommandButton btnPrint 
@@ -86,7 +86,7 @@ Begin VB.Form printPreview
          Top             =   30
          Width           =   1080
       End
-      Begin VB.CommandButton brnNext 
+      Begin VB.CommandButton btnNext 
          Caption         =   "Volgende>"
          BeginProperty Font 
             Name            =   "Tahoma"
@@ -103,7 +103,7 @@ Begin VB.Form printPreview
          Top             =   30
          Width           =   1080
       End
-      Begin VB.CommandButton cmbPrev 
+      Begin VB.CommandButton btnPrev 
          Caption         =   "< Vorige"
          BeginProperty Font 
             Name            =   "Tahoma"
@@ -123,13 +123,13 @@ Begin VB.Form printPreview
       Begin VB.Label Label1 
          Caption         =   "Zoom"
          Height          =   285
-         Left            =   105
+         Left            =   225
          TabIndex        =   11
-         Top             =   75
-         Width           =   615
+         Top             =   60
+         Width           =   495
       End
    End
-   Begin VB.PictureBox picHolder 
+   Begin VB.PictureBox pageHolder 
       BackColor       =   &H00FFFFFF&
       FillStyle       =   0  'Solid
       Height          =   9930
@@ -204,9 +204,9 @@ Option Explicit
 
 Dim currentPage As Integer
 Dim printRatio As Double
-Dim zoomFactor As Double 'zoom zoomFactor
+Dim zoomFactor As Double 'zoom factor
 
-Private Sub brnNext_Click()
+Private Sub btnNext_Click()
     zoomFactor = val(Me.cmbZoom) / 100
     If currentPage < Me.printPages.UBound Then
         currentPage = currentPage + 1
@@ -218,17 +218,17 @@ Private Sub brnNext_Click()
         End With
         'Me.printPages(currentPage).ZOrder
     End If
-    Me.cmbPrev.Enabled = currentPage > 0
-    Me.brnNext.Enabled = currentPage < Me.printPages.UBound
+    Me.btnPrev.Enabled = currentPage > 0
+    Me.btnNext.Enabled = currentPage < Me.printPages.UBound
 End Sub
 
 Private Sub btnPrint_Click()
-    With frmPrinting
+    With frmPrintDialog
         .btnPrint_Click 0
     End With
 End Sub
 
-Private Sub cmbPrev_Click()
+Private Sub btnPrev_Click()
     zoomFactor = val(Me.cmbZoom) / 100
     If currentPage > 0 Then
         currentPage = currentPage - 1
@@ -240,8 +240,8 @@ Private Sub cmbPrev_Click()
         End With
         'Me.printPages(currentPage).ZOrder
     End If
-    Me.cmbPrev.Enabled = currentPage > 0
-    Me.brnNext.Enabled = currentPage < Me.printPages.UBound
+    Me.btnPrev.Enabled = currentPage > 0
+    Me.btnNext.Enabled = currentPage < Me.printPages.UBound
 End Sub
 
 Private Function ScalePicPreviewToPrinter(picPreview As PictureBox) As Double
@@ -304,8 +304,8 @@ End Function
 
 Private Sub cmbZoom_Click()
     zoomFactor = val(Me.cmbZoom) / 100 '* 100
-    Me.picHolder.AutoRedraw = True
-    Me.picHolder.Move Me.picHolder.Left, Me.picHolder.Top, Printer.Width * zoomFactor, Printer.Height * zoomFactor
+    Me.pageHolder.AutoRedraw = True
+    Me.pageHolder.Move Me.pageHolder.Left, Me.pageHolder.Top, Printer.Width * zoomFactor, Printer.Height * zoomFactor
     Me.pageContent.Cls
     DoEvents
     With Me.printPages(currentPage)
@@ -319,7 +319,6 @@ Private Sub Form_Load()
     Dim prtWidth As Integer
     Dim prtHeight As Integer
     Dim scm As Double
-    Dim afdrratio
     Dim i As Integer
     
     Me.Font.Size = Printer.FontSize
@@ -330,10 +329,10 @@ Private Sub Form_Load()
     'eerst op 100 % zetten
     Me.printPages(0).Container.Height = prtHeight
     Me.printPages(0).Container.Width = prtWidth - 10
-    afdrratio = ScalePicPreviewToPrinter(Me.printPages(0))
+    printRatio = ScalePicPreviewToPrinter(Me.printPages(0))
     Me.VScroll1.Max = prtHeight
     Me.HScroll1.Max = prtWidth
-    Me.cmbPrev.Enabled = False
+    Me.btnPrev.Enabled = False
     currentPage = 0
     For i = 25 To 200 Step 25
         Me.cmbZoom.AddItem i & "%"
@@ -352,10 +351,10 @@ Private Sub Form_Resize()
 Dim i As Integer
     Me.VScroll1.Height = Me.vscrlHolder.Height
     Me.HScroll1.Width = Me.hscrlHolder.Width - Me.vscrlHolder.Width
-    Me.picHolder.Left = 100
-    Me.picHolder.Top = 100 + Me.picButtons.Height
-    'Me.picHolder.Width = Me.HScroll1.Width - 100
-    'Me.picHolder.Height = Me.vscrlHolder.Height - 100
+    Me.pageHolder.Left = 100
+    Me.pageHolder.Top = 100 + Me.picButtons.Height
+    'Me.pageHolder.Width = Me.HScroll1.Width - 100
+    'Me.pageHolder.Height = Me.vscrlHolder.Height - 100
     For i = 0 To Me.printPages.UBound - 1
     Me.printPages(i).Left = Me.HScroll1 * -1 - Me.printPages(0).ScaleLeft
     Me.printPages(i).Top = Me.VScroll1 * -1 + 450
@@ -364,7 +363,7 @@ Dim i As Integer
     Me.printPages(i).ScaleTop = Printer.ScaleTop - 240 '(Printer.Height - Printer.ScaleHeight) / -2
     Me.printPages(i).ScaleLeft = Printer.ScaleLeft - 240 '(Printer.Width - Printer.ScaleWidth) / -2
     Next
-    Me.brnNext.Enabled = Me.printPages.UBound > 0
+    Me.btnNext.Enabled = Me.printPages.UBound > 0
 
 End Sub
 
@@ -373,11 +372,11 @@ Private Sub Form_Unload(Cancel As Integer)
 End Sub
 
 Private Sub HScroll1_Change()
-    Me.picHolder.Left = Me.HScroll1 * -1 + 450
+    Me.pageHolder.Left = Me.HScroll1 * -1 + 450
 End Sub
 
 Private Sub VScroll1_Change()
-    Me.picHolder.Top = Me.VScroll1 * -1 + 450
+    Me.pageHolder.Top = Me.VScroll1 * -1 + 450
 End Sub
 
 
