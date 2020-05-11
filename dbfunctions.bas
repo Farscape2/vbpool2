@@ -171,7 +171,7 @@ err_supportsTransactions:
     Case adErrItemNotFound:
         supportsTransactions = False
     Case Else
-        MsgBox Err.Description
+        MsgBox Err.description
     End Select
 End Function
 
@@ -220,7 +220,7 @@ Dim makeSchedule As Boolean
 Dim letter As Integer
 Dim matches As Integer
 Dim groupSize  As Integer
-Dim i As Integer, j As Integer
+Dim i As Integer, J As Integer
 Dim teamCode As String
 
     Dim cn As ADODB.Connection
@@ -252,10 +252,10 @@ Dim teamCode As String
     rsSchedule.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
     With rsSchedule
         For i = 1 To rs!groups
-            For j = 1 To groupSize
+            For J = 1 To groupSize
                 .AddNew
                 !TournamentId = thisTournament
-                teamCode = Chr(i + 64) & Format(j, "0")
+                teamCode = Chr(i + 64) & Format(J, "0")
                 !teamCode = teamCode
                 .Update
             Next
@@ -593,20 +593,23 @@ Function getCount(strSQL As String, cn As ADODB.Connection)
   Set rs = Nothing
 End Function
 
-Function getPoolPoints(decription As String, cn As ADODB.Connection)
+Function getPoolPoints(description As String, cn As ADODB.Connection) As Integer()
 Dim sqlstr As String
 Dim rs As ADODB.Recordset
+Dim ret(1 To 2)  As Integer
   Set rs = New ADODB.Recordset
-  sqlstr = "Select pointPointsAward from tblPoolpoints "
+  sqlstr = "Select pointPointsAward,pointPointsMargin  from tblPoolpoints "
   sqlstr = sqlstr & " WHERE poolid = " & thisPool
   sqlstr = sqlstr & " AND pointTypeID IN ("
   sqlstr = sqlstr & "Select pointTypeID from tblPointtypes WHERE "
-  sqlstr = sqlstr & "pointTypeDescription = '" & decription & "')"
+  sqlstr = sqlstr & "pointTypeDescription = '" & description & "')"
   rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
   If Not rs.EOF Then
-    getPoolPoints = rs!pointpointsAward
+    ret(1) = rs!pointpointsAward
+    ret(2) = nz(rs!pointpointsAward, 0)
+    getPoolPoints = ret()
   Else
-    getPoolPoints = 0
+    getPoolPoints = ret()
   End If
   rs.Close
   Set rs = Nothing

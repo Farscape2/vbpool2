@@ -126,7 +126,7 @@ End Function
 
 
 Public Sub FillCombo(objComboBox As ComboBox, _
-                     strSQL As String, _
+                     strSql As String, _
                      cn As ADODB.Connection, _
                      strFieldToShow As String, _
                      Optional strFieldForItemData As String)
@@ -135,7 +135,7 @@ Public Sub FillCombo(objComboBox As ComboBox, _
     
     Dim oRS As ADODB.Recordset  'Load the data
     Set oRS = New ADODB.Recordset
-    oRS.Open strSQL, cn, adOpenForwardOnly, adLockReadOnly, adCmdText
+    oRS.Open strSql, cn, adOpenForwardOnly, adLockReadOnly, adCmdText
     If oRS.EOF Then
         MsgBox "Geen records in recordset", vbCritical + vbOKOnly, "FillCombo"
         Exit Sub
@@ -158,6 +158,40 @@ Public Sub FillCombo(objComboBox As ComboBox, _
     
     oRS.Close                 'Tidy up
     Set oRS = Nothing
+
+End Sub
+
+Sub fillList(objListBox As ListBox, _
+              strSql As String, _
+              cn As ADODB.Connection, _
+              strFieldToShow As String, _
+              Optional strFieldForItemData As String)
+
+    Dim oRS As ADODB.Recordset  'Load the data
+    Set oRS = New ADODB.Recordset
+    oRS.Open strSql, cn, adOpenForwardOnly, adLockReadOnly, adCmdText
+    If oRS.EOF Then
+        Exit Sub
+    End If
+    With objListBox          'Fill the list box
+        .Clear
+        If strFieldForItemData = "" Then
+            Do While Not oRS.EOF      '(without ItemData)
+                .AddItem oRS.Fields(strFieldToShow).value
+                oRS.MoveNext
+            Loop
+        Else
+            Do While Not oRS.EOF      '(with ItemData)
+                .AddItem oRS.Fields(strFieldToShow).value
+                .ItemData(.NewIndex) = oRS.Fields(strFieldForItemData).value
+                oRS.MoveNext
+            Loop
+        End If
+    End With
+    
+    oRS.Close                 'Tidy up
+    Set oRS = Nothing
+
 
 End Sub
 
@@ -271,7 +305,7 @@ Dim myConn As ADODB.Connection
         Exit Sub
     End If
     rsTables.MoveLast
-    thisTournament = rsTables!tournamentID
+    thisTournament = rsTables!TournamentId
     rsTables.Close
     'Use different sql in rsTablses now
     sqlstr = "SHOW TABLES in " & dbName

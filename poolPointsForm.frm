@@ -305,7 +305,7 @@ Private Sub btnClose_Click()
             msg = rows & " rijen zonder punten, zijn verwijderd"
         End If
         MsgBox msg, vbOKOnly + vbInformation, "Pool instellingen"
-        cn.CommitTrans
+        'cn.CommitTrans
     End If
     Unload Me
     Set qry = Nothing
