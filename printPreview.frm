@@ -214,6 +214,7 @@ Private Sub btnNext_Click()
         currentPage = currentPage + 1
         Me.pageContent.Cls
         With Me.printPages(currentPage)
+            .Visible = True
             Me.pageContent.Move .Left * zoomFactor, .Top * zoomFactor, .width * zoomFactor, .Height * zoomFactor
             Me.pageContent.PaintPicture .Image, 0, 0, .width * zoomFactor, .Height * zoomFactor
             Me.pageContent.Refresh
@@ -236,11 +237,12 @@ Private Sub btnPrev_Click()
         currentPage = currentPage - 1
         Me.pageContent.Cls
         With Me.printPages(currentPage)
+            .Visible = True
             Me.pageContent.Move .Left * zoomFactor, .Top * zoomFactor, .width * zoomFactor, .Height * zoomFactor
             Me.pageContent.PaintPicture .Image, 0, 0, .width * zoomFactor, .Height * zoomFactor
             Me.pageContent.Refresh
         End With
-        'Me.printPages(currentPage).ZOrder
+        Me.printPages(currentPage).ZOrder
     End If
     Me.btnPrev.Enabled = currentPage > 0
     Me.btnNext.Enabled = currentPage < Me.printPages.UBound

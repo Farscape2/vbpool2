@@ -934,7 +934,7 @@ Dim y As Integer
 Dim favYpos As Integer
 Dim favXpos As Integer
 
-Dim x As Integer
+Dim X As Integer
 
 Dim RegHeight As Integer
 Dim RenScore()
@@ -1776,25 +1776,31 @@ Sub printPoolFormMatchesInstructions()
   printObj.Print "Ruststand goed: ";
   printObj.FontBold = True
   pnt = getPoolPoints(LCase("ruststand goed"), cn)
-  printObj.Print pnt(1); "pnt, ";
+  printObj.Print pnt(1); "pnt";
   printObj.FontBold = False
-  printObj.Print "Eindstand goed: ";
+  printObj.Print ", Eindstand goed: ";
   printObj.FontBold = True
   pnt = getPoolPoints(LCase("eindstand goed"), cn)
-  printObj.Print pnt(1); "pnt, ";
+  printObj.Print pnt(1); "pnt";
   printObj.FontBold = False
-  printObj.Print "Toto goed: ";
+  printObj.Print ", Toto goed: ";
   printObj.FontBold = True
   pnt = getPoolPoints(LCase("toto goed"), cn)
-  printObj.Print pnt(1); "pnt, ";
+  printObj.Print pnt(1); "pnt";
   printObj.FontBold = False
   pnt = getPoolPoints(LCase("doelpunten op een dag"), cn)
+  printObj.Print ".";
   If pnt(1) > 0 Then
-      printObj.Print "BONUS: aantal doelpunten op één dag klopt: ";
+      printObj.FontBold = True
+      printObj.Print " BONUS";
+      printObj.FontBold = False
+      printObj.Print ": aantal doelpunten op één dag klopt: ";
       printObj.FontBold = True
       printObj.Print pnt(1); " pnt"
       printObj.FontBold = False
   End If
+  printObj.Print
+  
 
 End Sub
 
@@ -1820,112 +1826,112 @@ Sub printPoolFormMatches()
 'Dim vertLineYPos As Integer
 'Dim vertLineYPos2 As Integer
 'Dim topY As String
-'Dim savdat As Date
 'Dim vertLineEndPos As Integer
-
+Dim i As Integer, j As Integer
+Dim currentColumn As Integer
 Dim columnWidth As Integer
-Dim columnPos(6)
+Dim columnPos(6) As Integer
+Dim columnNames() As String
+Dim savYpos As Integer
+Dim savLineYpos(1) As Integer
+Dim yPos As Integer
+Dim sqlstr As String
+Dim matchDescription As String
+Dim savDate As Date  'to skip trhe same date on the form
+'print instructions
   printPoolFormMatchesInstructions
 
-
-'print table header
-    columnWidth = printObj.ScaleWidth / 2 - printObj.TextWidth("w")
-    columnPos(0) = 50 'datum
-    columnPos(1) = columnPos(0) + printObj.TextWidth("MA 30-7") + 10
-    columnPos(2) = columnPos(1) + printObj.TextWidth("00:00") + 10
-    columnPos(3) = columnPos(2) + printObj.TextWidth("A2: Zwitserland - B2:Zwitserland") + 10
-    columnPos(4) = columnPos(3) + printObj.TextWidth("123456") + 10
-    columnPos(5) = columnPos(4) + printObj.TextWidth("123456") + 10
-
-'    posDatum = 50
-'    posTijd = posDatum + printObj.TextWidth("MA 26-6") + 10
-'    posWednr = posTijd + printObj.TextWidth("00:000") + 10
-'    posWedOms = posWednr + printObj.TextWidth("199:")
-'    posRust = posWedOms + printObj.TextWidth("Nederland - Zwitserland")
-'    PosEind = posRust + printObj.TextWidth("123456")
-'    posToto = PosEind + printObj.TextWidth("123456")
-'    sqlstr = "Select * from qryweds where ksid = " & kampID
-'    sqlstr = sqlstr & " ORDER BY datum,tijd,wednum"
-'    rs.Open sqlstr, cn, adOpenStatic, adLockReadOnly
-'    If rs.RecordCount = 0 Then
-'        rs.Close
-'        Exit Sub
-'    End If
-'    fontBas = 10
-'    fontSizing fontBas + 2
-'    topY = printObj.CurrentY
-'    printObj.CurrentY = voethoog - lineHeight18
-'    ypos = printObj.CurrentY
-'    printObj.FillColor = &H808080
-'    printObj.FillStyle = vbFSSolid
-'    printObj.Line (0, ypos)-(printObj.ScaleWidth + 2 * printObj.ScaleLeft, voethoog), vbBlack, B
-'    printObj.CurrentY = ypos + 30
-'    fontSizing 16
-'    printObj.fontBold = True
-'    printObj.ForeColor = vbWhite
-'    iBKMode = SetBkMode(printObj.hdc, TRANSPARENT)
-'    centerText "UITERLIJK INLEVEREN OP " & UCase(Format(getPoolInfo("eindinschr"), "dddd d mmmm yyyy"))
-'    printObj.ForeColor = vbBlack
-'    printObj.FillStyle = vbFSTransparent
-'    printObj.fontBold = False
-'    fontSizing fontBas + 2
-'    printObj.CurrentY = topY
-'    kolom = 0
-'    printObj.FontName = textFont
-'    fontSizing 2
-'    printObj.Print
-'    fontSizing fontBas + 2
-'    printObj.CurrentY = printObj.CurrentY + 20
-'    fontSizing fontBas + 4
-'    printObj.fontBold = True
-'    printObj.Print
-'    fontSizing fontBas
-'
+'get the match records
+  sqlstr = "SELECT matchNumber, matchDate, matchTime, tc1.teamCode as tcA, tn1.teamName as tnA, tc2.teamCode as tcB, tn2.teamName as tnB"
+  sqlstr = sqlstr & " FROM (((tblTournamentSchedule ts "
+  sqlstr = sqlstr & " LEFT JOIN tblTournamentTeamCodes AS tc1 ON (ts.matchTeamA = tc1.teamCode) AND (ts.tournamentID = tc1.tournamentID)) "
+  sqlstr = sqlstr & " LEFT JOIN tblTeamNames AS tn1 ON tc1.teamID = tn1.teamNameID) "
+  sqlstr = sqlstr & " LEFT JOIN tblTournamentTeamCodes AS tc2 ON (ts.matchTeamB = tc2.teamCode) AND (ts.tournamentID = tc2.tournamentID)) "
+  sqlstr = sqlstr & " LEFT JOIN tblTeamNames AS tn2 ON tc2.teamID = tn2.teamNameID"
+  sqlstr = sqlstr & " Where ts.TournamentId = 16"
+  sqlstr = sqlstr & " ORDER BY ts.matchOrder;"
+  Set rs = New ADODB.Recordset
+  
+  rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+    
+'set column positions
+  columnWidth = printObj.ScaleWidth / 2 - printObj.TextWidth("w")
+  columnPos(0) = 50 'datum
+  columnPos(1) = columnPos(0) + printObj.TextWidth("MA 30-7") + 10 ' tijd
+  columnPos(2) = columnPos(1) + printObj.TextWidth("00:00 ") + 10  'nr
+  columnPos(3) = columnPos(2) + printObj.TextWidth("999") + 10 'wedstrijd
+  fontSizing 8
+  columnPos(4) = columnPos(3) + printObj.TextWidth("A2: Zwitserland - B2:Nederland") + 10  'rust
+  fontSizing 11
+  columnPos(5) = columnPos(4) + printObj.TextWidth("12345") + 10   'eind
+  columnPos(6) = columnPos(5) + printObj.TextWidth("12345") + 10   'toto
+  
+  columnNames = Split("Datum; tijd; nr; Wedstrijd; rust; eind; toto", ";")
+  
+  printObj.ForeColor = vbBlack
+  printObj.FillStyle = vbFSTransparent
+  printObj.FontBold = False
+  printObj.FontName = textFont
+  fontSizing 11
+    
+  savYpos = printObj.CurrentY 'save vertical position fot 2nd column
+  savLineYpos(0) = savYpos
 '    vertLineYPos = printObj.CurrentY
-'    fontSizing fontBas
-'    printObj.Line (0, vertLineYPos - 20)-(kolwidth * 2, vertLineYPos - 20)
-'    printObj.CurrentY = vertLineYPos
-'    For i = 0 To 1
-'        printObj.CurrentX = posDatum + i * kolwidth
-'        printObj.Print " Datum";
-'        printObj.CurrentX = posTijd + i * kolwidth
-'        printObj.Print " tijd";
-'        printObj.CurrentX = posWednr + i * kolwidth
-'        printObj.Print " nr";
-'        printObj.CurrentX = posWedOms + i * kolwidth
-'        printObj.Print " Wedstrijd";
-'        printObj.CurrentX = posRust + i * kolwidth
-'        printObj.Print " rust";
-'        printObj.CurrentX = PosEind + i * kolwidth
-'        printObj.Print " eind";
-'        printObj.CurrentX = posToto + i * kolwidth
-'        printObj.Print " toto";
-'    Next
-'    printObj.Print
-'    printObj.Line (0, printObj.CurrentY)-(kolwidth * 2, printObj.CurrentY), 1
-'    vertLineYPos2 = printObj.CurrentY
-'
-'    ypos = printObj.CurrentY
-'
-'    With rs
-'        .MoveLast
-'        .MoveFirst
-'
-'        Do While Not .EOF
-'            If (nz(!naam1, "")) > "" Then
-'                wedOms = !code1 & ":" & !naam1 & " - " & !code2 & ":" & !naam2
-'            Else
-'                wedOms = !code1 & " - " & !code2
-'            End If
-'
-'            printObj.CurrentY = printObj.CurrentY + 40
-'            printObj.CurrentX = posWednr + kolom * kolwidth + (posWedOms - posWednr - printObj.TextWidth(Format(!wedNum, "0"))) / 2
+  printObj.Line (0, savYpos - 20)-(columnWidth * 2, savYpos - 20), headColor
+  printObj.CurrentY = savYpos
+  For j = 0 To 1
+    For i = 0 To 6
+      printObj.CurrentX = columnPos(i) + j * columnWidth
+      printObj.Print columnNames(i);
+    Next
+  Next
+  printObj.Print
+  savYpos = printObj.CurrentY
+  printObj.Line (0, printObj.CurrentY)-(columnWidth * 2, printObj.CurrentY), headColor
+  yPos = printObj.CurrentY
+  
+  With rs
+    Do While Not .EOF
+      printObj.CurrentY = printObj.CurrentY + 80
+      'Datum
+      printObj.CurrentX = columnPos(0) + currentColumn * columnWidth
+      If savDate <> !matchdate Or printObj.CurrentY = savYpos Then
+          printObj.Print Format(!matchdate, "ddd d-M"); " ";
+          savDate = !matchdate
+      End If
+      'center the time
+      printObj.CurrentX = columnPos(1) + currentColumn * columnWidth + (columnPos(2) - columnPos(1) - printObj.TextWidth(Format(!matchtime, "HH:NN "))) / 2
+      printObj.Print Format(!matchtime, "HH:NN");
+      printObj.CurrentX = columnPos(2) + currentColumn * columnWidth + (columnPos(3) - columnPos(2) - printObj.TextWidth(Format(!matchnumber, "0"))) / 2
+      printObj.Print Format(!matchnumber, "0");
+      printObj.CurrentX = columnPos(3) + currentColumn * columnWidth
+      yPos = printObj.CurrentY
+      If nz(!tnA, "") > "" Then
+        matchDescription = !tcA & ":" & !tnA & " - " & !tcB & ":" & !tnB
+        fontSizing 9
+        printObj.CurrentY = yPos + 40
+        Do While printObj.TextWidth(matchDescription) > columnPos(4) - columnPos(3) 'still to wide, so trim it
+            matchDescription = Left(matchDescription, Len(matchDescription) - 1)
+        Loop
+      Else
+        matchDescription = !tcA & " - " & !tcB
+        fontSizing 11
+      End If
+      printObj.Print matchDescription;
+      printObj.CurrentY = yPos
+      fontSizing 11
+      printObj.Print
+      rs.MoveNext
+      If (.AbsolutePosition - 1) = Int(.RecordCount / 2 + 0.5) Then
+        currentColumn = 1
+        savLineYpos(1) = printObj.CurrentY  'end point vertical lines
+        printObj.CurrentY = savYpos
+      End If
+    Loop
+  End With
+    
 '            printObj.Print Format(!wedNum, "0");
 '            printObj.CurrentX = posDatum + kolom * kolwidth
-'            If savdat <> !datum Then
-'                printObj.Print Format(!datum, "ddd d-M"); " ";
-'                savdat = !datum
-'            End If
 '            printObj.CurrentX = posTijd + kolom * kolwidth + (posWednr - posTijd - printObj.TextWidth(Format(!tijd, "HH:NN"))) / 2
 '            printObj.Print tijdFormat(!tijd); '  , "HH:NN");
 '            printObj.CurrentX = posWedOms + kolom * kolwidth + 30
@@ -1982,6 +1988,23 @@ Dim columnPos(6)
 '    Next
 '    printObj.Line (kolwidth - 50, vertLineYPos - 10)-(kolwidth - 50, vertLineEndPos)
 '    printObj.Line (kolwidth * 2, vertLineYPos - 10)-(kolwidth * 2, vertLineEndPos)
+' PRINT FFooter
+'    fontBas = 10
+'    fontSizing fontBas + 2
+'    topY = printObj.CurrentY
+'    printObj.CurrentY = voethoog - lineHeight18
+'    ypos = printObj.CurrentY
+'    printObj.FillColor = &H808080
+'    printObj.FillStyle = vbFSSolid
+'    printObj.Line (0, ypos)-(printObj.ScaleWidth + 2 * printObj.ScaleLeft, voethoog), vbBlack, B
+'    printObj.CurrentY = ypos + 30
+'    fontSizing 16
+'    printObj.fontBold = True
+'    printObj.ForeColor = vbWhite
+'    iBKMode = SetBkMode(printObj.hdc, TRANSPARENT)
+'    centerText "UITERLIJK INLEVEREN OP " & UCase(Format(getPoolInfo("eindinschr"), "dddd d mmmm yyyy"))
+
+
 End Sub
 '
 '
