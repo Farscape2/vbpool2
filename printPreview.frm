@@ -326,13 +326,9 @@ Private Sub Form_Load()
     
     Me.Font.Size = Printer.FontSize
     Me.Font.Name = Printer.Font.Name
-'    scm = Me.TextHeight("Wq") / Printer.TextHeight("Wq")
-'    prtWidth = Printer.Width * scm
-'    prtHeight = Printer.Height * scm
-'    'eerst op 100 % zetten
-'    Me.printPages(0).Container.Height = prtHeight
-'    Me.printPages(0).Container.Width = prtWidth - 10
+    
     printRatio = ScalePicPreviewToPrinter(Me.printPages(0))
+    
     Me.btnPrev.Enabled = False
     currentPage = 0
     For i = 25 To 200 Step 25
@@ -384,7 +380,12 @@ Dim i As Integer
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
-    frmPrintDialog.Visible = True
+Dim i As Integer
+  For i = Me.printPages.Count - 1 To 1 Step -1
+    Unload Me.printPages(i)
+    'Set Me.printPages(i) = Nothing
+  Next
+  frmPrintDialog.Visible = True
 End Sub
 
 Private Sub HScroll1_Change()
