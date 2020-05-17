@@ -244,7 +244,7 @@ End Sub
 
 Sub fillPointsGrid()
 Dim sqlstr As String
-Dim i As Integer, j As Integer
+Dim i As Integer, J As Integer
   Set rs = New ADODB.Recordset
   sqlstr = "Select a.pointTypeID as id, a.poolID as poolId, pointTypeDescription as Omschrijving,"
   sqlstr = sqlstr & "pointPointsAward as Punten,"
@@ -263,13 +263,13 @@ Dim i As Integer, j As Integer
     .cols = rs.Fields.Count
     .rows = rs.RecordCount + 1
     i = 0
-    For j = 0 To rs.Fields.Count - 1
-      .TextMatrix(i, j) = rs.Fields(j).Name
+    For J = 0 To rs.Fields.Count - 1
+      .TextMatrix(i, J) = rs.Fields(J).Name
     Next
     Do While Not rs.EOF
       i = i + 1
-      For j = 0 To rs.Fields.Count - 1
-        .TextMatrix(i, j) = rs.Fields(j).value
+      For J = 0 To rs.Fields.Count - 1
+        .TextMatrix(i, J) = rs.Fields(J).value
       Next
       rs.MoveNext
     Loop
@@ -290,11 +290,6 @@ Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
     If (cn.State And adStateOpen) = adStateOpen Then cn.Close
     Set cn = Nothing
 End Sub
-
-Private Sub grdPoolPunten_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
-    If cmbGridSelect Then Exit Sub
-    Me.cmbPointTypes = grdPoolPunten.Columns(2)
- End Sub
 
 Private Sub grdPoolpoints_RowColChange()
 Dim id As Integer, i As Integer

@@ -500,7 +500,7 @@ Private Sub mnuFileOpen_Click()
 End Sub
 
 Private Sub mnuMatchOverview_Click()
-    matchlistForm.Show 1
+    frmMatches.Show 1
 End Sub
 
 Private Sub mnuNewPool_Click()
