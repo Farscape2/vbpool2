@@ -144,7 +144,6 @@ Begin VB.Form mainForm
       End
       Begin VB.Menu mnuNewPool 
          Caption         =   "&Nieuwe Pool"
-         Enabled         =   0   'False
       End
       Begin VB.Menu mnuNewTournament 
          Caption         =   "Nieuw &Toernooi"
@@ -326,7 +325,7 @@ Private Sub Form_Load()
     End With
     'set Form defaults
     'size form half the screen size
-    Me.Width = Screen.Width / 2
+    Me.width = Screen.width / 2
     Me.Height = Screen.Height / 2
     write2Log "Main form opened", True
     
@@ -409,56 +408,56 @@ Private Sub Form_Resize()
 'middle line
 Dim windowW As Integer 'window width
 Dim windowH As Integer 'window height
-    If Me.Width < 12000 Then Me.Width = 12000
+    If Me.width < 12000 Then Me.width = 12000
     If Me.Height < 7600 Then Me.Height = 7600
     windowH = Me.ScaleHeight
     windowW = Me.ScaleWidth
     With Me.Line1
         .X1 = windowW / 2
         .Y1 = 0
-        .X2 = .X1
+        .x2 = .X1
         .Y2 = windowH
     End With
     With Me.Shape1(0)
         .Height = windowH / 2
-        .Width = .Height / 2.2
+        .width = .Height / 2.2
         .Top = (windowH / 2) - (.Height / 2)
         .Left = -10
     End With
     With Me.Shape1(1)
         .Height = Me.Shape1(0).Height
-        .Width = Me.Shape1(0).Width
+        .width = Me.Shape1(0).width
         .Top = Me.Shape1(0).Top
-        .Left = windowW - .Width + 10
+        .Left = windowW - .width + 10
     End With
     With Me.Shape2
         .Height = windowH / 3
-        .Width = .Height
-        .Left = (windowW / 2) - (.Width / 2)
+        .width = .Height
+        .Left = (windowW / 2) - (.width / 2)
         .Top = (windowH / 2) - (.Height / 2)
     End With
     With Me.lblStartTitle
-        .Width = windowW
+        .width = windowW
         .Top = 250
         .Left = 0
     End With
     With Me.lblPoolName
-        .Width = windowW - Me.Shape1(0).Width * 2 - 30
-        .Left = Me.Shape1(0).Width + 20
+        .width = windowW - Me.Shape1(0).width * 2 - 30
+        .Left = Me.Shape1(0).width + 20
         .Top = (windowH / 2) - (.Height / 2)
     End With
     With Me.lblCopyright
-        .Left = windowW - .Width - 120
+        .Left = windowW - .width - 120
         .Top = windowH - .Height - 60
     End With
     With Me.lblStartText
-        .Left = Me.Shape1(0).Width
-        .Width = Me.lblPoolName.Width
+        .Left = Me.Shape1(0).width
+        .width = Me.lblPoolName.width
         .Top = (windowH / 2) - (.Height / 2)
     End With
     With Me.btnOk
         .Top = Me.lblStartText.Top + Me.lblStartText.Height + 20
-        .Left = Me.Shape1(1).Left - .Width
+        .Left = Me.Shape1(1).Left - .width
     End With
 End Sub
 
@@ -521,7 +520,7 @@ Private Sub mnuPoolBasicData_Click()
 End Sub
 
 Private Sub mnuPoolSettings_Click()
-    poolPointsForm.Show 1
+    frmPoolPoints.Show 1
 End Sub
 
 Private Sub mnuPrint_Click()
@@ -530,7 +529,7 @@ End Sub
 
 Private Sub mnuStartOver_Click()
     Dim msg As String
-    msg = "Hiermee kun je de gegevens van het huidige toernooi (opnieuw) inlezen."
+    msg = "Hiermee kun je de gegevens van een toernooi (opnieuw) inlezen."
     msg = msg & vbNewLine & "Alle door jou toegevoegde gegevens blijven onveranderd."
     msg = msg & vbNewLine & "Zorg dat je een werkende internet verbinding hebt,"
     msg = msg & vbNewLine & "anders kan het niet"
@@ -546,7 +545,7 @@ Private Sub mnuTournamentData_Click()
 End Sub
 
 Private Sub mnuTournamentSchedule_Click()
-      matchlistForm.Show 1
+      frmMatches.Show 1
 End Sub
 
 Private Sub mnuTournamentTeams_Click()

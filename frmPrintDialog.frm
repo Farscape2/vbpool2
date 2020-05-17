@@ -1135,7 +1135,7 @@ Dim lineXPos As Integer
     printObj.FontBold = False
     printObj.CurrentY = topY
     fontSizing 18
-    printObj.Line (0, topY - 50)-(printObj.ScaleWidth + 2 * printObj.ScaleLeft - 20, topY + printObj.TextHeight("WW") * 2 + 250), , B
+    printObj.Line (0, topY - 50)-(printObj.ScaleWidth + 2 * printObj.ScaleLeft - 20, topY + printObj.TextHeight("WW") * 2 + 250), lineColor, B
     printObj.Print
     xPos = xPos + 200
     'dotted line
@@ -1164,7 +1164,7 @@ Dim lineXPos As Integer
     xPos = printObj.CurrentX
     yPos = printObj.CurrentY
     printObj.DrawWidth = 3
-    printObj.Line (xPos, yPos)-(xPos + printObj.TextWidth("W"), yPos + printObj.TextHeight("W")), , B
+    printObj.Line (xPos, yPos)-(xPos + printObj.TextWidth("W"), yPos + printObj.TextHeight("W")), lineColor, B
     lineXPos = lineXPos + printObj.TextWidth("W")
     printObj.DrawWidth = 1
     printObj.CurrentY = yPos
@@ -1362,12 +1362,12 @@ Sub printPoolFormTopScorers(xPos As Integer, yPos As Integer, headerWidth As Int
       printObj.Print "(" & Format(points(i), "0") & "p)";
       fontSizing 18
       yPos2 = yPos + printObj.TextHeight("99")
-      printObj.Line (xPos, yPos)-(xPos2 + 50, yPos2), , B
+      printObj.Line (xPos, yPos)-(xPos2 + 50, yPos2), lineColor, B
       printObj.CurrentY = yPos + 70
-      printObj.CurrentX = xPos + headerWidth - TextWidth("(000)")
+      printObj.CurrentX = xPos + headerWidth - TextWidth("(0000)")
       fontSizing 12
       printObj.Print "(" & Format(points(i + 1), "0") & "p)";
-      printObj.Line (xPos2 + 50, yPos)-(xPos + headerWidth, yPos2), , B
+      printObj.Line (xPos2 + 50, yPos)-(xPos + headerWidth, yPos2), lineColor, B
     End If
   Next
 End Sub
@@ -1425,23 +1425,24 @@ Sub printPoolFormBottomBlock(xPos As Integer, yPos As Integer)
   'Champions and runners up
   headerWidth = printObj.ScaleWidth / 4
   printSectionHeader xPos + 50, yPos, headerWidth, "Eindstand"
+  printObj.FillStyle = vbFSTransparent
   For i = 0 To 3
     pnts = getPoolPoints(Format(i + 1, "0") & "e plaats", cn)
     points(i) = pnts(1)
-    printObj.CurrentY = printObj.CurrentY + 50
+    'printObj.CurrentY = printObj.CurrentY + 50
     If points(i) > 0 Then
       yPos = printObj.CurrentY
-      printObj.CurrentX = xPos + 60
-      fontSizing 14
-      printObj.Print Format(i + 1, "0") & "e:";
+      printObj.CurrentY = yPos + 50
+      printObj.CurrentX = xPos + 70
       fontSizing 12
+      printObj.Print Format(i + 1, "0") & "e:";
       printObj.CurrentX = headerWidth - printObj.TextWidth("(50p)")
       printObj.Print "(" & Format(points(i), "0") & "p)"
-      printObj.FillStyle = vbFSTransparent
       fontSizing 18
       xPos2 = xPos + 50 + headerWidth
-      yPos2 = yPos + printObj.TextHeight("00")
-      printObj.Line (xPos + 50, yPos - 70)-(xPos2, yPos2), , B
+      yPos2 = yPos + printObj.TextHeight("99")
+      printObj.Line (xPos + 50, yPos)-(xPos2, yPos2), lineColor, B
+      printObj.CurrentY = yPos2
     End If
   Next
   
@@ -1462,7 +1463,7 @@ Sub printPoolFormBottomBlock(xPos As Integer, yPos As Integer)
   printObj.FillStyle = vbFSTransparent
   xPos2 = printObj.ScaleWidth - 30
   yPos2 = printObj.CurrentY + 50
-  printObj.Line (xPos, yPos)-(xPos2, yPos2), , B
+  printObj.Line (xPos, yPos)-(xPos2, yPos2), lineColor, B
 End Sub
 
 Sub printPoolFormNumberCounts(xPos As Integer, yPos As Integer, headerWidth As Integer)
@@ -1497,8 +1498,8 @@ Sub printPoolFormNumberCounts(xPos As Integer, yPos As Integer, headerWidth As I
     fontSizing 18
     yPos2 = yPos + printObj.TextHeight("AA")
     xPos2 = xPos + headerWidth
-    printObj.Line (xPos, yPos)-(xPos2, yPos2), , B
-    printObj.CurrentY = yPos2 + 10
+    printObj.Line (xPos, yPos)-(xPos2, yPos2), lineColor, B
+    printObj.CurrentY = yPos2
     rs.MoveNext
   Loop
   pointsLinePos = pointsLinePos + xPos + 150
@@ -1722,6 +1723,8 @@ sqlstr = sqlstr & " INNER JOIN tblTournamentTeamCodes c ON (l.teamId = c.teamId)
 sqlstr = sqlstr & " AND (l.tournamentID = c.tournamentId))"
 sqlstr = sqlstr & " INNER JOIN tblTeamNames n on n.teamNameId = c.teamid "
 sqlstr = sqlstr & " WHERE l.groupLetter = '" & Chr(64 + nr) & "'"
+sqlstr = sqlstr & " AND left(c.teamCode,1) = '" & Chr(64 + nr) & "'"
+sqlstr = sqlstr & " AND l.tournamentID = " & thisTournament
 sqlstr = sqlstr & " ORDER BY groupletter, groupPlace"
 rs.Open sqlstr, cn, adOpenStatic, adLockReadOnly
 
@@ -1733,10 +1736,10 @@ fontSizing 10
 xLinePos = (printObj.ScaleWidth / iGrp) * (nr - 1)
 xPos = xLinePos + 50
 Do While Not rs.EOF
-    squarePos(0, 0) = xPos + printObj.ScaleWidth / iGrp - printObj.TextHeight("W") - printObj.TextWidth("W")
+    squarePos(0, 0) = Int(xPos + printObj.ScaleWidth / iGrp - printObj.TextHeight("W") - printObj.TextWidth("W"))
     squarePos(0, 1) = printObj.CurrentY
-    squarePos(1, 0) = squarePos(0, 0) + printObj.TextHeight("W")
-    squarePos(1, 1) = squarePos(0, 1) + printObj.TextHeight("W")
+    squarePos(1, 0) = Int(squarePos(0, 0) + printObj.TextHeight("W"))
+    squarePos(1, 1) = Int(squarePos(0, 1) + printObj.TextHeight("W"))
 
     txt = rs!teamName
 
@@ -1814,7 +1817,7 @@ End Sub
 
 Sub printPoolFormMatches()
 ''wedstrijden op het poolformulier
-Dim i As Integer, j As Integer
+Dim i As Integer, J As Integer
 Dim x As Integer, x2 As Integer, y As Integer
 Dim currentColumn As Integer
 Dim columnWidth As Integer
@@ -1836,7 +1839,7 @@ Dim savDate As Date  'to skip trhe same date on the form
   sqlstr = sqlstr & " LEFT JOIN tblTeamNames AS tn1 ON tc1.teamID = tn1.teamNameID) "
   sqlstr = sqlstr & " LEFT JOIN tblTournamentTeamCodes AS tc2 ON (ts.matchTeamB = tc2.teamCode) AND (ts.tournamentID = tc2.tournamentID)) "
   sqlstr = sqlstr & " LEFT JOIN tblTeamNames AS tn2 ON tc2.teamID = tn2.teamNameID"
-  sqlstr = sqlstr & " Where ts.TournamentId = 16"
+  sqlstr = sqlstr & " Where ts.TournamentId = " & thisTournament
   sqlstr = sqlstr & " ORDER BY ts.matchOrder;"
   Set rs = New ADODB.Recordset
   
@@ -1865,9 +1868,9 @@ Dim savDate As Date  'to skip trhe same date on the form
   savLineYpos(0) = savYpos
 '    vertLineYPos = printObj.CurrentY
   printObj.CurrentY = savYpos
-  For j = 0 To 1
+  For J = 0 To 1
     For i = 0 To 6
-      printObj.CurrentX = columnPos(i) + j * (columnWidth + 50)
+      printObj.CurrentX = columnPos(i) + J * (columnWidth + 50)
       printObj.Print " "; columnNames(i);
     Next
   Next
@@ -1942,8 +1945,8 @@ Dim savDate As Date  'to skip trhe same date on the form
     Loop
   End With
   'vertical lines
-  For j = 0 To 1
-    x = j * (columnWidth + 50)
+  For J = 0 To 1
+    x = J * (columnWidth + 50)
     For i = 1 To 3
       printObj.Line (columnPos(i) + x, savLineYpos(0))-(columnPos(i) + x, savLineYpos(1)), lineColor
     Next
@@ -2080,7 +2083,7 @@ Private Sub printFavourites()
 'Next
 'savy = printObj.CurrentY
 'On Error Resume Next
-'printObj.Line (0, yStart)-(printObj.ScaleWidth - 50, savy), , B
+'printObj.Line (0, yStart)-(printObj.ScaleWidth - 50, savy), lineColor , B
 'On Error GoTo 0
 'maxY = savy
 ''achtste finales
@@ -2201,7 +2204,7 @@ Sub Fav_Topscorers()
 'Loop
 'rs.Close
 'Set rs = Nothing
-'printObj.Line (cols(1), savy)-(cols(5) - 50, favYpos), , B
+'printObj.Line (cols(1), savy)-(cols(5) - 50, favYpos), lineColor , B
 '
 End Sub
 '
@@ -2376,22 +2379,22 @@ Sub Fav_Eindstand(savy As Integer, savX2 As Integer)
 '    If getPntToek("1e plaats(Kampioen)") Then
 '        printObj.CurrentY = savy
 '        PrintEindStandFav "kampioen", cols(savX2) + 10, rs1, "kampioen"
-'        printObj.Line (cols(savX2), startY)-(cols(savX2 + 1) - 50, maxY), , B
+'        printObj.Line (cols(savX2), startY)-(cols(savX2 + 1) - 50, maxY), lineColor , B
 '    End If
 '    If getPntToek("2e plaats") Then
 '        printObj.CurrentY = savy
 '        PrintEindStandFav "2e plaats", cols(savX2 + 1) + 10, rs2, "plTwee"
-'        printObj.Line (cols(savX2 + 1), startY)-(cols(savX2 + 2) - 50, maxY), , B
+'        printObj.Line (cols(savX2 + 1), startY)-(cols(savX2 + 2) - 50, maxY), lineColor , B
 '    End If
 '    If getPntToek("3e plaats") Then
 '        printObj.CurrentY = savy
 '        PrintEindStandFav "3e plaats", printObj.ScaleWidth / 2 + 10, rs3, "pldrie"
-'        printObj.Line (cols(3), startY)-(cols(4) - 50, maxY), , B
+'        printObj.Line (cols(3), startY)-(cols(4) - 50, maxY), lineColor , B
 '    End If
 '    If getPntToek("4e plaats") Then
 '        printObj.CurrentY = savy
 '        PrintEindStandFav "4e plaats", (printObj.ScaleWidth / 4) * 3 + 10, rs4, "plvier"
-'        printObj.Line (cols(4), startY)-(cols(5) - 50, maxY), , B
+'        printObj.Line (cols(4), startY)-(cols(5) - 50, maxY), lineColor , B
 '    End If
 '    favYpos = maxY
 '    favXpos = 0
@@ -2516,11 +2519,11 @@ Sub Fav_Finals(wedtype As Integer, cols As Integer, koptxt As String, Optional b
 '            End If
 '            maxY = maxY + 50
 '            If i = 5 Then
-'                printObj.Line (col(1), startY)-(col(3) - 50, maxY), , B
-'                printObj.Line (col(3), startY)-(col(5) - 50, maxY), , B
+'                printObj.Line (col(1), startY)-(col(3) - 50, maxY), lineColor , B
+'                printObj.Line (col(3), startY)-(col(5) - 50, maxY), lineColor , B
 '            End If
 '            If posX = 1 And i = 3 Then
-'                printObj.Line (col(1), startY)-(col(3) - 50, maxY), , B
+'                printObj.Line (col(1), startY)-(col(3) - 50, maxY), lineColor , B
 '            End If
 '
 '            rs.MoveNext
@@ -2747,7 +2750,7 @@ Private Sub printParticipantPools()
 '            printObj.FontItalic = False
 '            fontSizing 10
 '            printObj.Print
-'            printObj.Line (0, wedYpos - 10)-(printObj.ScaleWidth - 10, printObj.CurrentY + 10), , B
+'            printObj.Line (0, wedYpos - 10)-(printObj.ScaleWidth - 10, printObj.CurrentY + 10), lineColor , B
 '            LineYPos = printObj.CurrentY + 10
 '            printObj.CurrentY = LineYPos
 '            fontSizing 8
@@ -2814,7 +2817,7 @@ Private Sub printParticipantPools()
 '            'groepstanden
 ''            showInfo True, "Afdrukken deelnemers", rsDeelnem!bijnaam, "Record " & rsDeelnem.AbsolutePosition + 1 & "/" & rsDeelnem.RecordCount, "Groepstanden"
 '            printObj.Line (0, newlinepos)-(printObj.ScaleWidth, newlinepos)
-'            printObj.Line (0, newlinepos)-(printObj.ScaleWidth - 10, newlinepos + printObj.TextHeight("Gr") + 10), , B
+'            printObj.Line (0, newlinepos)-(printObj.ScaleWidth - 10, newlinepos + printObj.TextHeight("Gr") + 10), lineColor , B
 '            printObj.CurrentY = newlinepos + 10
 '            printObj.CurrentX = 50
 '            printObj.fontBold = True
@@ -2847,7 +2850,7 @@ Private Sub printParticipantPools()
 '                    If newlinepos < printObj.CurrentY Then newlinepos = printObj.CurrentY
 '                Next
 '                K = K + 1
-'                printObj.Line (kolwidth * (K - 1), LineYPos)-(kolwidth * (K), newlinepos), , B
+'                printObj.Line (kolwidth * (K - 1), LineYPos)-(kolwidth * (K), newlinepos), lineColor , B
 '                printObj.CurrentX = kolwidth * K + 100
 '                printObj.CurrentY = LineYPos
 '                rsDeelnGroepen.MoveNext
@@ -3043,7 +3046,7 @@ Private Sub printParticipantPools()
 '                    printObj.Line (printObj.ScaleWidth / 5 * i, newlinepos)-(printObj.ScaleWidth / 5 * i, LineYPos)
 '                Next
 '            End If
-'            printObj.Line (0, newlinepos)-(printObj.ScaleWidth - 10, LineYPos), , B
+'            printObj.Line (0, newlinepos)-(printObj.ScaleWidth - 10, LineYPos), lineColor , B
 '            'uitslag
 '            LineYPos = printObj.CurrentY + 50
 '            LineXpos = 50
@@ -3086,7 +3089,7 @@ Private Sub printParticipantPools()
 '            If deelnPag = 1 Then
 '                oldhelft = Helft
 '            End If
-'            printObj.Line (0, LineYPos - 10)-(printObj.ScaleWidth / 8, newlinepos), , B
+'            printObj.Line (0, LineYPos - 10)-(printObj.ScaleWidth / 8, newlinepos), lineColor , B
 '            'topscorers
 '            LineXpos = printObj.ScaleWidth / 8 + 50
 '            printObj.CurrentX = LineXpos
@@ -3105,7 +3108,7 @@ Private Sub printParticipantPools()
 '            printObj.ForeColor = 1
 '            tsYpos = printObj.CurrentY
 '            kaderPos = printObj.ScaleWidth / 5 * 2
-'            printObj.Line (LineXpos, LineYPos - 10)-(kaderPos - 10, newlinepos), , B
+'            printObj.Line (LineXpos, LineYPos - 10)-(kaderPos - 10, newlinepos), lineColor , B
 '            printObj.fontBold = False
 '            printObj.CurrentY = tsYpos
 '            sqlstr = "Select * from voorspelling_ts WHERE deelnem = " & rsDeelnem!deelnemID
@@ -3131,7 +3134,7 @@ Private Sub printParticipantPools()
 '            'overige
 '            LineXpos = kaderPos + 20
 '            kaderPos = printObj.ScaleWidth - 30
-'            printObj.Line (LineXpos, LineYPos - 10)-(kaderPos, newlinepos), , B
+'            printObj.Line (LineXpos, LineYPos - 10)-(kaderPos, newlinepos), lineColor , B
 '            sqlstr = "Select * from qryDeelnVoorspAant WHERE deelnem = " & rsDeelnem!deelnemID
 '            rsDeelnOverig.Open sqlstr, cn, adOpenStatic, adLockReadOnly
 '            printObj.CurrentY = LineYPos
@@ -3160,7 +3163,7 @@ Private Sub printParticipantPools()
 '        If Not rsDeelnem.EOF Then
 '            If Me.lstCompetitorPools.Selected(rsDeelnem.AbsolutePosition - 1) Or Me.Option3 = True Then
 '                If deelnPag = AantalOpPapier - 1 Then
-'                    'printObj.Line (0, Helft + 200)-(printObj.ScaleWidth - 10, endEersteDeelnPos + 50), , B
+'                    'printObj.Line (0, Helft + 200)-(printObj.ScaleWidth - 10, endEersteDeelnPos + 50), lineColor , B
 '                    deelnPag = 0
 '                    newlinepos = 0
 '                    'Exit Do
@@ -3173,7 +3176,7 @@ Private Sub printParticipantPools()
 ''                        Debug.Print "test"
 '                    End If
 '                    printObj.Line (0, printObj.CurrentY + 50)-(printObj.ScaleWidth - 10, endEersteDeelnPos + 50)
-'                    'printObj.Line (0, TopMarg)-(printObj.ScaleWidth - 10, endEersteDeelnPos + 50), , B
+'                    'printObj.Line (0, TopMarg)-(printObj.ScaleWidth - 10, endEersteDeelnPos + 50), lineColor , B
 '                End If
 '                printObj.DrawWidth = 1
 '            End If
@@ -3539,7 +3542,7 @@ Sub prnTopScorers()
 '            rsED.Close
 '        End If
 '        rs.Close
-'        printObj.Line (0, ypos)-(printObj.ScaleWidth - 50, newYpos), , B
+'        printObj.Line (0, ypos)-(printObj.ScaleWidth - 50, newYpos), lineColor , B
 '        printObj.CurrentY = newYpos
 '        printObj.Print
 '    End If
@@ -3588,7 +3591,7 @@ Sub prAantallen(toMatch As Integer)
 '    printObj.Print
 '    printobj.FontItalic = False
 '    printObj.ForeColor = 1
-'    printObj.Line (col(0), ypos)-(col(6), printObj.CurrentY), , B
+'    printObj.Line (col(0), ypos)-(col(6), printObj.CurrentY), lineColor , B
 '
 End Sub
 '
@@ -3734,9 +3737,9 @@ Sub tnFinales()
 '        End If
 '
 '    Loop
-'    printObj.Line (col(0) - 20, topYpos)-(col(1) - 50, newYpos), , B
-'    printObj.Line (col(1) - 20, topYpos)-(col(2) - 50, newYpos), , B
-'    printObj.Line (col(2) - 20, topYpos)-(col(3) - 50, newYpos), , B
+'    printObj.Line (col(0) - 20, topYpos)-(col(1) - 50, newYpos), lineColor , B
+'    printObj.Line (col(1) - 20, topYpos)-(col(2) - 50, newYpos), lineColor , B
+'    printObj.Line (col(2) - 20, topYpos)-(col(3) - 50, newYpos), lineColor , B
 '
 '    printObj.CurrentY = newYpos
 '    printObj.Print
@@ -3830,7 +3833,7 @@ Sub tnGroepStanden()
 '            printObj.Print Format(rsGrp!voor, "0"); "-"; Format(rsGrp!tegen, "0")
 '            rsGrp.MoveNext
 '        Loop
-'        printObj.Line (col(colNu), ypos)-(col(colNu + 1) - 50, printObj.CurrentY), , B
+'        printObj.Line (col(colNu), ypos)-(col(colNu + 1) - 50, printObj.CurrentY), lineColor , B
 '        colNu = colNu + 1
 '        If colNu > 3 Then
 '            colNu = 0
@@ -3905,7 +3908,7 @@ Sub tnWeds()
 '            colNu = colNu + 1
 '        End If
 '    Loop
-'    printObj.Line (10, ypos)-(printObj.ScaleWidth - 50, newYpos), , B
+'    printObj.Line (10, ypos)-(printObj.ScaleWidth - 50, newYpos), lineColor , B
 '    printObj.Line (col(1), ypos)-(col(1), newYpos)
 '    printObj.Line (col(2), ypos)-(col(2), newYpos)
 '    printObj.Print
@@ -4116,7 +4119,7 @@ Private Sub printSkyline()
 'printObj.ForeColor = vbBlack
 'For i = 0 To toMatch - 1
 '    printObj.FillColor = colr(i)
-'    printObj.Line (xpos, oldYpos)-(xpos + deelnemPagEenPos - 20, oldYpos - printObj.TextHeight("W")), , B
+'    printObj.Line (xpos, oldYpos)-(xpos + deelnemPagEenPos - 20, oldYpos - printObj.TextHeight("W")), lineColor , B
 '    printObj.CurrentX = xpos + 40
 '    SetForeCol colr(i)
 '    printObj.Print getWedTeams(i + 1)
@@ -4154,7 +4157,7 @@ Private Sub printSkyline()
 '    For J = 0 To toMatch - 1
 '        printObj.FillColor = colr(J)
 '        pnt = Int(getDeelnPnt(GetWedNum(J + 1), rsDeeln!deelnemID, 1) * (schaal) + 0.5)
-'        printObj.Line (xpos + 10 + deelnpos * (i - 1), oldYpos)-(xpos + deelnpos * (i - 1) + deelnpos - 10, oldYpos - pnt), , B
+'        printObj.Line (xpos + 10 + deelnpos * (i - 1), oldYpos)-(xpos + deelnpos * (i - 1) + deelnpos - 10, oldYpos - pnt), lineColor , B
 '
 '        oldYpos = oldYpos - pnt
 '    Next
@@ -6089,7 +6092,7 @@ Sub printMatchPredictions(wedNum As Integer)
 '        Loop
 '        lineXend = cols(i + 1) - 100
 '        lineYend = printObj.CurrentY
-'        printObj.Line (lineXstart, lineYstart)-(lineXend, lineYend), , B
+'        printObj.Line (lineXstart, lineYstart)-(lineXend, lineYend), lineColor , B
 '        rs.MoveNext
 '        If rijnu >= rijen Then
 '            i = i + 1

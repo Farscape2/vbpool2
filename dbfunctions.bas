@@ -614,3 +614,19 @@ Dim ret(1 To 2)  As Integer
   rs.Close
   Set rs = Nothing
 End Function
+
+Function getLastPoolID(cn As ADODB.Connection)
+'get the ID of the last pool that was added
+Dim sqlstr As String
+Dim rs As ADODB.Recordset
+  sqlstr = "Select * from tblPools ORDER by poolid"
+  rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+  If Not rs.EOF Then
+    rs.MoveLast
+    getLastPoolID = rs!poolid
+  Else
+    getLastPoolID = 0
+  End If
+  rs.Close
+  Set rs = Nothing
+End Function

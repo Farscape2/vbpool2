@@ -170,27 +170,18 @@ End Sub
 
 Private Sub Form_Load()
 Dim sqlstr As String
-    
     Set myConn = New ADODB.Connection
     With myConn
-        'connect to mySql database
-        .ConnectionString = mySqlConn
-        .CursorLocation = adUseClient
-        .Open
+      .ConnectionString = mySqlConn
+      .Open
     End With
-
     Set cn = New ADODB.Connection
     With cn
-        'connetc to local db
-        .ConnectionString = lclConn
-        .Open
+      .ConnectionString = lclConn
+      .Open
     End With
-    
     'fill combobox
-    sqlstr = "Select tournamentID, "
-    sqlstr = sqlstr & " concat(tournamentYear, ' - ', tournamentType) "
-    sqlstr = sqlstr & " as tournament from tblTournaments order by tournamentYear"
-    FillCombo Me.cmbTournament, sqlstr, myConn, "tournament", "tournamentID"
+    fillCmbTournaments Me.cmbTournament, False
     
     UnifyForm Me
     centerForm Me
@@ -275,7 +266,7 @@ Dim fld As field
     Do While Not rsFrom.EOF  'loop through records
         rsTo.AddNew
         'show info on form
-        Me.shpFill.Width = rsFrom.AbsolutePosition * (Me.shpBorder.Width / rsFrom.RecordCount)
+        Me.shpFill.width = rsFrom.AbsolutePosition * (Me.shpBorder.width / rsFrom.RecordCount)
         Me.lblRecord.Caption = "Record " & rsFrom.AbsolutePosition & "/" & rsFrom.RecordCount
         DoEvents
         For Each fld In rsFrom.Fields  'loop through fields

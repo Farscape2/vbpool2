@@ -36,7 +36,7 @@ Function mySqlConn()
     
     Dim server As String
     Dim driver As String
-    Dim cnstr As String
+    Dim cnStr As String
     Dim passwd As String
     passwd = "!xjer56!"
     'server = "192.168.178.14"
@@ -133,7 +133,7 @@ Sub createDb()
         End If
         Kill newDb 'remove the old db
     End If
-    setupDb = App.Path & "\vbpoolSetup.mdb"
+    setupDb = App.Path & "\vbpSetup.mdb"
     FileCopy setupDb, newDb
 '    MsgBox "Nieuwe database is aangemaakt." & vbNewLine & "Vul de gegevens in en kies een wachtwoord", vbOKOnly + vbInformation, "Nieuwe installatie"
 ''get tournament data
@@ -389,3 +389,68 @@ Sub makeTables(cn As ADODB.Connection)
     
 End Sub
 
+Sub copyDefaultPoints()
+'copy the default points table to current pool
+Dim cnFrom As ADODB.Connection
+Dim cnTo As ADODB.Connection
+Dim cnStr As String
+Dim fileName As String
+Dim sqlstr As String
+Dim rs As ADODB.Recordset
+Dim rs2 As ADODB.Recordset
+Dim msg As String
+Dim fld As field
+  
+  Set cnTo = New ADODB.Connection
+  Set cnFrom = New ADODB.Connection
+  Set rs = New ADODB.Recordset
+  Set rs2 = New ADODB.Recordset
+  
+  fileName = App.Path & "\vbpSetup.mdb"
+  If Dir(fileName) = "" Then
+    msg = "Bestand 'vbpSetup.mdb' niet gevonden in installatie map"
+    msg = msg & vbNewLine & "Kan standaard puntentabel niet kopieëren"
+    MsgBox msg, vbOKOnly + vbCritical, "Puntentabel"
+    Exit Sub
+  End If
+  
+  cnStr = "PROVIDER='Microsoft.Jet.OLEDB.4.0';Data Source=" & fileName & ";"
+  With cnFrom
+    .ConnectionString = cnStr
+    .Open
+  End With
+  
+  With cnTo
+    .ConnectionString = lclConn
+    .Open
+    .CursorLocation = adUseClient
+  End With
+  'selete current records
+  sqlstr = "Delete from tblPoolPoints WHERE poolid = " & thisPool
+  cnTo.Execute sqlstr
+  
+  sqlstr = "Select * from tblPoolPoints"
+  rs2.Open sqlstr, cnTo, adOpenKeyset, adLockOptimistic
+  
+  sqlstr = "Select * from tblPoolPoints where poolID = 0"
+  rs.Open sqlstr, cnFrom, adOpenKeyset, adLockReadOnly
+  'copy the records
+  Do While Not rs.EOF
+    rs2.AddNew
+      For Each fld In rs.Fields
+        rs2(fld.Name) = rs(fld.Name)
+        If fld.Name = "poolid" Then rs2(fld.Name) = thisPool
+      Next
+    rs2.Update
+    rs.MoveNext
+  Loop
+  'tidy up
+  If (rs.State And adStateOpen) = adStateOpen Then rs.Close
+  Set rs = Nothing
+  If (rs2.State And adStateOpen) = adStateOpen Then rs2.Close
+  Set rs2 = Nothing
+  If (cnTo.State And adStateOpen) = adStateOpen Then cnTo.Close
+  Set cnTo = Nothing
+  If (cnFrom.State And adStateOpen) = adStateOpen Then cnFrom.Close
+  Set cnFrom = Nothing
+End Sub

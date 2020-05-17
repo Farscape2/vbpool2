@@ -96,7 +96,7 @@ Sub UnifyForm(frm As Form, Optional center As Boolean)
 End Sub
 
 Sub centerForm(frm As Object)
-   frm.Move (Screen.Width - frm.Width) / 2, (Screen.Height - frm.Height) / 2
+   frm.Move (Screen.width - frm.width) / 2, (Screen.Height - frm.Height) / 2
 End Sub
 
 Function float(strNumber As String) As String
@@ -126,16 +126,18 @@ End Function
 
 
 Public Sub FillCombo(objComboBox As ComboBox, _
-                     strSql As String, _
+                     strSQL As String, _
                      cn As ADODB.Connection, _
                      strFieldToShow As String, _
                      Optional strFieldForItemData As String)
 
 'Fills a combobox with values from a database
-    
+
+'code from VBforums
+
     Dim oRS As ADODB.Recordset  'Load the data
     Set oRS = New ADODB.Recordset
-    oRS.Open strSql, cn, adOpenForwardOnly, adLockReadOnly, adCmdText
+    oRS.Open strSQL, cn, adOpenForwardOnly, adLockReadOnly, adCmdText
     If oRS.EOF Then
         MsgBox "Geen records in recordset", vbCritical + vbOKOnly, "FillCombo"
         Exit Sub
@@ -162,14 +164,14 @@ Public Sub FillCombo(objComboBox As ComboBox, _
 End Sub
 
 Sub fillList(objListBox As ListBox, _
-              strSql As String, _
+              strSQL As String, _
               cn As ADODB.Connection, _
               strFieldToShow As String, _
               Optional strFieldForItemData As String)
 
     Dim oRS As ADODB.Recordset  'Load the data
     Set oRS = New ADODB.Recordset
-    oRS.Open strSql, cn, adOpenForwardOnly, adLockReadOnly, adCmdText
+    oRS.Open strSQL, cn, adOpenForwardOnly, adLockReadOnly, adCmdText
     If oRS.EOF Then
         Exit Sub
     End If
@@ -206,7 +208,7 @@ Public Function DoLogin() As Boolean
     End With
     
 
-    Dim UserName As String, Password As String, Ret As Boolean
+    Dim UserName As String, Password As String, ret As Boolean
     Dim LoginSuccessful As Boolean, rsData As ADODB.Recordset
     Dim MD5 As New clsMD5
     
@@ -216,9 +218,9 @@ Public Function DoLogin() As Boolean
     UserName = getOrganisation(cn, "lastname")
         
     ' prompt user to enter username and password
-    Ret = frmAdminLogin.GetLogIn(UserName, Password)
+    ret = frmAdminLogin.GetLogIn(UserName, Password)
     
-    Do While Ret
+    Do While ret
         Set rsData = cn.Execute("SELECT Passwd FROM tblOrganisation WHERE lastname = '" & Replace(UserName, "'", "''") & "'")
         
         ' if a record was found, it means the user exists
@@ -232,14 +234,14 @@ Public Function DoLogin() As Boolean
         End If
         
         If Not LoginSuccessful Then
-            Ret = False
+            ret = False
             
             If MsgBox("Wachtwoord onjuist, nog eens proberen?", vbQuestion + vbYesNo, "Login mislukt") = vbYes Then
                 ' to prevent brute force password cracking from the application
                 Sleep 200 + 300 * Rnd
                 
                 ' if login was not successfull, prompt again until Cancel is clicked
-                Ret = frmAdminLogin.GetLogIn(UserName, Password)
+                ret = frmAdminLogin.GetLogIn(UserName, Password)
             End If
         End If
     Loop
@@ -433,6 +435,32 @@ Dim cn As ADODB.Connection
         Set cn = Nothing
     End If
     
+End Sub
+
+
+Sub fillCmbTournaments(cmb As ComboBox, _
+                      lcl As Boolean)
+'fill a combobox with tournaments from local database (lcl = true) or from server (lcl = false)
+Dim cn As ADODB.Connection
+Dim connStr As String
+Dim sqlstr As String
+  Set cn = New ADODB.Connection
+  sqlstr = "Select tournamentId, "
+  If lcl Then
+    connStr = lclConn
+    sqlstr = sqlstr & "tournamentYear & ' - '  & tournamentType "
+  Else
+    connStr = mySqlConn
+    sqlstr = sqlstr & " concat(tournamentYear, ' - ', tournamentType) "
+  End If
+  sqlstr = sqlstr & " as tournament from tblTournaments order by tournamentYear"
+  With cn
+    .ConnectionString = connStr
+    .Open
+  End With
+  FillCombo cmb, sqlstr, cn, "tournament", "tournamentID"
+  cn.Close
+  Set cn = Nothing
 End Sub
 
 

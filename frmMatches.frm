@@ -1,14 +1,13 @@
 VERSION 5.00
 Object = "{F0D2F211-CCB0-11D0-A316-00AA00688B10}#1.0#0"; "MSDATLST.OCX"
-Object = "{CDE57A40-8B86-11D0-B3C6-00A0C90AEA82}#1.0#0"; "MSDATGRD.OCX"
 Object = "{86CF1D34-0C5F-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCT2.OCX"
-Object = "{67397AA1-7FB1-11D0-B148-00A0C922E820}#6.0#0"; "MSADODC.OCX"
-Begin VB.Form frmMatchesOld 
+Object = "{5E9E78A0-531B-11CF-91F6-C2863C385E30}#1.0#0"; "MSFLXGRD.OCX"
+Begin VB.Form frmMatches 
    Caption         =   "Wedstrijden"
    ClientHeight    =   9630
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   12705
+   ClientWidth     =   12795
    BeginProperty Font 
       Name            =   "Tahoma"
       Size            =   9.75
@@ -21,8 +20,22 @@ Begin VB.Form frmMatchesOld
    LinkTopic       =   "Form1"
    ScaleHeight     =   9630
    ScaleMode       =   0  'User
-   ScaleWidth      =   12705
+   ScaleWidth      =   12795
    StartUpPosition =   3  'Windows Default
+   Begin MSFlexGridLib.MSFlexGrid grdMatches 
+      Height          =   7575
+      Left            =   240
+      TabIndex        =   8
+      Top             =   1200
+      Width           =   12375
+      _ExtentX        =   21828
+      _ExtentY        =   13361
+      _Version        =   393216
+      BackColorBkg    =   -2147483633
+      AllowBigSelection=   0   'False
+      SelectionMode   =   1
+      AllowUserResizing=   1
+   End
    Begin MSDataListLib.DataCombo cmbTeamA 
       Height          =   360
       Left            =   3120
@@ -55,7 +68,7 @@ Begin VB.Form frmMatchesOld
       Left            =   240
       TabIndex        =   1
       Top             =   720
-      Width           =   555
+      Width           =   375
    End
    Begin VB.TextBox txtTime 
       Height          =   375
@@ -86,109 +99,6 @@ Begin VB.Form frmMatchesOld
       Max             =   45
       Enabled         =   -1  'True
    End
-   Begin MSAdodcLib.Adodc dtcMatches 
-      Height          =   330
-      Left            =   840
-      Top             =   9120
-      Visible         =   0   'False
-      Width           =   4455
-      _ExtentX        =   7858
-      _ExtentY        =   582
-      ConnectMode     =   0
-      CursorLocation  =   3
-      IsolationLevel  =   -1
-      ConnectionTimeout=   15
-      CommandTimeout  =   30
-      CursorType      =   3
-      LockType        =   3
-      CommandType     =   1
-      CursorOptions   =   0
-      CacheSize       =   50
-      MaxRecords      =   0
-      BOFAction       =   0
-      EOFAction       =   0
-      ConnectStringType=   1
-      Appearance      =   1
-      BackColor       =   -2147483643
-      ForeColor       =   -2147483640
-      Orientation     =   0
-      Enabled         =   -1
-      Connect         =   ""
-      OLEDBString     =   ""
-      OLEDBFile       =   ""
-      DataSourceName  =   ""
-      OtherAttributes =   ""
-      UserName        =   ""
-      Password        =   ""
-      RecordSource    =   ""
-      Caption         =   ""
-      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-         Name            =   "Tahoma"
-         Size            =   9.75
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      _Version        =   393216
-   End
-   Begin MSDataGridLib.DataGrid grdMatches 
-      Height          =   7815
-      Left            =   240
-      TabIndex        =   9
-      Top             =   1200
-      Width           =   12360
-      _ExtentX        =   21802
-      _ExtentY        =   13785
-      _Version        =   393216
-      AllowUpdate     =   0   'False
-      HeadLines       =   1
-      RowHeight       =   15
-      TabAction       =   2
-      FormatLocked    =   -1  'True
-      BeginProperty HeadFont {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-         Name            =   "Tahoma"
-         Size            =   9.75
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      BeginProperty Font {0BE35203-8F91-11CE-9DE3-00AA004BB851} 
-         Name            =   "Tahoma"
-         Size            =   9.75
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      ColumnCount     =   1
-      BeginProperty Column00 
-         DataField       =   ""
-         Caption         =   "Match"
-         BeginProperty DataFormat {6D835690-900B-11D0-9484-00A0C91110ED} 
-            Type            =   0
-            Format          =   ""
-            HaveTrueFalseNull=   0
-            FirstDayOfWeek  =   0
-            FirstWeekOfYear =   0
-            LCID            =   1043
-            SubFormatType   =   0
-         EndProperty
-      EndProperty
-      SplitCount      =   1
-      BeginProperty Split0 
-         MarqueeStyle    =   3
-         BeginProperty Column00 
-            Alignment       =   2
-            ColumnAllowSizing=   0   'False
-            Object.Visible         =   -1  'True
-         EndProperty
-      EndProperty
-   End
    Begin MSComCtl2.UpDown UpDnHours 
       Height          =   375
       Left            =   1950
@@ -211,12 +121,12 @@ Begin VB.Form frmMatchesOld
       _ExtentY        =   661
       _Version        =   393216
       CustomFormat    =   "dd-MM"
-      Format          =   146669571
+      Format          =   146538499
       CurrentDate     =   43939
    End
    Begin MSComCtl2.UpDown upDnNr 
       Height          =   375
-      Left            =   540
+      Left            =   600
       TabIndex        =   2
       Top             =   720
       Width           =   255
@@ -225,7 +135,7 @@ Begin VB.Form frmMatchesOld
       _Version        =   393216
       Value           =   1
       BuddyControl    =   "txtNr"
-      BuddyDispid     =   196611
+      BuddyDispid     =   196613
       OrigLeft        =   840
       OrigTop         =   480
       OrigRight       =   1095
@@ -247,7 +157,7 @@ Begin VB.Form frmMatchesOld
       _Version        =   393216
       Value           =   1
       BuddyControl    =   "txtOrder"
-      BuddyDispid     =   196609
+      BuddyDispid     =   196611
       OrigLeft        =   840
       OrigTop         =   480
       OrigRight       =   1095
@@ -370,7 +280,7 @@ Begin VB.Form frmMatchesOld
       Height          =   255
       Index           =   0
       Left            =   240
-      TabIndex        =   8
+      TabIndex        =   9
       Top             =   480
       Width           =   495
    End
@@ -386,7 +296,7 @@ Begin VB.Form frmMatchesOld
       Width           =   12255
    End
 End
-Attribute VB_Name = "frmMatchesOld"
+Attribute VB_Name = "frmMatches"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
@@ -407,102 +317,69 @@ Sub setMatchGrid()
 Dim sqlstr As String
 Dim dCol As Object
 Dim col As Column
-Dim i As Integer
-    sqlstr = "SELECT m.matchNumber as Wedstr, m.matchDate as Datum, matchTime as Tijd, "
-    sqlstr = sqlstr & " ta.teamName as Team1, tb.teamName as Team2, t.matchTypeDescription as Type, s.stadiumName & '/' & s.stadiumLocation as Locatie,"
-    sqlstr = sqlstr & " a.teamcode as CodeA, b.teamcode as CodeB, t.matchtypeId as typeId, s.stadiumId as stadiumId, m.matchOrder as volgorde"
-    sqlstr = sqlstr & " FROM ((((tblTournamentSchedule m LEFT JOIN tblStadiums s ON m.matchStadiumID = s.stadiumID) "
-    sqlstr = sqlstr & " LEFT JOIN tblTournamentTeamCodes AS b ON m.matchTeamB = b.teamCode) "
-    sqlstr = sqlstr & " LEFT JOIN tblTeamNames AS tb ON b.teamID = tb.teamNameID) "
-    sqlstr = sqlstr & " LEFT JOIN (tblTournamentTeamCodes a "
-    sqlstr = sqlstr & " LEFT JOIN tblTeamNames ta ON a.teamID = ta.teamNameID) ON m.matchTeamA = a.teamCode) "
-    sqlstr = sqlstr & " LEFT JOIN tblMatchTypes t ON m.matchType = t.matchTypeID"
-    sqlstr = sqlstr & " WHERE m.tournamentID = " & thisTournament
-    sqlstr = sqlstr & " AND a.tournamentID = " & thisTournament
-    sqlstr = sqlstr & " AND b.tournamentID = " & thisTournament
-    sqlstr = sqlstr & " ORDER BY m.matchNumber"
+Dim i As Integer, j As Integer
+Dim rs As ADODB.Recordset
+Set rs = New ADODB.Recordset
+  sqlstr = "SELECT m.matchNumber as nr, format(m.matchDate,'dd-MM') as Datum, format(matchTime ,'HH:NN') as Tijd, "
+  sqlstr = sqlstr & " a.teamcode as A, ta.teamName as Team1, b.teamcode as B, tb.teamName as Team2, "
+  sqlstr = sqlstr & " t.matchTypeDescription as Type, s.stadiumName & '/' & s.stadiumLocation as Locatie, m.matchOrder as vlg"
+  sqlstr = sqlstr & " FROM ((((tblTournamentSchedule m LEFT JOIN tblStadiums s ON m.matchStadiumID = s.stadiumID) "
+  sqlstr = sqlstr & " LEFT JOIN tblTournamentTeamCodes AS b ON m.matchTeamB = b.teamCode) "
+  sqlstr = sqlstr & " LEFT JOIN tblTeamNames AS tb ON b.teamID = tb.teamNameID) "
+  sqlstr = sqlstr & " LEFT JOIN (tblTournamentTeamCodes a "
+  sqlstr = sqlstr & " LEFT JOIN tblTeamNames ta ON a.teamID = ta.teamNameID) ON m.matchTeamA = a.teamCode) "
+  sqlstr = sqlstr & " LEFT JOIN tblMatchTypes t ON m.matchType = t.matchTypeID"
+  sqlstr = sqlstr & " WHERE m.tournamentID = " & thisTournament
+  sqlstr = sqlstr & " AND a.tournamentID = " & thisTournament
+  sqlstr = sqlstr & " AND b.tournamentID = " & thisTournament
+  sqlstr = sqlstr & " ORDER BY m.matchorder"
+  rs.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
+'fill the grid
+   With Me.grdMatches
+    .SelectionMode = flexSelectionByRow
+    .Clear
+     .rows = rs.RecordCount + 1
+    .cols = rs.Fields.Count
+    i = 0
+    For j = 0 To rs.Fields.Count - 1
+      If Not IsNull(rs.Fields(j).Name) Then
+        .TextMatrix(i, j) = rs.Fields(j).Name
+      End If
+    Next
+    rs.MoveFirst
+    Do While Not rs.EOF
+      i = i + 1
+      For j = 0 To rs.Fields.Count - 1
+        If Not IsNull(rs.Fields(j).value) Then
+          .TextMatrix(i, j) = rs.Fields(j).value
+        Else
+          .TextMatrix(i, j) = ""
+        End If
+      Next
+      rs.MoveNext
+    Loop
+    .ColWidth(0) = 400
+    .ColAlignment(0) = flexAlignCenterCenter
+    .ColWidth(1) = 700
+    .ColAlignment(1) = flexAlignCenterCenter
+    .ColWidth(2) = 600
+    .ColAlignment(2) = flexAlignCenterCenter
+    .ColWidth(3) = 600
+    .ColAlignment(3) = flexAlignCenterCenter
+    .ColWidth(4) = 1750
+    .ColWidth(5) = 600
+    .ColAlignment(5) = flexAlignCenterCenter
+    .ColWidth(6) = 1750
+    .ColWidth(7) = 1900
+    .ColWidth(8) = 3250
+    .ColWidth(9) = 500
+    .ColAlignment(9) = flexAlignCenterCenter
     
-    With Me.dtcMatches
-        .ConnectionString = cn
-        .RecordSource = sqlstr
-        .CommandType = adCmdText
-        .Refresh
-    End With
-    
-    With Me.grdMatches
-        Set .DataSource = Me.dtcMatches
-        Set dCol = .Columns(0)
-        dCol.Caption = " Nr"
-        dCol.DataField = "Wedstr"
-        dCol.Alignment = dbgCenter
-        dCol.width = 400
-        dCol.Visible = True
-        Set dCol = .Columns.Add(1)
-        dCol.Caption = "Datum"
-        dCol.DataField = "Datum"
-        dCol.NumberFormat = "dd-MM"
-        dCol.Alignment = dbgCenter
-        dCol.width = 700
-        dCol.Visible = True
-        Set dCol = .Columns.Add(2)
-        dCol.Caption = "Tijd"
-        dCol.DataField = "Tijd"
-        dCol.NumberFormat = "hh:mm"
-        dCol.width = 600
-        dCol.Visible = True
-        Set dCol = .Columns.Add(3)
-        dCol.DataField = "CodeA"
-        dCol.Alignment = dbgCenter
-        dCol.Caption = "  A"
-        dCol.width = 600
-        dCol.Visible = True
-        Set dCol = .Columns.Add(4)
-        dCol.Caption = "TeamA"
-        dCol.DataField = "Team1"
-        dCol.width = 1900
-        dCol.Visible = True
-        Set dCol = .Columns.Add(5)
-        dCol.Caption = "  B"
-        dCol.DataField = "CodeB"
-        dCol.Alignment = dbgCenter
-        dCol.width = 600
-        dCol.Visible = True
-        Set dCol = .Columns.Add(6)
-        dCol.Caption = "TeamB"
-        dCol.DataField = "Team2"
-        dCol.width = 1900
-        dCol.Visible = True
-        Set dCol = .Columns.Add(7)
-        dCol.Caption = "Type"
-        dCol.DataField = "Type"
-        dCol.width = 1900
-        dCol.Alignment = dbgCenter
-        dCol.Visible = True
-        Set dCol = .Columns.Add(8)
-        dCol.Caption = "Locatie"
-        dCol.DataField = "Locatie"
-        dCol.width = 2650
-        dCol.Visible = True
-        Set dCol = .Columns.Add(9)
-        dCol.Caption = "Volg"
-        dCol.DataField = "volgorde"
-        dCol.width = 400
-        dCol.Alignment = dbgCenter
-        dCol.Visible = True
-        
-        .Columns(3).Alignment = dbgCenter
-        .Columns(5).Alignment = dbgCenter
-        For Each col In .Columns
-          colWidths(i) = col.width / .width
-          i = i + 1
-        Next
-        .ReBind
-        .Refresh
-    End With
-    'select entire row
-    Me.grdMatches.MarqueeStyle = dbgHighlightRow
-    'force update of editBar controls
-    grdMatches_RowColChange 1, 1
+   End With
+   'select entire row
+  ' Me.grdMatches.MarqueeStyle = dbgHighlightRow
+   'force update of editBar controls
+   'grdMatches_RowColChange 1, 1
     
 End Sub
 
@@ -586,24 +463,32 @@ Private Sub btnSave_Click()
     End If
     With rs
         !TournamentId = thisTournament
-        !matchnumber = Me.upDnNr
+        !matchnumber = val(Me.txtNr)
         !matchdate = CDbl(Me.dtDate)
         !matchtime = IIf(Me.txtTime = "24:00", "23:59", Me.txtTime)
-        !matchTeamA = Me.cmbTeamA.BoundText
-        !matchTeamB = Me.cmbTeamB.BoundText
-        !matchType = Me.cmbTypes.BoundText
-        !matchStadiumId = Me.cmbLocation.BoundText
-        !matchOrder = Me.UpDnOrder
+        !matchteamA = Me.cmbTeamA.BoundText
+        !matchteamb = Me.cmbTeamB.BoundText
+        !matchtype = Me.cmbTypes.BoundText
+        !matchStadiumID = Me.cmbLocation.BoundText
+        !matchorder = val(Me.txtOrder)
     End With
     rs.Update
     
-    Me.dtcMatches.Recordset.Requery
-    Me.dtcMatches.Refresh
-    Set Me.grdMatches.DataSource = Me.dtcMatches
-    Me.grdMatches.Refresh
+    setMatchGrid
+    findInGrid Me.upDnNr
     DoEvents
-    Me.dtcMatches.Recordset.Move val(Me.txtNr) - 1, 0
     
+End Sub
+
+Sub findInGrid(txt As String)
+'find the txt in the grdMatches
+  Dim i As Integer
+  Do While Not Me.grdMatches.TextMatrix(i, 0) = txt
+    i = i + 1
+  Loop
+  If i <= Me.grdMatches.rows Then
+    Me.grdMatches.row = i
+  End If
 End Sub
 
 Private Sub Form_Load()
@@ -616,7 +501,8 @@ Private Sub Form_Load()
     
     setEditBar
     setMatchGrid
-    
+    Me.grdMatches.row = 2
+    Me.grdMatches.row = 1
     setState 'only if admin is logged in is editting possible
     
     UnifyForm Me
@@ -636,12 +522,12 @@ Dim col As Object
             Or ctl.Name = "btnSave" Then
             ctl.Enabled = adminLogin
         End If
-        Me.grdMatches.AllowAddNew = adminLogin
-        Me.grdMatches.AllowDelete = adminLogin
-        Me.grdMatches.AllowUpdate = adminLogin
-        For Each col In Me.grdMatches.Columns
-            col.Locked = Not adminLogin
-        Next
+'        Me.grdMatches.AllowAddNew = adminLogin
+'        Me.grdMatches.AllowDelete = adminLogin
+'        Me.grdMatches.AllowUpdate = adminLogin
+'        For Each col In Me.grdMatches.Columns
+'            col.Locked = Not adminLogin
+'        Next
     Next
 End Sub
 
@@ -692,31 +578,36 @@ With Me
   .btnClose.Left = .width - 2265
   .btnSave.Left = .width - 1185
   i = 0
-  For Each col In .grdMatches.Columns
-    col.width = .grdMatches.width * colWidths(i)
-    i = i + 1
-  Next
+'  For Each col In .grdMatches.Columns
+'    col.width = .grdMatches.width * colWidths(i)
+'    i = i + 1
+'  Next
   
 End With
 
 End Sub
 
-Private Sub grdMatches_RowColChange(LastRow As Variant, ByVal LastCol As Integer)
-     'update editBar
-     On Error Resume Next
-     If dontMove Then Exit Sub
-     With Me.dtcMatches.Recordset
-        Me.upDnNr = !wedstr
-        Me.dtDate = !datum
-        Me.txtTime = Format(!tijd, "hh:mm")
-        
-        Me.cmbTeamA.BoundText = !CodeA
-        Me.cmbTeamB.BoundText = !CodeB
-        Me.cmbTypes.BoundText = !typeid
-        Me.cmbLocation.BoundText = !stadiumId
-        Me.UpDnOrder = !volgorde
-    End With
+
+Private Sub grdMatches_RowColChange()
+  Dim sqlstr As String
+  Set rs = New ADODB.Recordset
+  sqlstr = "Select * from tblTournamentSchedule  where tournamentID = " & thisTournament
+  rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+  rs.Find "matchNumber = " & Me.grdMatches.TextMatrix(Me.grdMatches.row, 0)
+  With rs
+    If Not .EOF Then
+      Me.txtNr = !matchnumber
+      Me.dtDate = !matchdate
+      Me.txtTime = !matchtime
+      Me.cmbTypes.BoundText = !matchtype
+      Me.cmbLocation.BoundText = !matchStadiumID
+      Me.cmbTeamA.BoundText = !matchteamA
+      Me.cmbTeamB.BoundText = !matchteamb
+      Me.txtOrder = !matchorder
+    End If
+  End With
 End Sub
+
 
 Private Sub updnMinutes_Change()
   Me.txtTime = Format(Me.UpDnHours, "00") & ":" & Format(Me.UpDnMinutes, "00")
@@ -728,36 +619,9 @@ End Sub
 
 
 Private Sub upDnNr_DownClick()
-    With Me.dtcMatches.Recordset
-        dontMove = True
-        .MoveFirst
-        dontMove = False
-        .Find "Wedstr = " & Me.upDnNr
-        
-        'when at first match, the rowcolchange event doesn't get fired. so trick it
-        If Me.upDnNr = 1 Then
-            dontMove = True
-            .MoveLast
-            dontMove = False
-            .MoveFirst
-        End If
-    End With
-    
-    
+  findInGrid Me.txtNr
 End Sub
 
 Private Sub upDnNr_UpClick()
-    With Me.dtcMatches.Recordset
-        dontMove = True
-        .MoveFirst
-        dontMove = False
-        .Find "Wedstr = " & Me.upDnNr
-        'add new
-        If .EOF Then
-            Me.cmbTeamA = ""
-            Me.cmbTeamB = ""
-            Me.cmbTypes.BoundText = "1"
-            Me.cmbLocation = ""
-        End If
-    End With
+  findInGrid Me.txtNr
 End Sub

@@ -23,6 +23,14 @@ Begin VB.Form poolPointsForm
    ScaleHeight     =   9030
    ScaleWidth      =   5805
    ShowInTaskbar   =   0   'False
+   Begin VB.CommandButton btnCopyDefaultPoints 
+      Caption         =   "Beginwaarden"
+      Height          =   375
+      Left            =   120
+      TabIndex        =   5
+      Top             =   8520
+      Width           =   1815
+   End
    Begin VB.ComboBox cmbPointTypes 
       Height          =   360
       Left            =   1800
@@ -205,11 +213,11 @@ Begin VB.Form poolPointsForm
    End
    Begin MSAdodcLib.Adodc dtcPoolPoint 
       Height          =   330
-      Left            =   480
+      Left            =   2880
       Top             =   8520
       Visible         =   0   'False
-      Width           =   4575
-      _ExtentX        =   8070
+      Width           =   2175
+      _ExtentX        =   3836
       _ExtentY        =   582
       ConnectMode     =   0
       CursorLocation  =   3
@@ -337,17 +345,28 @@ Dim rows As Long
     Set qry = Nothing
 End Sub
 
+Private Sub btnCopyDefaultPoints_Click()
+  'copy default points table
+  copyDefaultPoints
+  dtcPoolPoint.Refresh
+  Me.grdPoolPunten.Refresh
+End Sub
+
 Private Sub cmbPointTypes_Click()
     With Me.dtcPoolPoint.Recordset
         cmbGridSelect = True 'prevent executing rowcolchange
         .MoveFirst 'to start find at first row
-        cmbGridSelect = False
         .Find "id = " & val(Me.cmbPointTypes.ItemData(Me.cmbPointTypes.ListIndex))
         If .EOF Then 'not found
             'add new record
             insertRecord
+            cmbGridSelect = False
         End If
     End With
+End Sub
+
+Private Sub Command1_Click()
+
 End Sub
 
 Private Sub Form_Load()
@@ -405,6 +424,8 @@ End Sub
 Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
     If (rs.State And adStateOpen) = adStateOpen Then rs.Close
     Set rs = Nothing
+    If (cn.State And adStateOpen) = adStateOpen Then cn.Close
+    Set cn = Nothing
 End Sub
 
 Private Sub grdPoolPunten_RowColChange(LastRow As Variant, ByVal LastCol As Integer)

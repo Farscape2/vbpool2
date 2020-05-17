@@ -26,7 +26,7 @@ Begin VB.Form newPoolForm
    Begin VB.ComboBox cmbTournaments 
       Height          =   360
       Left            =   1080
-      TabIndex        =   26
+      TabIndex        =   2
       Top             =   1147
       Width           =   1575
    End
@@ -34,14 +34,14 @@ Begin VB.Form newPoolForm
       Caption         =   "Prijzen"
       Height          =   2295
       Left            =   0
-      TabIndex        =   9
+      TabIndex        =   24
       Top             =   2160
       Width           =   5775
       Begin MSComCtl2.UpDown upDnPerc 
          Height          =   375
          Index           =   0
          Left            =   3720
-         TabIndex        =   27
+         TabIndex        =   10
          Top             =   660
          Width           =   255
          _ExtentX        =   450
@@ -74,7 +74,7 @@ Begin VB.Form newPoolForm
          DataSource      =   "dtcPools"
          Height          =   375
          Left            =   1560
-         TabIndex        =   10
+         TabIndex        =   6
          Top             =   660
          Width           =   855
          _ExtentX        =   1508
@@ -97,7 +97,7 @@ Begin VB.Form newPoolForm
          DataSource      =   "dtcPools"
          Height          =   375
          Left            =   1560
-         TabIndex        =   11
+         TabIndex        =   7
          Top             =   1132
          Width           =   855
          _ExtentX        =   1508
@@ -119,7 +119,7 @@ Begin VB.Form newPoolForm
          DataSource      =   "dtcPools"
          Height          =   375
          Left            =   1560
-         TabIndex        =   12
+         TabIndex        =   8
          Top             =   1650
          Width           =   855
          _ExtentX        =   1508
@@ -143,7 +143,7 @@ Begin VB.Form newPoolForm
          Height          =   375
          Index           =   0
          Left            =   3240
-         TabIndex        =   13
+         TabIndex        =   9
          Top             =   660
          Width           =   525
          _ExtentX        =   926
@@ -165,7 +165,7 @@ Begin VB.Form newPoolForm
          DataSource      =   "dtcPools"
          Height          =   375
          Left            =   3600
-         TabIndex        =   14
+         TabIndex        =   19
          Top             =   1770
          Width           =   855
          _ExtentX        =   1508
@@ -189,7 +189,7 @@ Begin VB.Form newPoolForm
          Height          =   375
          Index           =   1
          Left            =   4800
-         TabIndex        =   28
+         TabIndex        =   11
          Top             =   660
          Width           =   465
          _ExtentX        =   820
@@ -201,7 +201,7 @@ Begin VB.Form newPoolForm
          Height          =   375
          Index           =   1
          Left            =   5265
-         TabIndex        =   30
+         TabIndex        =   12
          Top             =   660
          Width           =   255
          _ExtentX        =   450
@@ -235,7 +235,7 @@ Begin VB.Form newPoolForm
          Height          =   375
          Index           =   2
          Left            =   3240
-         TabIndex        =   31
+         TabIndex        =   13
          Top             =   1200
          Width           =   465
          _ExtentX        =   820
@@ -247,7 +247,7 @@ Begin VB.Form newPoolForm
          Height          =   375
          Index           =   2
          Left            =   3705
-         TabIndex        =   33
+         TabIndex        =   14
          Top             =   1200
          Width           =   255
          _ExtentX        =   450
@@ -281,7 +281,7 @@ Begin VB.Form newPoolForm
          Height          =   375
          Index           =   3
          Left            =   4800
-         TabIndex        =   34
+         TabIndex        =   15
          Top             =   1200
          Width           =   465
          _ExtentX        =   820
@@ -293,7 +293,7 @@ Begin VB.Form newPoolForm
          Height          =   375
          Index           =   3
          Left            =   5265
-         TabIndex        =   36
+         TabIndex        =   16
          Top             =   1200
          Width           =   255
          _ExtentX        =   450
@@ -327,7 +327,7 @@ Begin VB.Form newPoolForm
          Height          =   375
          Index           =   3
          Left            =   4440
-         TabIndex        =   35
+         TabIndex        =   36
          Top             =   1200
          Width           =   375
       End
@@ -337,7 +337,7 @@ Begin VB.Form newPoolForm
          Height          =   375
          Index           =   2
          Left            =   2880
-         TabIndex        =   32
+         TabIndex        =   35
          Top             =   1200
          Width           =   375
       End
@@ -347,7 +347,7 @@ Begin VB.Form newPoolForm
          Height          =   375
          Index           =   1
          Left            =   4440
-         TabIndex        =   29
+         TabIndex        =   34
          Top             =   660
          Width           =   375
       End
@@ -358,7 +358,7 @@ Begin VB.Form newPoolForm
          ForeColor       =   &H00004000&
          Height          =   255
          Left            =   2880
-         TabIndex        =   24
+         TabIndex        =   32
          Top             =   1830
          Width           =   615
       End
@@ -369,7 +369,7 @@ Begin VB.Form newPoolForm
          ForeColor       =   &H00004000&
          Height          =   255
          Left            =   120
-         TabIndex        =   23
+         TabIndex        =   31
          Top             =   1710
          Width           =   1215
       End
@@ -380,7 +380,7 @@ Begin VB.Form newPoolForm
          ForeColor       =   &H00004000&
          Height          =   255
          Left            =   120
-         TabIndex        =   22
+         TabIndex        =   30
          Top             =   1192
          Width           =   1215
       End
@@ -391,7 +391,7 @@ Begin VB.Form newPoolForm
          ForeColor       =   &H00004000&
          Height          =   375
          Left            =   0
-         TabIndex        =   21
+         TabIndex        =   29
          Top             =   660
          Width           =   1335
       End
@@ -401,7 +401,7 @@ Begin VB.Form newPoolForm
          Height          =   375
          Index           =   0
          Left            =   2880
-         TabIndex        =   20
+         TabIndex        =   28
          Top             =   660
          Width           =   375
       End
@@ -410,7 +410,7 @@ Begin VB.Form newPoolForm
          Caption         =   "Eindstand (percentages)"
          Height          =   255
          Left            =   3000
-         TabIndex        =   19
+         TabIndex        =   27
          Top             =   240
          Width           =   2295
       End
@@ -425,7 +425,7 @@ Begin VB.Form newPoolForm
          Caption         =   "Dagprijzen"
          Height          =   255
          Left            =   720
-         TabIndex        =   18
+         TabIndex        =   26
          Top             =   240
          Width           =   1575
       End
@@ -434,7 +434,7 @@ Begin VB.Form newPoolForm
       DataSource      =   "dtcPools"
       Height          =   375
       Left            =   3960
-      TabIndex        =   4
+      TabIndex        =   3
       Top             =   1140
       Width           =   1095
       _ExtentX        =   1931
@@ -458,7 +458,7 @@ Begin VB.Form newPoolForm
       Left            =   0
       ScaleHeight     =   675
       ScaleWidth      =   5730
-      TabIndex        =   17
+      TabIndex        =   25
       Top             =   4455
       Width           =   5790
       Begin VB.CommandButton btnCancel 
@@ -466,7 +466,7 @@ Begin VB.Form newPoolForm
          Caption         =   "Annuleren"
          Height          =   495
          Left            =   3000
-         TabIndex        =   15
+         TabIndex        =   17
          Top             =   120
          Width           =   1215
       End
@@ -475,7 +475,7 @@ Begin VB.Form newPoolForm
          Default         =   -1  'True
          Height          =   495
          Left            =   4320
-         TabIndex        =   16
+         TabIndex        =   18
          Top             =   120
          Width           =   1215
       End
@@ -484,26 +484,26 @@ Begin VB.Form newPoolForm
       DataSource      =   "dtcPools"
       Height          =   375
       Left            =   1080
-      TabIndex        =   6
+      TabIndex        =   4
       Top             =   1620
       Width           =   1575
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147849217
+      Format          =   147390465
       CurrentDate     =   43932
    End
    Begin MSComCtl2.DTPicker dtpEind 
       DataSource      =   "dtcPools"
       Height          =   375
       Left            =   3600
-      TabIndex        =   8
+      TabIndex        =   5
       Top             =   1620
       Width           =   1575
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147849217
+      Format          =   147390465
       CurrentDate     =   43932
    End
    Begin VB.Label Label1 
@@ -512,7 +512,7 @@ Begin VB.Form newPoolForm
       Caption         =   "Voeg nieuwe pool toe"
       Height          =   375
       Left            =   0
-      TabIndex        =   25
+      TabIndex        =   33
       Tag             =   "kop"
       Top             =   120
       Width           =   5775
@@ -524,7 +524,7 @@ Begin VB.Form newPoolForm
       ForeColor       =   &H00004000&
       Height          =   255
       Left            =   2880
-      TabIndex        =   3
+      TabIndex        =   21
       Top             =   1200
       Width           =   735
    End
@@ -546,7 +546,7 @@ Begin VB.Form newPoolForm
       ForeColor       =   &H00004000&
       Height          =   255
       Left            =   3000
-      TabIndex        =   7
+      TabIndex        =   23
       Top             =   1680
       Width           =   375
    End
@@ -557,7 +557,7 @@ Begin VB.Form newPoolForm
       ForeColor       =   &H00004000&
       Height          =   255
       Left            =   0
-      TabIndex        =   5
+      TabIndex        =   22
       Top             =   1680
       Width           =   975
    End
@@ -568,7 +568,7 @@ Begin VB.Form newPoolForm
       ForeColor       =   &H00004000&
       Height          =   255
       Left            =   0
-      TabIndex        =   2
+      TabIndex        =   20
       Top             =   1200
       Width           =   855
    End
@@ -586,22 +586,41 @@ Private Sub btnClose_Click()
 Dim sqlstr As String
     Dim i As Integer
     Dim tournID As Long
-    tournID = Me.cmbTournaments.ItemData(Me.cmbTournaments.ListIndex)
+    Dim msg As String
+    thisTournament = Me.cmbTournaments.ItemData(Me.cmbTournaments.ListIndex)
+    Do While nz(getTournamentInfo("tournamentID", cn), 0) = 0
+      msg = "Toernooi nog niet in lokale database"
+      msg = msg & vbNewLine & "Gegevens moeten van de server opgehaald."
+      If MsgBox(msg, vbOKCancel + vbInformation, "Toernooi") = vbOK Then
+        'toernooi inlezen
+        frmCopyData.Show 1
+      Else
+        'pool niet aanmaken
+        MsgBox "Zonder de toernooi gegevens kan er geen nieuwe pool worden aangemaakt"
+        Exit Sub
+      End If
+    Loop
     With Me
         'build save string
-        sqlstr = "insert into tblPools (tournamentID, poolName, poolStartAcceptForms, poolEndAcceptforms, "
+        sqlstr = "insert into tblPools (tournamentID, poolName, poolFormsFrom, poolFormsTill, "
         sqlstr = sqlstr & "poolcost, prizeHighDayScore, prizeHighDayPosition, prizeLowDayPosition, "
         sqlstr = sqlstr & "prizePercentageFirst, prizePercentageSecond, prizePercentageThird, prizePercentageFourth, "
         sqlstr = sqlstr & "prizeLowFinalPosition) VALUES ("
-        sqlstr = sqlstr & tournID & ", '" & .txtPoolName & "', " & CDbl(.dtpStart) & ", " & CDbl(.dtpStart) & ", "
+        sqlstr = sqlstr & thisTournament & ", '" & .txtPoolName & "', " & CDbl(.dtpStart) & ", " & CDbl(.dtpStart) & ", "
         sqlstr = sqlstr & float(.txtCosts) & ", " & float(.txtHighestDayscore) & ", " & float(.txtHighestPosition) & ", " & float(.txtLowestPosition) & ", "
         For i = 0 To 3
-            sqlstr = sqlstr & float(.txtPercentage(i) / 100) & ", "
+            sqlstr = sqlstr & val(.txtPercentage(i)) & ", "
         Next
         sqlstr = sqlstr & float(.txtPrizeLastOverall) & ")"
     End With
     cn.Execute sqlstr
+    
+    thisPool = getLastPoolID(cn)
+    
+    copyDefaultPoints
+    
     Unload Me
+    
 End Sub
 
 Private Sub btnCancel_Click()
@@ -609,28 +628,19 @@ Private Sub btnCancel_Click()
 End Sub
 
 Private Sub Form_Load()
-Dim sqlstr As String
-Dim i As Integer
-
-    Set cn = New ADODB.Connection
-    With cn
-        .ConnectionString = lclConn
-        .CursorLocation = adUseClient
-        .Open
-    End With
-        
+  Set cn = New ADODB.Connection
+  With cn
+    .ConnectionString = lclConn
+    .Open
+  End With
 'back color of frame
     Me.frmPrizes.BackColor = Me.BackColor
 'basis tabel
 
 'fill tournament combo
-    sqlstr = "Select tournamentID, "
-    sqlstr = sqlstr & " tournamentYear & ' - '  & tournamentType "
-    sqlstr = sqlstr & " as tournament from tblTournaments order by tournamentYear"
-    FillCombo Me.cmbTournaments, sqlstr, cn, "tournament", "tournamentID"
-    
+  fillCmbTournaments Me.cmbTournaments, False
 'set Form defaults
-    UnifyForm Me
+  UnifyForm Me
 
     
 End Sub
