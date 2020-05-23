@@ -55,7 +55,7 @@ Sub Main()
     cn.Close
     Set cn = Nothing
     'open main form
-    mainForm.Show
+    mainMDIform.Show
     If Not cn Is Nothing Then
         If (cn.State And adStateOpen) = adStateOpen Then cn.Close
         Set cn = Nothing
@@ -100,7 +100,7 @@ Sub centerForm(frm As Object)
 End Sub
 
 Function float(strNumber As String) As String
-'convert formatted dutch float number to dot seperated value
+'convert formatted dutch float number to dot seperated decimal
     Dim number As String
     If InStr(strNumber, "%") Then
         strNumber = val(Left(strNumber, Len(strNumber) - 1)) / 100
@@ -125,7 +125,7 @@ Public Function setCombo(objCmb As ComboBox, val As Variant)
 End Function
 
 
-Public Sub FillCombo(objComboBox As ComboBox, _
+Public Sub FillCombo(objComboBox As Object, _
                      strSQL As String, _
                      cn As ADODB.Connection, _
                      strFieldToShow As String, _
@@ -152,7 +152,7 @@ Public Sub FillCombo(objComboBox As ComboBox, _
         Else
             Do While Not oRS.EOF      '(with ItemData)
                 .AddItem oRS.Fields(strFieldToShow).value
-                .ItemData(.NewIndex) = oRS.Fields(strFieldForItemData).value
+                .ItemData(.NewIndex) = nz(oRS.Fields(strFieldForItemData).value, 0)
                 oRS.MoveNext
             Loop
         End If
@@ -363,7 +363,7 @@ Dim rsFrom As ADODB.Recordset
 Dim rsTo As ADODB.Recordset
 Dim sqlstr As String
 Dim dellstr As String
-Dim delstr As String
+Dim delStr As String
 Dim valStr As String
 Dim fld As field
 Dim cn As ADODB.Connection
@@ -379,17 +379,17 @@ Dim cn As ADODB.Connection
         .ActiveConnection = myConn
         .CommandType = adCmdText
         sqlstr = "Select * from " & tblName
-        delstr = "Delete from " & tblName
+        delStr = "Delete from " & tblName
         If tournTable Then
             'only copy records for seleted tournament
             sqlstr = sqlstr & " WHERE tournamentID = " & thisTournament
-            delstr = delstr & " WHERE tournamentID = " & thisTournament
+            delStr = delStr & " WHERE tournamentID = " & thisTournament
         End If
         .CommandText = sqlstr
         Set rsFrom = .Execute
     End With
     'delete records from local table
-    cn.Execute delstr
+    cn.Execute delStr
     'add to the toTable
     Set rsTo = New ADODB.Recordset
     rsTo.Open "Select * from " & tblName, cn, adOpenKeyset, adLockOptimistic

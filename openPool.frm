@@ -2,7 +2,7 @@ VERSION 5.00
 Begin VB.Form openPool 
    BorderStyle     =   3  'Fixed Dialog
    Caption         =   "Open Pool"
-   ClientHeight    =   2610
+   ClientHeight    =   2520
    ClientLeft      =   2760
    ClientTop       =   3750
    ClientWidth     =   4155
@@ -18,7 +18,7 @@ Begin VB.Form openPool
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   2610
+   ScaleHeight     =   2520
    ScaleWidth      =   4155
    ShowInTaskbar   =   0   'False
    Begin VB.ComboBox cmbSelPool 
@@ -159,7 +159,7 @@ Private Sub Form_Load()
     FillCombo Me.cmbSelPool, sqlstr, cn, "poolName", "poolId"
 'set Form defaults
     UnifyForm Me
-    
+    centerForm Me
 End Sub
 
 Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
@@ -186,4 +186,8 @@ Private Sub OKButton_Click()
     thisTournament = getThisPoolTournamentId(cn)
     SaveSetting App.EXEName, "global", "lastpool", thisPool
     Unload Me
+End Sub
+
+Private Sub SpinBox1_DownClick()
+
 End Sub

@@ -1,141 +1,136 @@
 VERSION 5.00
-Begin VB.Form mainForm 
-   BackColor       =   &H00B2EDB0&
-   BorderStyle     =   5  'Sizable ToolWindow
+Begin VB.MDIForm mainMDIform 
+   BackColor       =   &H8000000C&
    Caption         =   "Voetbalpool"
-   ClientHeight    =   4800
-   ClientLeft      =   9555
-   ClientTop       =   5730
+   ClientHeight    =   5895
+   ClientLeft      =   225
+   ClientTop       =   870
    ClientWidth     =   8445
-   BeginProperty Font 
-      Name            =   "Tahoma"
-      Size            =   8.25
-      Charset         =   0
-      Weight          =   400
-      Underline       =   0   'False
-      Italic          =   0   'False
-      Strikethrough   =   0   'False
-   EndProperty
-   ForeColor       =   &H00004000&
-   Icon            =   "mainForm.frx":0000
-   LinkTopic       =   "Form1"
-   MaxButton       =   0   'False
-   MinButton       =   0   'False
-   ScaleHeight     =   4800
-   ScaleWidth      =   8445
-   ShowInTaskbar   =   0   'False
-   Begin VB.CommandButton btnOk 
-      Caption         =   "OK"
-      Height          =   495
-      Left            =   6240
-      TabIndex        =   4
-      Top             =   3120
-      Width           =   1575
-   End
-   Begin VB.Label lblStartText 
-      BorderStyle     =   1  'Fixed Single
-      Height          =   1815
-      Left            =   960
-      TabIndex        =   3
-      Tag             =   "kop"
-      Top             =   1200
-      Width           =   7095
-   End
-   Begin VB.Label lblCopyright 
-      Alignment       =   2  'Center
-      AutoSize        =   -1  'True
-      BackStyle       =   0  'Transparent
-      Caption         =   "© 2004 - 2020 jota services"
-      BeginProperty Font 
-         Name            =   "Garamond"
-         Size            =   9.75
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   -1  'True
-         Strikethrough   =   0   'False
-      EndProperty
-      Height          =   210
-      Left            =   3630
-      TabIndex        =   2
-      Tag             =   "small"
-      Top             =   4440
-      Width           =   1875
-   End
-   Begin VB.Label lblPoolName 
-      Alignment       =   2  'Center
+   LinkTopic       =   "mainForm"
+   StartUpPosition =   3  'Windows Default
+   Begin VB.PictureBox mainPic 
+      Align           =   1  'Align Top
       BackColor       =   &H00B2EDB0&
-      BeginProperty Font 
-         Name            =   "Tahoma"
-         Size            =   20.25
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      ForeColor       =   &H00004000&
-      Height          =   855
-      Left            =   720
-      TabIndex        =   1
-      Tag             =   "kop1"
-      Top             =   3240
-      Visible         =   0   'False
-      Width           =   7215
-   End
-   Begin VB.Label lblStartTitle 
-      Alignment       =   2  'Center
-      BackColor       =   &H00B2EDB0&
-      Caption         =   "Voetbalpool"
-      BeginProperty Font 
-         Name            =   "Tahoma"
-         Size            =   20.25
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      ForeColor       =   &H00004000&
-      Height          =   735
-      Left            =   120
+      Height          =   5175
+      Left            =   0
+      ScaleHeight     =   5115
+      ScaleWidth      =   8385
       TabIndex        =   0
-      Tag             =   "kop2"
       Top             =   0
-      Width           =   8235
-   End
-   Begin VB.Shape Shape1 
-      BorderColor     =   &H00C0FFC0&
-      FillColor       =   &H00B2EDB0&
-      Height          =   1815
-      Index           =   1
-      Left            =   7920
-      Top             =   1320
-      Width           =   735
-   End
-   Begin VB.Shape Shape1 
-      BorderColor     =   &H00C0FFC0&
-      FillColor       =   &H00B2EDB0&
-      Height          =   1815
-      Index           =   0
-      Left            =   -10
-      Top             =   1320
-      Width           =   735
-   End
-   Begin VB.Shape Shape2 
-      BorderColor     =   &H00C0FFC0&
-      Height          =   1600
-      Left            =   3600
-      Shape           =   3  'Circle
-      Top             =   1440
-      Width           =   1600
-   End
-   Begin VB.Line Line1 
-      BorderColor     =   &H00C0FFC0&
-      X1              =   4440
-      X2              =   4440
-      Y1              =   840
-      Y2              =   4440
+      Width           =   8445
+      Begin VB.CommandButton btnOk 
+         Caption         =   "OK"
+         Height          =   495
+         Left            =   6250
+         TabIndex        =   1
+         Top             =   3120
+         Width           =   1575
+      End
+      Begin VB.Line Line1 
+         BorderColor     =   &H00C0FFC0&
+         X1              =   4450
+         X2              =   4450
+         Y1              =   840
+         Y2              =   4440
+      End
+      Begin VB.Shape Shape2 
+         BorderColor     =   &H00C0FFC0&
+         Height          =   1600
+         Left            =   3610
+         Shape           =   3  'Circle
+         Top             =   1440
+         Width           =   1600
+      End
+      Begin VB.Shape Shape1 
+         BorderColor     =   &H00C0FFC0&
+         FillColor       =   &H00B2EDB0&
+         Height          =   1815
+         Index           =   0
+         Left            =   0
+         Top             =   1320
+         Width           =   735
+      End
+      Begin VB.Shape Shape1 
+         BorderColor     =   &H00C0FFC0&
+         FillColor       =   &H00B2EDB0&
+         Height          =   1815
+         Index           =   1
+         Left            =   7930
+         Top             =   1320
+         Width           =   735
+      End
+      Begin VB.Label lblStartTitle 
+         Alignment       =   2  'Center
+         BackColor       =   &H00B2EDB0&
+         Caption         =   "Voetbalpool"
+         BeginProperty Font 
+            Name            =   "Tahoma"
+            Size            =   20.25
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         ForeColor       =   &H00004000&
+         Height          =   735
+         Left            =   130
+         TabIndex        =   5
+         Tag             =   "kop2"
+         Top             =   0
+         Width           =   8235
+      End
+      Begin VB.Label lblPoolName 
+         Alignment       =   2  'Center
+         BackColor       =   &H00B2EDB0&
+         BeginProperty Font 
+            Name            =   "Tahoma"
+            Size            =   20.25
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   0   'False
+            Strikethrough   =   0   'False
+         EndProperty
+         ForeColor       =   &H00004000&
+         Height          =   855
+         Left            =   730
+         TabIndex        =   4
+         Tag             =   "kop1"
+         Top             =   3240
+         Visible         =   0   'False
+         Width           =   7215
+      End
+      Begin VB.Label lblCopyright 
+         Alignment       =   2  'Center
+         AutoSize        =   -1  'True
+         BackStyle       =   0  'Transparent
+         Caption         =   "ï¿½2004 - 2020 jota services"
+         BeginProperty Font 
+            Name            =   "Garamond"
+            Size            =   9.75
+            Charset         =   0
+            Weight          =   400
+            Underline       =   0   'False
+            Italic          =   -1  'True
+            Strikethrough   =   0   'False
+         EndProperty
+         Height          =   210
+         Left            =   3480
+         TabIndex        =   3
+         Tag             =   "small"
+         Top             =   4800
+         Width           =   1845
+      End
+      Begin VB.Label lblStartText 
+         BorderStyle     =   1  'Fixed Single
+         Height          =   1815
+         Left            =   730
+         TabIndex        =   2
+         Tag             =   "kop"
+         Top             =   1080
+         Width           =   7095
+      End
    End
    Begin VB.Menu mnuFile 
       Caption         =   "&Bestand"
@@ -220,11 +215,12 @@ Begin VB.Form mainForm
       End
    End
 End
-Attribute VB_Name = "mainForm"
+Attribute VB_Name = "mainMDIform"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
 
 Dim cn As ADODB.Connection

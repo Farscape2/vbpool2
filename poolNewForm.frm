@@ -490,7 +490,7 @@ Begin VB.Form newPoolForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147390465
+      Format          =   146472961
       CurrentDate     =   43932
    End
    Begin MSComCtl2.DTPicker dtpEind 
@@ -503,7 +503,7 @@ Begin VB.Form newPoolForm
       _ExtentX        =   2778
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   147390465
+      Format          =   146472961
       CurrentDate     =   43932
    End
    Begin VB.Label Label1 
@@ -581,12 +581,14 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Dim cn As ADODB.Connection
+Dim adoCmd As ADODB.Command
 
 Private Sub btnClose_Click()
 Dim sqlstr As String
     Dim i As Integer
     Dim tournID As Long
     Dim msg As String
+    'set the tournament for the pool - and also globallay from now on
     thisTournament = Me.cmbTournaments.ItemData(Me.cmbTournaments.ListIndex)
     Do While nz(getTournamentInfo("tournamentID", cn), 0) = 0
       msg = "Toernooi nog niet in lokale database"
@@ -600,23 +602,48 @@ Dim sqlstr As String
         Exit Sub
       End If
     Loop
-    With Me
-        'build save string
-        sqlstr = "insert into tblPools (tournamentID, poolName, poolFormsFrom, poolFormsTill, "
-        sqlstr = sqlstr & "poolcost, prizeHighDayScore, prizeHighDayPosition, prizeLowDayPosition, "
-        sqlstr = sqlstr & "prizePercentageFirst, prizePercentageSecond, prizePercentageThird, prizePercentageFourth, "
-        sqlstr = sqlstr & "prizeLowFinalPosition) VALUES ("
-        sqlstr = sqlstr & thisTournament & ", '" & .txtPoolName & "', " & CDbl(.dtpStart) & ", " & CDbl(.dtpStart) & ", "
-        sqlstr = sqlstr & float(.txtCosts) & ", " & float(.txtHighestDayscore) & ", " & float(.txtHighestPosition) & ", " & float(.txtLowestPosition) & ", "
-        For i = 0 To 3
-            sqlstr = sqlstr & val(.txtPercentage(i)) & ", "
-        Next
-        sqlstr = sqlstr & float(.txtPrizeLastOverall) & ")"
+    sqlstr = "insert into tblPools (tournamentID, poolName, poolFormsFrom, poolFormsTill, "
+    sqlstr = sqlstr & "poolcost, prizeHighDayScore, prizeHighDayPosition, prizeLowDayPosition, "
+    sqlstr = sqlstr & "prizePercentageFirst, prizePercentageSecond, prizePercentageThird, prizePercentageFourth, "
+    sqlstr = sqlstr & "prizeLowFinalPosition) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    Set adoCmd = New ADODB.Command
+    With adoCmd
+      .ActiveConnection = cn
+      .CommandType = adCmdText
+      .CommandText = sqlstr
+      .Prepared = True
+      .Parameters.Append .CreateParameter(, adInteger, adParamInput, , thisTournament)
+      .Parameters.Append .CreateParameter(, adVarChar, adParamInput, , Me.txtPoolName)
+      .Parameters.Append .CreateParameter(, adDate, adParamInput, , Me.dtpStart)
+      .Parameters.Append .CreateParameter(, adDate, adParamInput, , Me.dtpEind)
+      .Parameters.Append .CreateParameter(, adDecimal, adParamInput, Replace(Me.txtCosts, ",", "."))
+      .Parameters.Append .CreateParameter(, adDecimal, adParamInput, Replace(Me.txtHighestDayscore, ",", "."))
+      .Parameters.Append .CreateParameter(, adDecimal, adParamInput, Replace(Me.txtHighestPosition, ",", "."))
+      .Parameters.Append .CreateParameter(, adDecimal, adParamInput, Replace(Me.txtLowestPosition, ",", "."))
+      For i = 0 To 3
+          .Parameters.Append .CreateParameter(, adInteger, adParamInput, Me.txtPercentage(i))
+      Next
+      .Parameters.Append .CreateParameter(, adCurrency, adParamInput, Me.txtPrizeLastOverall)
+      .Execute
     End With
-    cn.Execute sqlstr
-    
+'    With Me
+'        'build save string
+'        sqlstr = "insert into tblPools (tournamentID, poolName, poolFormsFrom, poolFormsTill, "
+'        sqlstr = sqlstr & "poolcost, prizeHighDayScore, prizeHighDayPosition, prizeLowDayPosition, "
+'        sqlstr = sqlstr & "prizePercentageFirst, prizePercentageSecond, prizePercentageThird, prizePercentageFourth, "
+'        sqlstr = sqlstr & "prizeLowFinalPosition) VALUES ("
+'        sqlstr = sqlstr & thisTournament & ", '" & .txtPoolName & "', " & CDbl(.dtpStart) & ", " & CDbl(.dtpStart) & ", "
+'        sqlstr = sqlstr & float(.txtCosts) & ", " & float(.txtHighestDayscore) & ", " & float(.txtHighestPosition) & ", " & float(.txtLowestPosition) & ", "
+'        For i = 0 To 3
+'            sqlstr = sqlstr & val(.txtPercentage(i)) & ", "
+'        Next
+'        sqlstr = sqlstr & float(.txtPrizeLastOverall) & ")"
+'    End With
+'    cn.Execute sqlstr
+'
+    'set the global thisPool variable
     thisPool = getLastPoolID(cn)
-    
+    'copy the default points
     copyDefaultPoints
     
     Unload Me
@@ -663,13 +690,16 @@ End Sub
 
 Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
 'tidy up
-    If Not cn Is Nothing Then
-        If (cn.State And adStateOpen) = adStateOpen Then
-            cn.Close
-        End If
-        Set cn = Nothing
-    End If
-    
+  If Not adoCmd Is Nothing Then
+    Set adoCmd = Nothing
+  End If
+  If Not cn Is Nothing Then
+      If (cn.State And adStateOpen) = adStateOpen Then
+          cn.Close
+      End If
+      Set cn = Nothing
+  End If
+        
 End Sub
 
 Private Sub txtPercentage_LostFocus(Index As Integer)

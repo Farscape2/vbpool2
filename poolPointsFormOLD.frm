@@ -84,7 +84,7 @@ Begin VB.Form frmPoolPoints
       _Version        =   393216
       Value           =   1
       BuddyControl    =   "txtPnt"
-      BuddyDispid     =   196615
+      BuddyDispid     =   196610
       OrigLeft        =   840
       OrigTop         =   480
       OrigRight       =   1095
@@ -105,7 +105,7 @@ Begin VB.Form frmPoolPoints
       _Version        =   393216
       Value           =   1
       BuddyControl    =   "txtMarge"
-      BuddyDispid     =   196617
+      BuddyDispid     =   196609
       OrigLeft        =   840
       OrigTop         =   480
       OrigRight       =   1095
@@ -244,7 +244,7 @@ End Sub
 
 Sub fillPointsGrid()
 Dim sqlstr As String
-Dim i As Integer, J As Integer
+Dim i As Integer, j As Integer
   Set rs = New ADODB.Recordset
   sqlstr = "Select a.pointTypeID as id, a.poolID as poolId, pointTypeDescription as Omschrijving,"
   sqlstr = sqlstr & "pointPointsAward as Punten,"
@@ -263,13 +263,13 @@ Dim i As Integer, J As Integer
     .cols = rs.Fields.Count
     .rows = rs.RecordCount + 1
     i = 0
-    For J = 0 To rs.Fields.Count - 1
-      .TextMatrix(i, J) = rs.Fields(J).Name
+    For j = 0 To rs.Fields.Count - 1
+      .TextMatrix(i, j) = rs.Fields(j).Name
     Next
     Do While Not rs.EOF
       i = i + 1
-      For J = 0 To rs.Fields.Count - 1
-        .TextMatrix(i, J) = rs.Fields(J).value
+      For j = 0 To rs.Fields.Count - 1
+        .TextMatrix(i, j) = rs.Fields(j).value
       Next
       rs.MoveNext
     Loop

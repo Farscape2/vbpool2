@@ -1,7 +1,8 @@
 VERSION 5.00
-Object = "{F0D2F211-CCB0-11D0-A316-00AA00688B10}#1.0#0"; "MSDATLST.OCX"
 Object = "{86CF1D34-0C5F-11D2-A9FC-0000F8754DA1}#2.0#0"; "MSCOMCT2.OCX"
 Object = "{5E9E78A0-531B-11CF-91F6-C2863C385E30}#1.0#0"; "MSFLXGRD.OCX"
+Object = "{3E5D9624-07F7-4D22-90F8-1314327F7BAC}#1.0#0"; "VBFLXGRD14.OCX"
+Object = "{0DF5D14C-08DD-4806-8BE2-B59CB924CFC9}#1.7#0"; "VBCCR16.OCX"
 Begin VB.Form frmMatches 
    Caption         =   "Wedstrijden"
    ClientHeight    =   9630
@@ -22,35 +23,53 @@ Begin VB.Form frmMatches
    ScaleMode       =   0  'User
    ScaleWidth      =   12795
    StartUpPosition =   3  'Windows Default
-   Begin MSFlexGridLib.MSFlexGrid grdMatches 
-      Height          =   7575
+   Begin VB.CommandButton btnDelete 
+      Height          =   495
+      Left            =   12240
+      Picture         =   "frmMatches.frx":0000
+      Style           =   1  'Graphical
+      TabIndex        =   25
+      Top             =   600
+      Width           =   495
+   End
+   Begin VBCCR16.ComboBoxW cmbTeamA 
+      Height          =   360
+      Left            =   3120
+      TabIndex        =   21
+      Top             =   720
+      Width           =   1815
+      _ExtentX        =   3201
+      _ExtentY        =   635
+   End
+   Begin VBFLXGRD14.VBFlexGrid grdMatches 
+      Height          =   2055
+      Left            =   240
+      TabIndex        =   20
+      Top             =   1440
+      Width           =   4815
+      _ExtentX        =   8493
+      _ExtentY        =   3625
+      BackColorBkg    =   -2147483633
+   End
+   Begin MSFlexGridLib.MSFlexGrid grdMatchesOld 
+      Height          =   1695
       Left            =   240
       TabIndex        =   8
-      Top             =   1200
-      Width           =   12375
-      _ExtentX        =   21828
-      _ExtentY        =   13361
+      Top             =   1440
+      Visible         =   0   'False
+      Width           =   3975
+      _ExtentX        =   7011
+      _ExtentY        =   2990
       _Version        =   393216
       BackColorBkg    =   -2147483633
       AllowBigSelection=   0   'False
       SelectionMode   =   1
       AllowUserResizing=   1
    End
-   Begin MSDataListLib.DataCombo cmbTeamA 
-      Height          =   360
-      Left            =   3120
-      TabIndex        =   20
-      Top             =   720
-      Width           =   1935
-      _ExtentX        =   3413
-      _ExtentY        =   635
-      _Version        =   393216
-      Text            =   ""
-   End
    Begin VB.TextBox txtOrder 
       Alignment       =   2  'Center
       Height          =   375
-      Left            =   11040
+      Left            =   10860
       TabIndex        =   17
       Top             =   720
       Width           =   420
@@ -79,12 +98,13 @@ Begin VB.Form frmMatches
       Width           =   630
    End
    Begin VB.CommandButton btnSave 
-      Caption         =   "Opslaan"
       Height          =   495
-      Left            =   11760
+      Left            =   11640
+      Picture         =   "frmMatches.frx":0442
+      Style           =   1  'Graphical
       TabIndex        =   7
       Top             =   600
-      Width           =   855
+      Width           =   495
    End
    Begin MSComCtl2.UpDown UpDnMinutes 
       Height          =   375
@@ -121,7 +141,7 @@ Begin VB.Form frmMatches
       _ExtentY        =   661
       _Version        =   393216
       CustomFormat    =   "dd-MM"
-      Format          =   146538499
+      Format          =   134545411
       CurrentDate     =   43939
    End
    Begin MSComCtl2.UpDown upDnNr 
@@ -135,7 +155,7 @@ Begin VB.Form frmMatches
       _Version        =   393216
       Value           =   1
       BuddyControl    =   "txtNr"
-      BuddyDispid     =   196613
+      BuddyDispid     =   196611
       OrigLeft        =   840
       OrigTop         =   480
       OrigRight       =   1095
@@ -148,7 +168,7 @@ Begin VB.Form frmMatches
    End
    Begin MSComCtl2.UpDown UpDnOrder 
       Height          =   375
-      Left            =   11460
+      Left            =   11280
       TabIndex        =   18
       Top             =   720
       Width           =   255
@@ -157,7 +177,7 @@ Begin VB.Form frmMatches
       _Version        =   393216
       Value           =   1
       BuddyControl    =   "txtOrder"
-      BuddyDispid     =   196611
+      BuddyDispid     =   196609
       OrigLeft        =   840
       OrigTop         =   480
       OrigRight       =   1095
@@ -168,38 +188,32 @@ Begin VB.Form frmMatches
       BuddyProperty   =   65547
       Enabled         =   -1  'True
    End
-   Begin MSDataListLib.DataCombo cmbTeamB 
+   Begin VBCCR16.ComboBoxW cmbTeamB 
       Height          =   360
-      Left            =   5040
-      TabIndex        =   21
-      Top             =   720
-      Width           =   1935
-      _ExtentX        =   3413
-      _ExtentY        =   635
-      _Version        =   393216
-      Text            =   ""
-   End
-   Begin MSDataListLib.DataCombo cmbTypes 
-      Height          =   360
-      Left            =   6960
+      Left            =   4935
       TabIndex        =   22
       Top             =   720
-      Width           =   2055
-      _ExtentX        =   3625
+      Width           =   1815
+      _ExtentX        =   3201
       _ExtentY        =   635
-      _Version        =   393216
-      Text            =   ""
    End
-   Begin MSDataListLib.DataCombo cmbLocation 
+   Begin VBCCR16.ComboBoxW cmbTypes 
       Height          =   360
-      Left            =   9000
+      Left            =   6750
       TabIndex        =   23
       Top             =   720
       Width           =   2055
       _ExtentX        =   3625
       _ExtentY        =   635
-      _Version        =   393216
-      Text            =   ""
+   End
+   Begin VBCCR16.ComboBoxW cmbLocation 
+      Height          =   360
+      Left            =   8805
+      TabIndex        =   24
+      Top             =   720
+      Width           =   2055
+      _ExtentX        =   3625
+      _ExtentY        =   635
    End
    Begin VB.Label Label2 
       Alignment       =   1  'Right Justify
@@ -336,6 +350,9 @@ Set rs = New ADODB.Recordset
   rs.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
 'fill the grid
    With Me.grdMatches
+    .Left = 240
+    .Top = 1200
+    .ZOrder
     .SelectionMode = flexSelectionByRow
     .Clear
      .rows = rs.RecordCount + 1
@@ -395,36 +412,41 @@ Sub setEditBar()
     ' Normal ComboBox.ItemData can only be long data type
     'besides it is doing strange thing when filling and getting the actual value
 
-    sqlstr = "Select teamcode, teamCode & ': ' & teamName as team "
+    sqlstr = "Select teamID, teamCode & ': ' & teamName as team "
     sqlstr = sqlstr & "from tblTournamentTeamCodes c LEFT JOIN tblTeamNames n on c.teamId = n.teamnameid"
     sqlstr = sqlstr & " Where c.tournamentid = " & thisTournament
-    rsTeams.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+    FillCombo Me.cmbTeamA, sqlstr, cn, "team", "teamID"
+    
+    'rsTeams.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
     With Me.cmbTeamA
-        Set .RowSource = rsTeams
-        .ListField = "team"
-        .BoundColumn = "teamcode"
+'        Set .RowSource = rsTeams
+'        .ListField = "team"
+'        .BoundColumn = "teamcode"
     End With
-    With Me.cmbTeamB
-        Set .RowSource = rsTeams
-        .ListField = "team"
-        .BoundColumn = "teamcode"
-    End With
+    FillCombo Me.cmbTeamB, sqlstr, cn, "team", "teamID"
+'    With Me.cmbTeamB
+'        Set .RowSource = rsTeams
+'        .ListField = "team"
+'        .BoundColumn = "teamcode"
+'    End With
     
     sqlstr = "Select matchtypeId as id , matchtypedescription as descr from tblMatchTypes"
-    rsTypes.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
-    With Me.cmbTypes
-        Set .RowSource = rsTypes
-        .ListField = "descr"
-        .BoundColumn = "id"
-    End With
+    FillCombo Me.cmbTypes, sqlstr, cn, "descr", "id"
+'    rsTypes.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
+'    With Me.cmbTypes
+'        Set .RowSource = rsTypes
+'        .ListField = "descr"
+'        .BoundColumn = "id"
+'    End With
     
     sqlstr = "Select stadiumId as id, stadiumName & '/' & stadiumLocation as name from tblStadiums order by stadiumName"
+    FillCombo Me.cmbLocation, sqlstr, cn, "name", "id"
     rsLocation.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
-    With Me.cmbLocation
-        Set .RowSource = rsLocation
-        .ListField = "name"
-        .BoundColumn = "id"
-    End With
+'    With Me.cmbLocation
+'        Set .RowSource = rsLocation
+'        .ListField = "name"
+'        .BoundColumn = "id"
+'    End With
     
     Me.dtDate = getTournamentInfo("tournamentStartDate", cn)
     Me.UpDnHours = 20
@@ -436,17 +458,36 @@ Private Sub btnClose_Click()
     Unload Me
 End Sub
 
+Private Sub btnDelete_Click()
+'delete curtrent selected match
+  Dim sqlstr As String
+  Dim curMatch As Integer
+  curMatch = Me.upDnNr
+  If Me.upDnNr > 0 Then
+    If MsgBox("Wedstrijd nr: " & Me.upDnNr & " verwijderen?", vbQuestion + vbYesNo, "Wedstrijden") = vbYes Then
+      sqlstr = "Delete from tblTournamentSchedule "
+      sqlstr = sqlstr & " WHERE tournamentID = " & thisTournament
+      sqlstr = sqlstr & " AND matchnumber = " & Me.upDnNr
+      cn.Execute sqlstr
+      If Me.upDnNr >= Me.grdMatches.rows - 2 Then curMatch = curMatch - 1
+      setMatchGrid
+      findInGrid CStr(curMatch)
+    End If
+  End If
+End Sub
+
 Private Sub btnSave_Click()
     Dim sqlstr As String
+    Dim curNum As Integer
     Set rs = New ADODB.Recordset
     'validate
     Dim msg As String
     msg = ""
     If Not IsNumeric(Me.txtNr.Text) Then msg = msg & "Geen wedstrijdnummer" & vbNewLine
-    If Me.cmbTeamA.BoundText = "" Then msg = msg & "Geen Team A" & vbNewLine
-    If Me.cmbTeamB.BoundText = "" Then msg = msg & "Geen Team B" & vbNewLine
-    If Me.cmbTypes.BoundText < 1 Then msg = msg & "Geen soort wedstrijd" & vbNewLine
-    If Me.cmbLocation.BoundText < 1 Then msg = msg & "Geen locatie" & vbNewLine
+    If Me.cmbTeamA.Text = "" Then msg = msg & "Geen Team A" & vbNewLine
+    If Me.cmbTeamB.Text = "" Then msg = msg & "Geen Team B" & vbNewLine
+    If Me.cmbTypes.Text = "" Then msg = msg & "Geen soort wedstrijd" & vbNewLine
+    If Me.cmbLocation.Text = "" Then msg = msg & "Geen locatie" & vbNewLine
     If Not IsNumeric(Me.txtOrder.Text) Then Me.UpDnOrder = Me.upDnNr
     If msg > "" Then
         msg = "FOUT: " & vbNewLine
@@ -457,7 +498,7 @@ Private Sub btnSave_Click()
     sqlstr = "Select * from tblTournamentSchedule Where tournamentId = " & thisTournament
     rs.Open sqlstr, cn, adOpenKeyset, adLockOptimistic
     rs.Find "matchNumber = " & val(Me.txtNr)
-    
+    curNum = Me.upDnNr
     If rs.EOF Then 'add new match
         rs.AddNew
     End If
@@ -466,16 +507,16 @@ Private Sub btnSave_Click()
         !matchnumber = val(Me.txtNr)
         !matchdate = CDbl(Me.dtDate)
         !matchtime = IIf(Me.txtTime = "24:00", "23:59", Me.txtTime)
-        !matchteamA = Me.cmbTeamA.BoundText
-        !matchteamb = Me.cmbTeamB.BoundText
-        !matchtype = Me.cmbTypes.BoundText
-        !matchStadiumID = Me.cmbLocation.BoundText
+        !matchteamA = Left(Me.cmbTeamA.Text, InStr(Me.cmbTeamA.Text, ":") - 1)
+        !matchteamb = Left(Me.cmbTeamB.Text, InStr(Me.cmbTeamB.Text, ":") - 1)
+        !matchtype = Me.cmbTypes.ItemData(Me.cmbTypes.ListIndex)
+        !matchStadiumId = Me.cmbLocation.ItemData(Me.cmbLocation.ListIndex)
         !matchorder = val(Me.txtOrder)
     End With
     rs.Update
     
     setMatchGrid
-    findInGrid Me.upDnNr
+    findInGrid CStr(curNum)
     DoEvents
     
 End Sub
@@ -483,12 +524,20 @@ End Sub
 Sub findInGrid(txt As String)
 'find the txt in the grdMatches
   Dim i As Integer
-  Do While Not Me.grdMatches.TextMatrix(i, 0) = txt
-    i = i + 1
-  Loop
-  If i <= Me.grdMatches.rows Then
+  Dim found As Boolean
+  For i = 0 To Me.grdMatches.rows - 1
+    If Me.grdMatches.TextMatrix(i, 0) = txt Then
+      found = True
+      Exit For
+    End If
+  Next
+  If found Then
     Me.grdMatches.row = i
   End If
+End Sub
+
+Private Sub Command1_Click()
+
 End Sub
 
 Private Sub Form_Load()
@@ -590,20 +639,48 @@ End Sub
 
 Private Sub grdMatches_RowColChange()
   Dim sqlstr As String
+  Dim i As Integer
+  Dim searchTeam As String
   Set rs = New ADODB.Recordset
   sqlstr = "Select * from tblTournamentSchedule  where tournamentID = " & thisTournament
   rs.Open sqlstr, cn, adOpenKeyset, adLockReadOnly
   rs.Find "matchNumber = " & Me.grdMatches.TextMatrix(Me.grdMatches.row, 0)
   With rs
     If Not .EOF Then
-      Me.txtNr = !matchnumber
+      Me.upDnNr = !matchnumber
+'      Me.txtNr = !matchnumber
       Me.dtDate = !matchdate
       Me.txtTime = !matchtime
-      Me.cmbTypes.BoundText = !matchtype
-      Me.cmbLocation.BoundText = !matchStadiumID
-      Me.cmbTeamA.BoundText = !matchteamA
-      Me.cmbTeamB.BoundText = !matchteamb
-      Me.txtOrder = !matchorder
+'      Me.cmbTypes.BoundText = !matchType
+      For i = 0 To Me.cmbTypes.ListCount - 1
+        If Me.cmbTypes.ItemData(i) = !matchtype Then
+          Me.cmbTypes.ListIndex = i
+          Exit For
+        End If
+      Next
+'      Me.cmbLocation.BoundText = !matchStadiumId
+      For i = 0 To Me.cmbLocation.ListCount - 1
+        If Me.cmbLocation.ItemData(i) = !matchStadiumId Then
+          Me.cmbLocation.ListIndex = i
+          Exit For
+        End If
+      Next
+'      Me.cmbTeamA.BoundText = !matchTeamA
+      For i = 0 To Me.cmbTeamA.ListCount - 1
+        If InStr(Me.cmbTeamA.List(i), !matchteamA) Then
+          Me.cmbTeamA.ListIndex = i
+          Exit For
+        End If
+      Next
+'      Me.cmbTeamB.BoundText = !matchTeamB
+      For i = 0 To Me.cmbTeamB.ListCount - 1
+        If InStr(Me.cmbTeamB.List(i), !matchteamb) Then
+          Me.cmbTeamB.ListIndex = i
+          Exit For
+        End If
+      Next
+      Me.UpDnOrder = !matchorder
+      'Me.txtOrder = !matchorder
     End If
   End With
 End Sub
